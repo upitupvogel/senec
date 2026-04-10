@@ -1,0 +1,54 @@
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" id="btnWizardEconamicGrid_close" onclick="confwizardClose();">×</button>
+    <h3>Econamic-Grid Konfigurationsassistent</h3>
+</div>
+
+<div id="pnWizardEconamicGridModalBody" class="modal-body">
+    <div id="pnWizardEconamicGridCarousel" class="carousel">
+        <!-- Carousel items -->
+        <div id="pnWizardEconamicGridCarouselInner" class="carousel-inner">
+
+            <div id="pnWizardEconamicGridCarouselPowerMeterData" class="active item">
+
+                <h4>Informationen zum Z&auml;hlpunkt</h4>
+                <div class="form-horizontal">
+                    <label class="control-label" for="inputWizardEconamicGridPowerMeterSerial">Z&auml;hlernummer</label>
+                    
+                    <div class="controls">
+                        <input type="text" id="inputWizardEconamicGridPowerMeterSerial" value="">
+                    </div>
+
+                    <table>
+                        <tr>
+                            <td>Test Zähler-Kommunikation: </td>
+                            <td><span id="inputWizardEconamicGridPowerMeterResult" > </span></td>
+                        </tr>
+                        <tr>
+                            <td>Test Relais-Kommunikation: </td>
+                            <td><span id="inputWizardEconamicGridSwitchControlTest" > </span></td>
+                        </tr>
+                    </table>
+
+                    <br><br><br><br>
+                    <input type="button" id="btnWizardEconamicGridStartTest" value="Kommunikation Prüfen!" >
+                    
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<div class="modal-footer">
+    <span id="confwizardEconamicGridStatus"></span>
+    <button class="btn btn-wizard" onclick="confwizardEconamicGridNextPage()" id="btnWizardEconamicGrid_next">Speichern</button>
+</div>
+
+<div class="hidden">
+    <p id="EG_CONTROLTEST_EG_METER_RES">0</p>
+    <p id="EG_CONTROLTEST_EG_SWITCH_RES">0</p>
+
+    <p id="EG_CONTROLPOWER_METER_INFO_RES">0</p>
+    <p id="EG_CONTROLPOWER_METER_SERIAL"></p>
+</div>
+

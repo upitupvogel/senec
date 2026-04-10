@@ -1,0 +1,110 @@
+<script type="text/javascript">
+    var pageObj;
+    function singleUpdateCB()
+    {
+        $('#ihours').val($("#RTCWEB_TIME_HOUR").html());
+        $('#iminets').val($("#RTCWEB_TIME_MIN").html());
+        $('#iday').val($("#RTCWEB_TIME_DAY").html());
+        $('#imonth').val($("#RTCWEB_TIME_MONTH").html());
+        $('#iyear').val($("#RTCWEB_TIME_YEAR").html() * 1);
+        console.log("single update");
+        console.log($("#RTCWEB_TIME_HOUR").html());
+        console.log($("#RTCWEB_TIME_SYNC").html() * 1);
+        if($("#RTCWEB_TIME_SYNC").html() * 1)
+            {
+                $('#inputFetchTimeOnline').attr("checked", true);
+                lTimeSet.disabled = true;
+            }else{
+                $('#inputFetchTimeOnline').attr("checked", false);
+            }        
+    }
+    
+    $(document).bind("page.loaded", function() {
+        $("a").unbind();
+        $("a").click(function() {
+            navigate(this.id);
+        });
+        updateLanguage();
+        IndexPageObj.singlePageRefresh();
+        singleUpdateCB();
+    }
+    );
+
+    $('#inputFetchTimeOnline').change(function() {
+        if ($('#inputFetchTimeOnline').prop('checked') == true)
+        {
+            IndexPageObj.handleCheckBoxUpdate("RTC", "WEB_TIME_SYNC", "u8_01");
+            lTimeSet.disabled = true;
+        }
+        else
+        {
+            IndexPageObj.handleCheckBoxUpdate("RTC", "WEB_TIME_SYNC", "u8_00");
+            lTimeSet.disabled = false;
+        }
+    });
+
+</script>
+
+<div class="row" style="margin-bottom: 210px;">
+    <div class="row">
+        <div class="span10 labels_title"> 
+            <div class="span1 offset3"><p class="text-center" id="lTimeHour"></p></div>
+            <div class="span1 offset1"><p class="text-center" id="lTimeMinute"></p></div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="span3">       
+            <p style="font-weight:700;font-family:arial;font-size:11px; margin-top: 5px;margin-bottom: 5px; margin-left: 2px;" id="lTimeTime"></p>
+        </div>             
+        <div class="span7" style="background: var(--sub-color);">       
+            <div style="margin-top: 4px;">  
+                <div class="span1"><p><input type="text" class="span1" id="ihours" style="margin-left: 4px; height: 11px;font-size: 11px;line-height: 11px;"></p></div>
+                <div class="span1 offset1"><p><input type="text" class="span1"  id="iminets" style="height: 11px;font-size: 11px;line-height: 11px;"></p></div>
+            </div>
+        </div> 
+    </div>
+
+    <div class="row">
+        <div class="span10 labels_title">
+            <div class="span1 offset3"><p class="text-center" id="lTimeDay"></p></div>
+            <div class="span1 offset1"><p class="text-center" id="lTimeMonth"></p></div>
+            <div class="span1 offset1"><p class="text-center" id="lTimeYear"></p></div>
+        </div>
+    </div>
+
+    <div class="row"> 
+        <div class="span3">       
+            <p style="font-weight:700;font-family:arial;font-size:11px; margin-top: 5px;margin-bottom: 5px; margin-left: 2px;" id="lTimeDate"></p>
+        </div> 
+        <div class="span7" style="background: var(--sub-color);">       
+            <div style="margin-top: 4px;">    
+                <div class="span1 "><p><input type="text" class="span1" id="iday" style="margin-left: 4px; height: 11px; font-size: 11px;line-height: 11px;"></p></div>
+                <div class="span1 offset1"><p><input type="text" class="span1" id="imonth" style=" height: 11px; font-size: 11px;line-height: 11px;"></p></div>
+                <div class="span1 offset1"><p><input type="text" class="span1" id="iyear" style="margin-left: -4px; height: 11px; font-size: 11px;line-height: 11px;"></p></div>
+            </div> 
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="span7 offset3" style="background: var(--sub-color);">
+            <p><button class="btn btn-mini" type="button" style="margin-left: 4px;" onclick='setupTime($("#ihours").val(),
+                                                                                            $("#iminets").val(),
+                                                                                            $("#iday").val(),
+                                                                                            $("#imonth").val(),
+                                                                                            $("#iyear").val(),
+                                                                                            IndexPageObj);' id="lTimeSet"></button></p>
+        </div>
+    </div> 
+    
+    <div class="row"> 
+        <div class="span3">
+            <input id="inputFetchTimeOnline" type="checkbox">
+            <span id="lTimeFetchOnline" style="font-weight:700;font-family:arial;font-size:11px; margin-top: 5px;margin-bottom: 5px; margin-left: 5px;"></span> 
+        </div> 
+    </div>
+</div>
+
+<div class="hide">
+    <p id="RTCWEB_TIME_SYNC"> </p>
+</div>

@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>SENEC</title>
+
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+		<meta http-equiv="cache-control" content="max-age=0" />
+		<meta http-equiv="cache-control" content="no-cache" />
+		<meta http-equiv="expires" content="0" />
+		<meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
+		<meta http-equiv="pragma" content="no-cache" />
+
+        <link rel="icon" href="/img/favicon.ico" type="image/x-icon" />
+
+        <link href="./css/bootstrap.min.css" rel="stylesheet">
+        <link href="./css/base.css" rel="stylesheet">
+        <link href="./css/senec.css" rel="stylesheet">
+        <link href="./css/root.css" rel="stylesheet">
+        <link href="./css/image_clip.css" rel="stylesheet">
+
+        <script src="./js/jquery-3.2.1.min.js" type="text/javascript"></script>
+        <script src="./js/senec.js" type="text/javascript"></script>
+        <script src="./js/DE-de.js" type="text/javascript"></script>
+        <script src="./js/lang_selector.js" type="text/javascript"></script>
+        <script src="./js/modal.js" type="text/javascript"></script>
+        <script src="./js/modal.econamicgrid.js" type="text/javascript"></script>
+        <script src="./js/modal.cei.js" type="text/javascript"></script>
+        <script src="./js/modal.au.js" type="text/javascript"></script>
+        <script src="./js/modal.4105.2018.js" type="text/javascript"></script>
+        <script src="./js/modal.4105.2019.js" type="text/javascript"></script>
+        <script src="./js/bootstrap.min.js" type="text/javascript"></script>
+        <script src="./js/modal.bmz.js" type="text/javascript"></script>
+        <script src="./js/modal.samsung.js" type="text/javascript"></script>
+        <script src="./js/modal.pv.js" type="text/javascript"></script>
+        <script src="./js/bdcStates.js" type="text/javascript"></script>
+        <script src="./js/senec_values.js" type="text/javascript"></script>
+
+        <script type="text/javascript">
+        /** Prevent JSHint warning about supposingly unused functions. */
+        /* exported LoaderShow, navbarNavigate, get_navigate */
+
+            var link = "";
+            var btn_id_1 = "";
+
+            function LoaderShow() {
+                setTimeout(showPage, 1000);
+            }
+
+            function showPage() {
+              document.getElementById("loader").style.display = "none";
+              $('.mainDiv').removeClass('hidden').show();
+            }
+
+            function menuNavigation()
+            {
+                this.main = 0;
+                this.sub = 0;
+                this.chartView = 0;
+            }
+
+            var navbarNavigate = new menuNavigation();
+
+            function get_navigate()
+            {
+                return btn_id_1;
+            }
+
+            function navigate(btn_id)
+            {
+                btn_id_1 = btn_id;
+                link = "";
+                $(document).trigger("page.unload");
+                $("#content").empty();
+                $(document).unbind("page.unload");
+                $(document).unbind("page.loaded");
+                $('#systemState').empty();
+
+                switch (btn_id)
+                {
+                    case "lLogo":
+                    case "lStatus":
+                        hideSubMenu();
+                        link = "./stat0.html";
+                        $(".navbar-button").removeClass('navbar_active');
+                        $(".navbar-button").addClass('navbar_normal');
+                        $('#lStatus').removeClass('navbar_normal');
+                        $('#lStatus').addClass('navbar_active');
+                        break;
+                    case "lInformation":
+                        hideSubMenu();
+                        link = "./konfInf.html";
+                        $(".navbar-button").removeClass('navbar_active');
+                        $(".navbar-button").addClass('navbar_normal');
+                        $('#lInformation').removeClass('navbar_normal');
+                        $('#lInformation').addClass('navbar_active');
+                        break;
+                    case "lSetup":
+                        $(".navbar-button").removeClass('navbar_active');
+                        $(".navbar-button").addClass('navbar_normal');
+                        $('#lSetup').removeClass('navbar_normal');
+                        $('#lSetup').addClass('navbar_active');
+                        /* falls through */
+                    case "btnKonfiguration_Setup" :
+                        showSubMenu();
+                        initSubMenuKonfiguraton("#btnKonfiguration_Setup");
+                        if (isLoggedIn())
+                            link = "./ksetup1.html";
+                        else
+                            link = "./login.html";
+                        break;
+
+                    // Sub buttons
+                    case "btnKonfiguration_Sockets":
+                        showSubMenu();
+                        initSubMenuKonfiguraton("#btnKonfiguration_Sockets");
+                        if(htmlAsNumber("#FEATURESSOCKETS") == 1)
+                            link = "./ksockets.html";
+                        else
+                            link = "./knotactive.html";
+                        break;
+                    case "btnKonfiguration_AccuService":
+                        showSubMenu();
+                        initSubMenuKonfiguraton("#btnKonfiguration_AccuService");
+                        link = "./Konfiguration.AccuService.html";
+                        break;
+                    case "btnKonfiguration_AccuTest":
+                        showSubMenu();
+                        initSubMenuKonfiguraton('#btnKonfiguration_AccuTest');
+                        if (isLoggedIn())
+                            link = "./AccuTest.html";
+                        else
+                            link = "./login.html";
+                        break;
+                    case "btnKonfiguration_PowerUnit":
+                        showSubMenu();
+                        initSubMenuKonfiguraton('#btnKonfiguration_PowerUnit');
+                        if(htmlAsNumber("#FEATURESHEAT") == 1)
+                            link = "./power_unit_info.html";
+                        else
+                            link = "./knotactive.html";
+                        break;
+                    case "btnKonfiguration_Wallbox":
+                        showSubMenu();
+                        initSubMenuKonfiguraton('#btnKonfiguration_Wallbox');
+                        if(htmlAsNumber("#FEATURESCAR") == 1)
+                            link = "./wallbox_info.html";
+                        else
+                            link = "./knotactive.html";
+                        break;
+                    case "btnKonfiguration_PeakShaving":
+                        showSubMenu();
+                        initSubMenuKonfiguraton('#btnKonfiguration_PeakShaving');
+                        if(htmlAsNumber("#FEATURESPEAKSHAVING") == 1)
+                            link = "./kpeakshaving.html";
+                        else
+                            link = "./knotactive.html";
+                        break;
+
+                    case "btnKonfiguration_X50":
+                        showSubMenu();
+                        initSubMenuKonfiguraton("#btnKonfiguration_X50");
+                        if (isSuperUser())
+                            link = "./kconnx50.html";
+                        else
+                            link = "./login.html";
+                        break;
+
+                    case "btnKonfiguration_VarMon":
+                        window.open('vars.html','_blank');
+                        link = "./ksetup1.html";
+                        break;
+
+                    case "btnKonfiguration_Display":
+                        window.open('display.html','Display','directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,width=500px,height=240px');
+                        link = "./ksetup1.html";
+                        break;
+                    case "btnKonfiguration_Selftest":
+                        showSubMenu();
+                        initSubMenuKonfiguraton('#btnKonfiguration_Selftest');
+                        if (isLoggedIn())
+                            link = "./selftest.html";
+                        else
+                            link = "./login.html";
+                        break;
+                    default:
+                        console.log('Auswahl Fehler: ' + btn_id);
+                        link = "";
+                }
+
+                if (link != "") {
+                    $.ajax({
+                        type: "GET",
+                        contentType: "application/x-www-form-urlencoded; charset=iso-8859-1",
+                        dataType: "html",
+                        url: link,
+                        success: function(html) {
+                            $("#content").empty();
+                            $("#content").html(html);
+                            $(document).trigger("page.loaded");
+
+                        }
+                    });
+                }
+            }
+
+            $(document).ready(function() {
+                /* Link listener main menu buttons */
+                $(".navbar-button").click(function() {
+                    navigate(this.id);
+                });
+                /* Link listener normal links */
+                $("a").click(function() {
+                    navigate(this.id);
+                });
+
+                $('#modalWindow').modal({keyboard: false, backdrop: 'static', show: false});
+                navigate("lStatus");
+                $('#systemState').tooltip({content: ""});
+
+                //modal events
+                modal_setState(0);
+
+                $("#modalWindow").on('show', function() {
+                    console.log("modal show");
+                    modal_setState(1);
+                });
+                $("#modalWindow").on('shown', function() {
+                    console.log("modal shown");
+                    modal_setState(2);
+                });
+                $("#modalWindow").on('hide', function() {
+                    console.log("modal hide");
+                    modal_setState(3);
+                });
+                $("#modalWindow").on('hidden', function() {
+                    console.log("modal hidden");
+                    modal_setState(4);
+                });
+            });
+
+            function hideSubMenu()
+            {
+                $("#header").css({"margin-bottom": "30px"});
+                $("#subnavbar_main").removeClass();
+
+                $("#subnavbar_main").empty();
+            }
+
+            function showSubMenu()
+            {
+                $("#header").css({"margin-bottom": "5px"});
+                $("#subnavbar_main").addClass('subnavbar_main');
+            }
+
+            function initSubMenuKonfiguraton(btn)
+            {
+                $("#subnavbar_main").empty();
+
+                var subMenuItems = [];
+                var currentItemCount = 0;
+                /* Setup Page */
+                subMenuItems[currentItemCount++] = '<div class="span2 text-center navbar-button submenu-button" id="btnKonfiguration_Setup"><p>' + lng["lSetup"] + '</p></div>';
+                /* Not steca and only germany */
+                if(htmlAsNumber('#isSteca') == 0 && htmlAsNumber("#FACTORYCOUNTRY") == 0)
+                {   /* Switchable contacts/sockets */
+                	subMenuItems[currentItemCount++] = '<div class="span2 text-center navbar-button submenu-button" id="btnKonfiguration_Sockets"><p>' + lng["lPowerSockets"] + '</p></div>';
+                }
+                /* Only Germany */
+                if(htmlAsNumber("#FACTORYCOUNTRY") == 0)
+                {   /* Power Unit */
+                    subMenuItems[currentItemCount++] = '<div class="span2 text-center navbar-button submenu-button" id="btnKonfiguration_PowerUnit"><p>' + lng["lHeatingRod"] + '</p></div>';
+                }
+                /* Wallbox */
+                subMenuItems[currentItemCount++] = '<div class="span2 text-center navbar-button submenu-button" id="btnKonfiguration_Wallbox"><p>' + 'WALLBOX' + '</p></div>';
+                /* Battery maintenance */
+                subMenuItems[currentItemCount++] = '<div class="span2 text-center navbar-button submenu-button" id="btnKonfiguration_AccuService"><p>' + lng["lBatteryMaintenance"] + '</p></div>';
+                /* Only italy and steca */
+                if (htmlAsNumber("#FACTORYCOUNTRY") == 1 && htmlAsNumber('#isSteca'))
+               	{   /* CEI selftest */
+                	subMenuItems[currentItemCount++] = '<div class="span2 text-center navbar-button submenu-button" id="btnKonfiguration_Selftest"><p>' + lng["lSelftest"] + '</p></div>';
+               	}
+                /* All systems until V2.1 */
+                if (htmlAsNumber("#FACTORYSYS_TYPE") < 15)
+                {   /* Start&Test battery */
+                    subMenuItems[currentItemCount++] = '<div class="span2 text-center navbar-button submenu-button" id="btnKonfiguration_AccuTest"><p>' + lng["lStartTest"] + '</p></div>';
+                }
+
+                /* Create strings */
+                /* First row with horizontal line*/
+                var SubMenuKonfiguraton_string = '<div class="row"><div class="span8" style="height: 2px;background-color:var(--main-color); margin-bottom: 5px;"></div></div>';
+                SubMenuKonfiguraton_string += '<div class="row">';
+                for(var idx = 0; idx < currentItemCount; idx++)
+               	{
+                	SubMenuKonfiguraton_string += subMenuItems[idx];
+                	if(idx == 3)
+                	{
+                		break;
+                	}
+               	}
+                SubMenuKonfiguraton_string += '</div>';
+
+                /* Second row */
+                var SubSecondRow_string = '<div class="row">';
+                if(currentItemCount > 3)
+               	{
+                    for(idx = 4; idx < currentItemCount; idx++)
+                    {
+                    	SubSecondRow_string += subMenuItems[idx];
+                        if(idx == 7)
+                        {
+                            break;
+                        }
+                    }
+               	}
+                SubSecondRow_string += '</div>';
+
+                $('#subnavbar_main').append(SubMenuKonfiguraton_string);
+                $('#subnavbar_main').append(SubSecondRow_string);
+
+                /* only show VARMON, CONNECTOR X50 and DISPLAY submenu if user is admin */
+                if (isSuperUser())
+                {
+                    var SubThirdRow_string = '<div class="row" style="background-color: #ffd9d9;">';
+
+                    SubThirdRow_string += '<div class="span2 text-center navbar-button submenu-button" id="btnKonfiguration_VarMon"><p>VARMON</p></div>';
+                    SubThirdRow_string += '<div class="span2 text-center navbar-button submenu-button" id="btnKonfiguration_X50"><p>CONNECTOR X50</p></div>';
+                    SubThirdRow_string += '<div class="span2 text-center navbar-button submenu-button" id="btnKonfiguration_Display"><p>DISPLAY</p></div>';
+                    SubThirdRow_string += '</div>';
+
+                    $('#subnavbar_main').append(SubThirdRow_string);
+                }
+
+                $(btn).css({"color": "var(--main-color)", "font-weight": "bolder"});
+
+                /* Link listener sub menu button buttons */
+                $(".submenu-button").unbind('click');
+                $(".submenu-button").bind("click", (function() {
+                    navigate(this.id);
+                }));
+            }
+            document.onkeydown = function(event) {
+                $(document).trigger("button.click", event.keyCode);
+            };
+        </script>
+    </head>
+    <body onload="LoaderShow()" style="margin-top:10px;">
+        <div id="loader"></div>
+        <div class="mainDiv hidden container">
+            <div class="row"><div class="span10" style="border-width:12px; border: 1px solid #888;border-radius:3px;">
+                    <div class="row">
+                        <div class="span10">
+                            <div class="row">
+                                <div class="span2" id="logo" ><a  href="#" id="lLogo"><img src="./img/Header_Logo.gif" style="height: 32px;width: 130px; margin-left:5px; margin-top:20px"></a>  </div>
+                                <div class="span8">
+                                    <div class="row" >
+                                        <div class="span2 text-center navbar_active navbar-button" style="height: 30px;" id="lStatus"><p></p></div>
+                                        <div class="span2 text-center navbar_normal navbar-button" style="height: 30px;" id="lInformation"><p></p></div>
+                                        <div class="span2 text-center navbar_normal navbar-button" style="height: 30px;" id="lSetup"><p></p></div>
+                                    </div>
+                                    <!--sub menu-->
+                                    <div class="row">
+                                        <div class="span8" >
+                                            <div id="subnavbar_main"></div>
+                                        </div>
+                                    </div>
+                                    <!--sub menu ende-->
+                                    <div class="row"  id="header">
+                                        <div id="hCategoryHeader" class="hidden span8 category-header">
+                                            <div class="row">
+                                                <div class= "span3" >
+                                                    <h5 id="hCategoryName" class="header-category-name"></h5>
+                                                </div>
+
+                                                <div class= "span5" > <p class="text-right header-system-state" id="systemState" ></p> </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="span10" id="content"></div>
+                    </div>
+                    <div class="row">
+                        <div class= "span3">
+                            <div style="margin-left: 2px;" id="loginState_value">  </div>
+                        </div>
+                        <div class= "span3 offset4">
+                            <p id="footer_time_string" class="text-right" style="font-size: 12;font-weight:700; margin-right: 2px">xx.xx.xxxx xx:xx</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="hide">
+            <p id="RTCWEB_TIME"></p>
+            <p id="RTCWEB_TIME_SEC"></p>
+            <p id="RTCWEB_TIME_MIN"></p>
+            <p id="RTCWEB_TIME_HOUR"></p>
+            <p id="RTCWEB_TIME_DAY"></p>
+            <p id="RTCWEB_TIME_MONTH"></p>
+            <p id="RTCWEB_TIME_YEAR"></p>
+            <p id="RTCWEB_TIME_SYNC"></p>
+            <p id="LOGUSER_LEVEL">99</p> /* Not initialized */
+            <p id="LOGLOG_IN_BUTT"></p>
+            <p id="LOGLOG_OUT_BUTT"></p>
+            <p id="ENERGYSTAT_STATE"></p>
+            <!-- init with 0  -->
+            <p id="isLithium">0</p>
+            <p id="MCU_Type">0</p>
+            <p id="isSteca">0</p>
+            <p id="WIZARDGUI_LANG"></p>
+            <p id="LOGUSERNAME"></p>
+
+            <p id="FACTORYSYS_TYPE"></p>
+            <p id="FACTORYCOUNTRY"></p>
+            <p id="FACTORYDEVICE_ID"></p>
+<!--             Feature Objects -->
+            <p id="FEATURESISLAND"></p>
+            <p id="FEATURESISLAND_PRO"></p>
+            <p id="FEATURESSOCKETS"></p>
+            <p id="FEATURESHEAT"></p>
+            <p id="FEATURESPEAKSHAVING"></p>
+            <p id="FEATURESECOGRIDREADY"></p>
+            <p id="FEATURESCLOUDREADY"></p>
+            <p id="FEATURESCAR"></p>
+            <p id="FEATURESSHKW"></p>
+            <p id="FEATURESSGREADY"></p>
+
+            <p id="BMSMODULES_CONFIGURED"></p>
+            <p id="BMSMODULE_COUNT"></p>
+            <p id="WIZARDCONFIG_LOADED">99</p> /* Not initialized *
+
+            <p id="fullWizard">0</p>
+
+            <p id="updateDeclined">0</p>
+            <p id="bmzclosed">0</p>
+            <p id="samsungclosed">0</p>
+            <p id="WIZARDSETUP_WALLBOX_MAX_TOTAL_CURRENT_BY_GRID"></p>
+            <p id="WIZARDSETUP_WALLBOX_SERIAL0"></p>
+            <p id="WIZARDSETUP_WALLBOX_SERIAL1"></p>
+            <p id="WIZARDSETUP_WALLBOX_SERIAL2"></p>
+            <p id="WIZARDSETUP_WALLBOX_SERIAL3"></p>
+        </div>
+
+        <div id="modalWindow" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true"></div>
+    </body>
+</html>

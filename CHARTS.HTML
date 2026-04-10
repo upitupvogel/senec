@@ -1,0 +1,1275 @@
+
+<script type="text/javascript">
+    var autarkyCahrt = 0;
+    var statisticsToday = {chartData: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, 0], [8, 0], [9, 0], [10, 0], [11, 0], [12, 0], [13, 0], [14, 0], [15, 0], [16, 0], [17, 0], [18, 0], [19, 0], [20, 0], [21, 0], [22, 0], [23, 0]],xaxisTicks:[], maxValue: 0, totalPower: 0};
+    var statisticsYesterday = {chartData: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, 0], [8, 0], [9, 0], [10, 0], [11, 0], [12, 0], [13, 0], [14, 0], [15, 0], [16, 0], [17, 0], [18, 0], [19, 0], [20, 0], [21, 0], [22, 0], [23, 0]],xaxisTicks:[], maxValue: 0, totalPower: 0};
+    var statisticsWeek = {chartData: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0]],xaxisTicks:[], maxValue: 0, totalPower: 0};
+    var statisticsMonth = {chartData: [[0, 0],[1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, 0], [8, 0], [9, 0], [10, 0], [11, 0], [12, 0], [13, 0], [14, 0], [15, 0], [16, 0], [17, 0], [18, 0], [19, 0], [20, 0], [21, 0], [22, 0], [23, 0], [24, 0], [25, 0], [26, 0], [27, 0], [28, 0], [29, 0], [30, 0]],xaxisTicks:[], maxValue: 0, totalPower: 0};
+    var pageObj;
+    var date = false;//"2014-05-06";
+
+
+    function updateChartsData()
+    {
+        date = ($("#RTCWEB_TIME_YEAR").html() * 1) + "-" + $("#RTCWEB_TIME_MONTH").html() + "-" + $("#RTCWEB_TIME_DAY").html();
+    }
+    
+    function obj_init() {
+        //create parent json object
+        pageObj = new senecPage(updateChartsData());
+        //add child object to parent object
+        pageObj.add_json_object("STATISTIC");
+        pageObj.add_property_to_object("STATISTIC", "STAT_YEAR_START", "");
+        pageObj.add_property_to_object("STATISTIC", "STAT_YEAR_E_PV_ARR", "");
+        pageObj.add_property_to_object("STATISTIC", "STAT_YEAR_E_HOUSE_ARR", "");
+        pageObj.add_property_to_object("STATISTIC", "STAT_YEAR_E_GRID_IMP_ARR", "");
+        pageObj.add_property_to_object("STATISTIC", "STAT_YEAR_E_GRID_EXP_ARR", "");
+        pageObj.add_property_to_object("STATISTIC", "STAT_YEAR_E_BAT_CHR_ARR", "");
+        pageObj.add_property_to_object("STATISTIC", "STAT_YEAR_E_BAT_DIS_ARR", "");
+        pageObj.add_property_to_object("STATISTIC", "STAT_YEAR_E_PU0_ARR", "");
+        pageObj.add_property_to_object("STATISTIC", "STAT_YEAR_E_PU1_ARR", "");
+        pageObj.add_property_to_object("STATISTIC", "STAT_YEAR_E_PU2_ARR", "");
+        pageObj.add_property_to_object("STATISTIC", "STAT_YEAR_E_PU3_ARR", "");
+        pageObj.add_property_to_object("STATISTIC", "STAT_YEAR_E_PU4_ARR", "");
+        pageObj.add_property_to_object("STATISTIC", "STAT_YEAR_E_PU5_ARR", "");
+        
+        pageObj.add_json_object("PWR_UNIT");
+        pageObj.add_property_to_object("PWR_UNIT", "TYPE", "");
+        // page refresh
+        pageObj.singlePageRefresh()
+    }
+    $(document).bind("page.loaded", function() {
+        $('#hCategoryName').empty();
+        $('#hCategoryName').text(lng[navbarNavigate.sub] + " " + lng[navbarNavigate.chartView]);
+        $('#hCategoryHeader').removeClass('hidden').show();
+
+        Chart_init(navbarNavigate.chartView);
+        obj_init();
+        
+        // Show only activated PU devices
+        for (c = 0; c < 6; c++) 
+        {
+            // Check if activated
+            if($('#PWR_UNITTYPE' + c).html() * 1)
+            {
+              $('#btnPU' + c).removeClass("d-hide").show();
+            }
+        }
+            
+        if (date) {
+            if (navbarNavigate.chartView == "TODAY")
+            {
+                $("#chartdiv").html(lng["lChartsWait"]);
+                var statToday = getStatisticFileAsArray(date, 0);
+                if (navbarNavigate.sub == "Status_gridExport")
+                {
+                    console.log("berechnung von Status_gridExport max 24 Werte");
+                    processDayData(statToday, 2, statisticsToday);
+                }
+                if (navbarNavigate.sub == "Status_gridImport")
+                {
+                    console.log("berechnung von Status_gridImport max 24 Werte");
+                    processDayData(statToday, 1, statisticsToday);
+                }
+                if (navbarNavigate.sub == "Status_houseConsumption")
+                {
+                    console.log("berechnung von Status_houseConsumption max 24 Werte");
+                    processDayData(statToday, 3, statisticsToday);
+                }
+                if (navbarNavigate.sub == "Status_batteryCharge")
+                {
+                    console.log("berechnung von Status_batteryCharge max 24 Werte");
+                    processDayData(statToday, 4, statisticsToday);
+                }
+                if (navbarNavigate.sub == "Status_batteryDischarge")
+                {
+                    console.log("berechnung von Status_batteryDischarge max 24 Werte");
+                    processDayData(statToday, 5, statisticsToday);
+                }
+                if (navbarNavigate.sub == "Status_pvGenerated")
+                {
+                    console.log("berechnung von Status_pvGenerated max 24 Werte");
+                    processDayData(statToday, 6, statisticsToday);
+                }
+                if (navbarNavigate.sub == "Status_PU0")
+                {
+                    console.log("berechnung von Status_PU1 max 24 Werte");
+                    processDayData(statToday, 7, statisticsToday);
+                }
+                if (navbarNavigate.sub == "Status_PU1")
+                {
+                    console.log("berechnung von Status_PU2 max 24 Werte");
+                    processDayData(statToday, 8, statisticsToday);
+                }
+                if (navbarNavigate.sub == "Status_PU2")
+                {
+                    console.log("berechnung von Status_PU3 max 24 Werte");
+                    processDayData(statToday, 9, statisticsToday);
+                }
+                if (navbarNavigate.sub == "Status_PU3")
+                {
+                    console.log("berechnung von Status_PU4 max 24 Werte");
+                    processDayData(statToday, 10, statisticsToday);
+                }
+                if (navbarNavigate.sub == "Status_PU4")
+                {
+                    console.log("berechnung von Status_PU5 max 24 Werte");
+                    processDayData(statToday, 11, statisticsToday);
+                }
+                if (navbarNavigate.sub == "Status_PU5")
+                {
+                    console.log("berechnung von Status_PU6 max 24 Werte");
+                    processDayData(statToday, 12, statisticsToday);
+                }
+                Chart_init("TODAY");
+                $("#systemState").text(roundValue(statisticsToday.totalPower, 2) + " KWh");//roundValue(
+            }
+            if (navbarNavigate.chartView == "YESTERDAY")
+            {
+                $("#chartdiv").html(lng["lChartsWait"]);
+                var statYesterday = getStatisticFileAsArray(date, 1);
+                if (navbarNavigate.sub == "Status_gridExport")
+                {
+                    console.log("berechnung von Status_gridExport max 24 Werte Yesterday");
+                    processDayData(statYesterday, 2, statisticsYesterday);
+                }
+                if (navbarNavigate.sub == "Status_gridImport")
+                {
+                    console.log("berechnung von Status_gridImport max 24 Werte Yesterday");
+                    processDayData(statYesterday, 1, statisticsYesterday);
+                }
+                if (navbarNavigate.sub == "Status_houseConsumption")
+                {
+                    console.log("berechnung von Status_houseConsumption max 24 Werte Yesterday");
+                    processDayData(statYesterday, 3, statisticsYesterday);
+                }
+                if (navbarNavigate.sub == "Status_batteryCharge")
+                {
+                    console.log("berechnung von Status_batteryCharge max 24 Werte Yesterday");
+                    processDayData(statYesterday, 4, statisticsYesterday);
+                }
+                if (navbarNavigate.sub == "Status_batteryDischarge")
+                {
+                    console.log("berechnung von Status_batteryDischarge max 24 Werte Yesterday");
+                    processDayData(statYesterday, 5, statisticsYesterday);
+                }
+                if (navbarNavigate.sub == "Status_pvGenerated")
+                {
+                    console.log("berechnung von Status_pvGenerated max 24 Werte Yesterday");
+                    processDayData(statYesterday, 6, statisticsYesterday);
+                }
+                if (navbarNavigate.sub == "Status_PU0")
+                {
+                    console.log("berechnung von Status_PU1 max 24 Werte Yesterday");
+                    processDayData(statYesterday, 7, statisticsYesterday);
+                }
+                if (navbarNavigate.sub == "Status_PU1")
+                {
+                    console.log("berechnung von Status_PU2 max 24 Werte Yesterday");
+                    processDayData(statYesterday, 8, statisticsYesterday);
+                }
+                if (navbarNavigate.sub == "Status_PU2")
+                {
+                    console.log("berechnung von Status_PU3 max 24 Werte Yesterday");
+                    processDayData(statYesterday, 9, statisticsYesterday);
+                }
+                if (navbarNavigate.sub == "Status_PU3")
+                {
+                    console.log("berechnung von Status_PU4 max 24 Werte Yesterday");
+                    processDayData(statYesterday, 10, statisticsYesterday);
+                }
+                if (navbarNavigate.sub == "Status_PU4")
+                {
+                    console.log("berechnung von Status_PU5 max 24 Werte Yesterday");
+                    processDayData(statYesterday, 11, statisticsYesterday);
+                }
+                if (navbarNavigate.sub == "Status_PU5")
+                {
+                    console.log("berechnung von Status_PU6 max 24 Werte Yesterday");
+                    processDayData(statYesterday, 12, statisticsYesterday);
+                }
+                Chart_init("YESTERDAY");
+                $("#systemState").text(roundValue(statisticsYesterday.totalPower, 2) + " KWh");
+            }
+            if (navbarNavigate.chartView == "WEEK")
+            {
+                $("#chartdiv").html(lng["lChartsWait"]);
+                var statWeek = getStatisticFileAsArray(date, 7);
+                if (navbarNavigate.sub == "Status_gridExport")
+                {
+                    processWeekData(statWeek, 2, statisticsWeek);
+                }
+                if (navbarNavigate.sub == "Status_gridImport")
+                {
+                    processWeekData(statWeek, 1, statisticsWeek);
+                }
+                if (navbarNavigate.sub == "Status_houseConsumption")
+                {
+                    processWeekData(statWeek, 3, statisticsWeek);
+                }
+                if (navbarNavigate.sub == "Status_batteryCharge")
+                {
+                    processWeekData(statWeek, 4, statisticsWeek);
+                }
+                if (navbarNavigate.sub == "Status_batteryDischarge")
+                {
+                    processWeekData(statWeek, 5, statisticsWeek);
+                }
+                if (navbarNavigate.sub == "Status_pvGenerated")
+                {
+                    processWeekData(statWeek, 6, statisticsWeek);
+                }
+                if (navbarNavigate.sub == "Status_PU0")
+                {
+                    processWeekData(statWeek, 7, statisticsWeek);
+                }
+                if (navbarNavigate.sub == "Status_PU1")
+                {
+                    processWeekData(statWeek, 8, statisticsWeek);
+                }
+                if (navbarNavigate.sub == "Status_PU2")
+                {
+                    processWeekData(statWeek, 9, statisticsWeek);
+                }
+                if (navbarNavigate.sub == "Status_PU3")
+                {
+                    processWeekData(statWeek, 10, statisticsWeek);
+                }
+                if (navbarNavigate.sub == "Status_PU4")
+                {
+                    processWeekData(statWeek, 11, statisticsWeek);
+                }
+                if (navbarNavigate.sub == "Status_PU5")
+                {
+                    processWeekData(statWeek, 12, statisticsWeek);
+                }
+                Chart_init("WEEK");
+                $("#systemState").text(roundValue(statisticsWeek.totalPower, 2) + " KWh");
+            }
+            if (navbarNavigate.chartView == "MONTH")
+            {
+                $("#chartdiv").html(lng["lChartsWait"]);
+                var statMonth = getStatisticFileAsArray(date, 31);
+                if (navbarNavigate.sub == "Status_gridExport")
+                {
+                    processWeekData(statMonth, 2, statisticsMonth);
+                }
+                if (navbarNavigate.sub == "Status_gridImport")
+                {
+                    processWeekData(statMonth, 1, statisticsMonth);
+                }
+                if (navbarNavigate.sub == "Status_houseConsumption")
+                {
+                    processWeekData(statMonth, 3, statisticsMonth);
+                }
+                if (navbarNavigate.sub == "Status_batteryCharge")
+                {
+                    processWeekData(statMonth, 4, statisticsMonth);
+                }
+                if (navbarNavigate.sub == "Status_batteryDischarge")
+                {
+                    processWeekData(statMonth, 5, statisticsMonth);
+                }
+                if (navbarNavigate.sub == "Status_pvGenerated")
+                {
+                    processWeekData(statMonth, 6, statisticsMonth);
+                }
+                if (navbarNavigate.sub == "Status_PU0")
+                {
+                    processWeekData(statMonth, 7, statisticsMonth);
+                }
+                if (navbarNavigate.sub == "Status_PU1")
+                {
+                    processWeekData(statMonth, 8, statisticsMonth);
+                }
+                if (navbarNavigate.sub == "Status_PU2")
+                {
+                    processWeekData(statMonth, 9, statisticsMonth);
+                }
+                if (navbarNavigate.sub == "Status_PU3")
+                {
+                    processWeekData(statMonth, 10, statisticsMonth);
+                }
+                if (navbarNavigate.sub == "Status_PU4")
+                {
+                    processWeekData(statMonth, 11, statisticsMonth);
+                }
+                if (navbarNavigate.sub == "Status_PU5")
+                {
+                    processWeekData(statMonth, 12, statisticsMonth);
+                }
+                Chart_init("MONTH");
+                $("#systemState").text(roundValue(statisticsMonth.totalPower, 2) + " KWh");
+            }
+
+            if (navbarNavigate.chartView == "OVERALL")
+            {
+                var statToday = getStatisticFileAsArray(date, 0);
+                var statMonth = getStatisticFileAsArray(date, 31);
+                var year_now = $("#RTCWEB_TIME_YEAR").html() * 1;
+                var year_index = (year_now - $("#STATISTICSTAT_YEAR_START").html() * 1) + 1;
+                var daytotal = 0;
+                var monthtotal = 0;
+                var weektotal = 0;
+                var yesterday_index=(statisticsMonth.chartData.length-1);
+                if (navbarNavigate.sub == "Status_gridExport")
+                {
+                    daytotal = 0;
+                    monthtotal = 0;
+                    weektotal = 0;
+                    var yeartotal = $("#STATISTICSTAT_YEAR_E_GRID_EXP_ARR" + year_index).html();
+                    var systemtotal = (yeartotal * 1) + $("#STATISTICSTAT_YEAR_E_GRID_EXP_ARR0").html() * 1;
+
+                    processWeekData(statMonth, 2, statisticsMonth);
+                    processDayData(statToday, 2, statisticsToday);
+                    daytotal = statisticsToday.totalPower;
+                    for (i = (statisticsMonth.chartData.length-7); i < statisticsMonth.chartData.length; i++)
+                    {
+                        weektotal += statisticsMonth.chartData[i][1];
+                        console.log("last 7 day total " + statisticsMonth.chartData[i][1] + weektotal);
+                    }
+                    monthtotal = statisticsMonth.totalPower;
+                    //calculate Year data
+                    console.log("week      total    " + weektotal);
+                    console.log("month     total    " + monthtotal);
+                    console.log("yesterday total    " + statisticsMonth.chartData[yesterday_index][1] + " kWh");
+                    console.log("today total    " + daytotal + " kWh");
+                    console.log("year_total     " + yeartotal + " kWh")
+                    console.log("system_total   " + systemtotal + " kWh")
+                    $('#sOverallToday').text(roundValue(daytotal, 2) + " kWh");
+                    $('#sOverallYesterday').text(roundValue(statisticsMonth.chartData[yesterday_index][1], 2) + " kWh");
+                    $('#sOverallWeek').text(roundValue(weektotal, 2) + " kWh");
+                    $('#sOverallMonth').text(roundValue(monthtotal, 2) + " kWh");
+                    $('#sOverallYear').text(roundValue(yeartotal, 2) + " kWh");
+                    $('#sOverallOverall').text(roundValue(systemtotal, 2) + " kWh");
+                }
+                if (navbarNavigate.sub == "Status_gridImport")
+                {
+                    monthtotal = 0;
+                    weektotal = 0;
+                    daytotal = 0;
+                    var yeartotal = $("#STATISTICSTAT_YEAR_E_GRID_IMP_ARR" + year_index).html();
+                    var systemtotal = (yeartotal * 1) + $("#STATISTICSTAT_YEAR_E_GRID_IMP_ARR0").html() * 1;
+                    processWeekData(statMonth, 1, statisticsMonth);
+                    processDayData(statToday, 1, statisticsToday);
+
+                    daytotal = statisticsToday.totalPower;
+                     for (i = (statisticsMonth.chartData.length-7); i < statisticsMonth.chartData.length; i++)
+                    {
+                        weektotal += statisticsMonth.chartData[i][1];
+                    }
+                    monthtotal = statisticsMonth.totalPower;
+                    console.log("week      total    " + weektotal);
+                    console.log("month     total    " + monthtotal);
+                    console.log("yesterday total    " + statisticsMonth.chartData[yesterday_index][1] + " kWh");
+                    console.log("today total    " + daytotal + " kWh");
+
+                    $('#sOverallToday').text(roundValue(daytotal, 2) + " kWh");
+                    $('#sOverallYesterday').text(roundValue(statisticsMonth.chartData[yesterday_index][1], 2) + " kWh");
+                    $('#sOverallWeek').text(roundValue(weektotal, 2) + " kWh");
+                    $('#sOverallMonth').text(roundValue(monthtotal, 2) + " kWh");
+                    $('#sOverallYear').text(roundValue(yeartotal, 2) + " kWh");
+                    $('#sOverallOverall').text(roundValue(systemtotal, 2) + " kWh");
+                }
+                if (navbarNavigate.sub == "Status_houseConsumption")
+                {
+                    processWeekData(statMonth, 3, statisticsMonth);
+                    processDayData(statToday, 3, statisticsToday);
+                    monthtotal = 0;
+                    weektotal = 0;
+                    daytotal = 0;
+                    var yeartotal = $("#STATISTICSTAT_YEAR_E_HOUSE_ARR" + year_index).html();
+                    var systemtotal = (yeartotal * 1) + $("#STATISTICSTAT_YEAR_E_HOUSE_ARR0").html() * 1;
+                    daytotal = statisticsToday.totalPower;
+                   for (i = (statisticsMonth.chartData.length-7); i < statisticsMonth.chartData.length; i++)
+                    {
+                        weektotal += statisticsMonth.chartData[i][1];
+                        console.log("last 7 day total " + "index: " + i + " " + statisticsMonth.chartData[i][1] + weektotal);
+                    }
+                    monthtotal = statisticsMonth.totalPower;
+                    console.log("week      total    " + weektotal);
+                    console.log("month     total    " + monthtotal);
+                    console.log("yesterday total    " + statisticsMonth.chartData[yesterday_index][1] + " kWh");
+                    console.log("today total    " + daytotal + " kWh");
+                    $('#sOverallToday').text(roundValue(daytotal, 2) + " kWh");
+                    $('#sOverallYesterday').text(roundValue(statisticsMonth.chartData[yesterday_index][1], 2) + " kWh");
+                    $('#sOverallWeek').text(roundValue(weektotal, 2) + " kWh");
+                    $('#sOverallMonth').text(roundValue(monthtotal, 2) + " kWh");
+                    $('#sOverallYear').text(roundValue(yeartotal, 2) + " kWh");
+                    $('#sOverallOverall').text(roundValue(systemtotal, 2) + " kWh");
+                }
+                if (navbarNavigate.sub == "Status_batteryCharge")
+                {
+                    processWeekData(statMonth, 4, statisticsMonth);
+                    processDayData(statToday, 4, statisticsToday);
+                    monthtotal = 0;
+                    weektotal = 0;
+                    daytotal = 0;
+                    var yeartotal = $("#STATISTICSTAT_YEAR_E_BAT_CHR_ARR" + year_index).html();
+                    var systemtotal = (yeartotal * 1) + $("#STATISTICSTAT_YEAR_E_BAT_CHR_ARR0").html() * 1;
+                    daytotal = statisticsToday.totalPower;
+                    for (i = (statisticsMonth.chartData.length-7); i < statisticsMonth.chartData.length; i++)
+                    {
+                        weektotal += statisticsMonth.chartData[i][1];
+                    }
+                    monthtotal = statisticsMonth.totalPower;
+                    console.log("week      total    " + weektotal);
+                    console.log("month     total    " + monthtotal);
+                    console.log("yesterday total    " + statisticsMonth.chartData[yesterday_index][1] + " kWh");
+                    console.log("today total    " + daytotal + " kWh");
+                    $('#sOverallToday').text(roundValue(daytotal, 2) + " kWh");
+                    $('#sOverallYesterday').text(roundValue(statisticsMonth.chartData[yesterday_index][1], 2) + " kWh");
+                    $('#sOverallWeek').text(roundValue(weektotal, 2) + " kWh");
+                    $('#sOverallMonth').text(roundValue(monthtotal, 2) + " kWh");
+                    $('#sOverallYear').text(roundValue(yeartotal, 2) + " kWh");
+                    $('#sOverallOverall').text(roundValue(systemtotal, 2) + " kWh");
+
+                }
+                if (navbarNavigate.sub == "Status_batteryDischarge")
+                {
+                    processWeekData(statMonth, 5, statisticsMonth);
+                    processDayData(statToday, 5, statisticsToday);
+                    monthtotal = 0;
+                    weektotal = 0;
+                    daytotal = 0;
+                    var yeartotal = $("#STATISTICSTAT_YEAR_E_BAT_DIS_ARR" + year_index).html();
+                    var systemtotal = (yeartotal * 1) + $("#STATISTICSTAT_YEAR_E_BAT_DIS_ARR0").html() * 1;
+                    daytotal = statisticsToday.totalPower;
+                     for (i = (statisticsMonth.chartData.length-7); i < statisticsMonth.chartData.length; i++)
+                    {
+                        weektotal += statisticsMonth.chartData[i][1];
+                    }
+                    monthtotal = statisticsMonth.totalPower;
+                    console.log("week      total    " + weektotal);
+                    console.log("month     total    " + monthtotal);
+                    console.log("yesterday total    " + statisticsMonth.chartData[yesterday_index][1] + " kWh");
+                    console.log("today total    " + daytotal + " kWh");
+
+                    $('#sOverallToday').text(roundValue(daytotal, 2) + " kWh");
+                    $('#sOverallYesterday').text(roundValue(statisticsMonth.chartData[yesterday_index][1], 2) + " kWh");
+                    $('#sOverallWeek').text(roundValue(weektotal, 2) + " kWh");
+                    $('#sOverallMonth').text(roundValue(monthtotal, 2) + " kWh");
+                    $('#sOverallYear').text(roundValue(yeartotal, 2) + " kWh");
+                    $('#sOverallOverall').text(roundValue(systemtotal, 2) + " kWh");
+
+                }
+                if (navbarNavigate.sub == "Status_pvGenerated")
+                {
+                    processWeekData(statMonth, 6, statisticsMonth);
+                    processDayData(statToday, 6, statisticsToday);
+                    monthtotal = 0;
+                    weektotal = 0;
+                    daytotal = 0;
+                    var yeartotal = $("#STATISTICSTAT_YEAR_E_PV_ARR" + year_index).html();
+                    var systemtotal = (yeartotal * 1) + $("#STATISTICSTAT_YEAR_E_PV_ARR0").html() * 1;
+                    daytotal = statisticsToday.totalPower;
+                    for (i = (statisticsMonth.chartData.length-7); i < statisticsMonth.chartData.length; i++)
+                    {
+                        weektotal += statisticsMonth.chartData[i][1];
+                    }
+                    monthtotal = statisticsMonth.totalPower;
+                    console.log("week      total    " + weektotal);
+                    console.log("month     total    " + monthtotal);
+                    console.log("yesterday total    " + statisticsMonth.chartData[yesterday_index][1] + " kWh");
+                    console.log("today total    " + daytotal + " kWh");
+                    $('#sOverallToday').text(roundValue(daytotal, 2) + " kWh");
+                    $('#sOverallYesterday').text(roundValue(statisticsMonth.chartData[yesterday_index][1], 2) + " kWh");
+                    $('#sOverallWeek').text(roundValue(weektotal, 2) + " kWh");
+                    $('#sOverallMonth').text(roundValue(monthtotal, 2) + " kWh");
+                    $('#sOverallYear').text(roundValue(yeartotal, 2) + " kWh");
+                    $('#sOverallOverall').text(roundValue(systemtotal, 2) + " kWh");
+                }
+                if (navbarNavigate.sub == "Status_PU0")
+                {
+                    processWeekData(statMonth, 7, statisticsMonth);
+                    processDayData(statToday, 7, statisticsToday);
+                    monthtotal = 0;
+                    weektotal = 0;
+                    daytotal = 0;
+                    // Convert from Wh to kWh
+                    var yeartotal = $("#STATISTICSTAT_YEAR_E_PU0_ARR" + year_index).html() * 0.001;
+                    var systemtotal = (yeartotal * 1) + $("#STATISTICSTAT_YEAR_E_PU0_ARR0").html() * 0.001;
+                    daytotal = statisticsToday.totalPower;
+                    for (i = (statisticsMonth.chartData.length-7); i < statisticsMonth.chartData.length; i++)
+                    {
+                        weektotal += statisticsMonth.chartData[i][1];
+                    }
+                    monthtotal = statisticsMonth.totalPower;
+                    console.log("week      total    " + weektotal);
+                    console.log("month     total    " + monthtotal);
+                    console.log("yesterday total    " + statisticsMonth.chartData[yesterday_index][1] + " kWh");
+                    console.log("today total    " + daytotal + " kWh");
+                    $('#sOverallToday').text(roundValue(daytotal, 2) + " kWh");
+                    $('#sOverallYesterday').text(roundValue(statisticsMonth.chartData[yesterday_index][1], 2) + " kWh");
+                    $('#sOverallWeek').text(roundValue(weektotal, 2) + " kWh");
+                    $('#sOverallMonth').text(roundValue(monthtotal, 2) + " kWh");
+                    $('#sOverallYear').text(roundValue(yeartotal, 2) + " kWh");
+                    $('#sOverallOverall').text(roundValue(systemtotal, 2) + " kWh");
+                }
+                if (navbarNavigate.sub == "Status_PU1")
+                {
+                    processWeekData(statMonth, 8, statisticsMonth);
+                    processDayData(statToday, 8, statisticsToday);
+                    monthtotal = 0;
+                    weektotal = 0;
+                    daytotal = 0;
+                    // Convert from Wh to kWh
+                    var yeartotal = $("#STATISTICSTAT_YEAR_E_PU1_ARR" + year_index).html() * 0.001;
+                    var systemtotal = (yeartotal * 1) + $("#STATISTICSTAT_YEAR_E_PU1_ARR0").html() * 0.001;
+                    daytotal = statisticsToday.totalPower;
+                    for (i = (statisticsMonth.chartData.length-7); i < statisticsMonth.chartData.length; i++)
+                    {
+                        weektotal += statisticsMonth.chartData[i][1];
+                    }
+                    monthtotal = statisticsMonth.totalPower;
+                    console.log("week      total    " + weektotal);
+                    console.log("month     total    " + monthtotal);
+                    console.log("yesterday total    " + statisticsMonth.chartData[yesterday_index][1] + " kWh");
+                    console.log("today total    " + daytotal + " kWh");
+                    $('#sOverallToday').text(roundValue(daytotal, 2) + " kWh");
+                    $('#sOverallYesterday').text(roundValue(statisticsMonth.chartData[yesterday_index][1], 2) + " kWh");
+                    $('#sOverallWeek').text(roundValue(weektotal, 2) + " kWh");
+                    $('#sOverallMonth').text(roundValue(monthtotal, 2) + " kWh");
+                    $('#sOverallYear').text(roundValue(yeartotal, 2) + " kWh");
+                    $('#sOverallOverall').text(roundValue(systemtotal, 2) + " kWh");
+                }
+                if (navbarNavigate.sub == "Status_PU2")
+                {
+                    processWeekData(statMonth, 9, statisticsMonth);
+                    processDayData(statToday, 9, statisticsToday);
+                    monthtotal = 0;
+                    weektotal = 0;
+                    daytotal = 0;
+                    // Convert from Wh to kWh
+                    var yeartotal = $("#STATISTICSTAT_YEAR_E_PU2_ARR" + year_index).html() * 0.001;
+                    var systemtotal = (yeartotal * 1) + $("#STATISTICSTAT_YEAR_E_PU2_ARR0").html() * 0.001;
+                    daytotal = statisticsToday.totalPower;
+                    for (i = (statisticsMonth.chartData.length-7); i < statisticsMonth.chartData.length; i++)
+                    {
+                        weektotal += statisticsMonth.chartData[i][1];
+                    }
+                    monthtotal = statisticsMonth.totalPower;
+                    console.log("week      total    " + weektotal);
+                    console.log("month     total    " + monthtotal);
+                    console.log("yesterday total    " + statisticsMonth.chartData[yesterday_index][1] + " kWh");
+                    console.log("today total    " + daytotal + " kWh");
+                    $('#sOverallToday').text(roundValue(daytotal, 2) + " kWh");
+                    $('#sOverallYesterday').text(roundValue(statisticsMonth.chartData[yesterday_index][1], 2) + " kWh");
+                    $('#sOverallWeek').text(roundValue(weektotal, 2) + " kWh");
+                    $('#sOverallMonth').text(roundValue(monthtotal, 2) + " kWh");
+                    $('#sOverallYear').text(roundValue(yeartotal, 2) + " kWh");
+                    $('#sOverallOverall').text(roundValue(systemtotal, 2) + " kWh");
+                }
+                if (navbarNavigate.sub == "Status_PU3")
+                {
+                    processWeekData(statMonth, 10, statisticsMonth);
+                    processDayData(statToday, 10, statisticsToday);
+                    monthtotal = 0;
+                    weektotal = 0;
+                    daytotal = 0;
+                    // Convert from Wh to kWh
+                    var yeartotal = $("#STATISTICSTAT_YEAR_E_PU3_ARR" + year_index).html() * 0.001;
+                    var systemtotal = (yeartotal * 1) + $("#STATISTICSTAT_YEAR_E_PU3_ARR0").html() * 0.001;
+                    daytotal = statisticsToday.totalPower;
+                    for (i = (statisticsMonth.chartData.length-7); i < statisticsMonth.chartData.length; i++)
+                    {
+                        weektotal += statisticsMonth.chartData[i][1];
+                    }
+                    monthtotal = statisticsMonth.totalPower;
+                    console.log("week      total    " + weektotal);
+                    console.log("month     total    " + monthtotal);
+                    console.log("yesterday total    " + statisticsMonth.chartData[yesterday_index][1] + " kWh");
+                    console.log("today total    " + daytotal + " kWh");
+                    $('#sOverallToday').text(roundValue(daytotal, 2) + " kWh");
+                    $('#sOverallYesterday').text(roundValue(statisticsMonth.chartData[yesterday_index][1], 2) + " kWh");
+                    $('#sOverallWeek').text(roundValue(weektotal, 2) + " kWh");
+                    $('#sOverallMonth').text(roundValue(monthtotal, 2) + " kWh");
+                    $('#sOverallYear').text(roundValue(yeartotal, 2) + " kWh");
+                    $('#sOverallOverall').text(roundValue(systemtotal, 2) + " kWh");
+                }
+                if (navbarNavigate.sub == "Status_PU4")
+                {
+                    processWeekData(statMonth, 11, statisticsMonth);
+                    processDayData(statToday, 11, statisticsToday);
+                    monthtotal = 0;
+                    weektotal = 0;
+                    daytotal = 0;
+                    // Convert from Wh to kWh
+                    var yeartotal = $("#STATISTICSTAT_YEAR_E_PU4_ARR" + year_index).html() * 0.001;
+                    var systemtotal = (yeartotal * 1) + $("#STATISTICSTAT_YEAR_E_PU4_ARR0").html() * 0.001;
+                    daytotal = statisticsToday.totalPower;
+                    for (i = (statisticsMonth.chartData.length-7); i < statisticsMonth.chartData.length; i++)
+                    {
+                        weektotal += statisticsMonth.chartData[i][1];
+                    }
+                    monthtotal = statisticsMonth.totalPower;
+                    console.log("week      total    " + weektotal);
+                    console.log("month     total    " + monthtotal);
+                    console.log("yesterday total    " + statisticsMonth.chartData[yesterday_index][1] + " kWh");
+                    console.log("today total    " + daytotal + " kWh");
+                    $('#sOverallToday').text(roundValue(daytotal, 2) + " kWh");
+                    $('#sOverallYesterday').text(roundValue(statisticsMonth.chartData[yesterday_index][1], 2) + " kWh");
+                    $('#sOverallWeek').text(roundValue(weektotal, 2) + " kWh");
+                    $('#sOverallMonth').text(roundValue(monthtotal, 2) + " kWh");
+                    $('#sOverallYear').text(roundValue(yeartotal, 2) + " kWh");
+                    $('#sOverallOverall').text(roundValue(systemtotal, 2) + " kWh");
+                }
+                if (navbarNavigate.sub == "Status_PU5")
+                {
+                    processWeekData(statMonth, 12, statisticsMonth);
+                    processDayData(statToday, 12, statisticsToday);
+                    monthtotal = 0;
+                    weektotal = 0;
+                    daytotal = 0;
+                    // Convert from Wh to kWh
+                    var yeartotal = $("#STATISTICSTAT_YEAR_E_PU5_ARR" + year_index).html() * 0.001;
+                    var systemtotal = (yeartotal * 1) + $("#STATISTICSTAT_YEAR_E_PU5_ARR0").html() * 0.001;
+                    daytotal = statisticsToday.totalPower;
+                    for (i = (statisticsMonth.chartData.length-7); i < statisticsMonth.chartData.length; i++)
+                    {
+                        weektotal += statisticsMonth.chartData[i][1];
+                    }
+                    monthtotal = statisticsMonth.totalPower;
+                    console.log("week      total    " + weektotal);
+                    console.log("month     total    " + monthtotal);
+                    console.log("yesterday total    " + statisticsMonth.chartData[yesterday_index][1] + " kWh");
+                    console.log("today total    " + daytotal + " kWh");
+                    $('#sOverallToday').text(roundValue(daytotal, 2) + " kWh");
+                    $('#sOverallYesterday').text(roundValue(statisticsMonth.chartData[yesterday_index][1], 2) + " kWh");
+                    $('#sOverallWeek').text(roundValue(weektotal, 2) + " kWh");
+                    $('#sOverallMonth').text(roundValue(monthtotal, 2) + " kWh");
+                    $('#sOverallYear').text(roundValue(yeartotal, 2) + " kWh");
+                    $('#sOverallOverall').text(roundValue(systemtotal, 2) + " kWh");
+                }
+                
+            }
+        }
+        $(".img-button").unbind('click');
+        $(".img-button").bind("click", (function() {
+            navigate(this.id);
+        }));
+        initSubMenuCharts();
+    });
+
+    function Chart_init(chartView) {
+        var statistics = 0;
+        var ymax = 0;
+        var ytick = 10;
+        var plot_options = 0;
+        var xticks=0;
+        $("#chartdiv").empty();
+        if (chartView != "OVERALL")
+        {
+            switch (chartView)
+            {
+                case "TODAY":
+                    statistics = statisticsToday.chartData;
+                    ymax = statisticsToday.maxValue;
+                    xticks=statisticsToday.xaxisTicks;
+                    break;
+                case "YESTERDAY":
+                    statistics = statisticsYesterday.chartData;
+                    ymax = statisticsYesterday.maxValue;
+                    xticks=statisticsYesterday.xaxisTicks;
+                    break;
+                case "WEEK":
+                    statistics = statisticsWeek.chartData;
+                    ymax = statisticsWeek.maxValue;
+                    xticks=statisticsWeek.xaxisTicks;
+                    break;
+                case "MONTH":
+                    statistics = statisticsMonth.chartData;
+                    ymax = statisticsMonth.maxValue;
+                    xticks=statisticsMonth.xaxisTicks;
+                    break;
+            }
+            var htmlStyles = window.getComputedStyle(document.querySelector("html"));
+            var mainColor = htmlStyles.getPropertyValue("--main-color");
+            
+            plot_options = {
+                seriesDefaults: {
+                    fill: true,
+                    color: mainColor,
+                    rendererOptions: {
+                        smooth: true,
+                        highlightMouseOver: false,
+                        highlightMouseDown: false
+                    }
+                },
+                axes: {
+                    // Use a category axis on the x axis and use our custom ticks.
+                    xaxis: {
+                        tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+                        min:0,
+                        tickInterval: 1,
+                        numberTicks:statistics.length,
+                        tickOptions: {
+                            angle: -30,
+                            fontSize: '10pt',
+                            textColor: "#000000"
+                        }
+                        ,ticks:xticks
+                   },
+                    yaxis: {
+                        min: 0,
+                        max: ymax,                    
+                        tickInterval: ytick,
+                        tickOptions: {
+                            fontSize: '10pt',
+                            textColor: "#000000",
+                        },
+                        ticks: [[0, ""], [(ymax * 10) / 100, ""], [(ymax * 20) / 100, ""], [(ymax * 30) / 100, ""], [(ymax * 40) / 100, ""], [(ymax * 50) / 100, roundValue((ymax / 2), 2) + 'kW '], [(ymax * 60) / 100, ""], [(ymax * 70) / 100, ""], [(ymax * 80) / 100, ""], [(ymax * 90) / 100, ""], [ymax, roundValue(ymax, 2) + 'kW ']]//,
+
+                    }
+
+                    // Pad the y axis just a little so bars can get close to, but
+                    // not touch, the grid boundaries.  1.2 is the default padding.
+
+                }
+            };
+            // Ticks should match up one for each y value (category) in the series.
+            try {
+                autarkyCahrt = $.jqplot('chartdiv', [statistics], plot_options);
+            } catch (e)
+            {
+                // alert('plot error...'+e); 
+            }
+        } else
+
+        {
+
+            var OverallStatistic_string = '<div class="row" style="margin-top:40px ; margin-bottom:80px">';
+            //OverallStatistic_string+='<div class="row"><div class="span2 text-center"><p>'+lng["Today"]+'</p></div>';
+            OverallStatistic_string += '<div class="span2 offset2" style="background-color:var(--sub-color); color: #ffffff;">'
+            OverallStatistic_string += '<div class="row"><div class="span2 text-center"><p id="sOverallToday">0.0 kWh</p></div></div>';
+            OverallStatistic_string += '<div class="row"><div class="span2 text-center"><p id="sOverallYesterday">0.0 kWh</p></div></div>';
+            OverallStatistic_string += '<div class="row"><div class="span2 text-center"><p id="sOverallWeek">0.0 kWh</p></div></div>';
+            OverallStatistic_string += '<div class="row"><div class="span2 text-center"><p id="sOverallMonth">0.0 kWh</p></div></div>';
+            OverallStatistic_string += '<div class="row"><div class="span2 text-center"><p id="sOverallYear">0.0 kWh</p></div></div>';
+            OverallStatistic_string += '<div class="row"><div class="span2 text-center"><p id="sOverallOverall">0.0 kWh</p></div></div>';
+            OverallStatistic_string += '</div>';
+            OverallStatistic_string += '<div class="span3 offsetmin">';
+            OverallStatistic_string += '<div class="row"><div class="span2  text-left"><p>' + lng["TODAY"] + '</p></div></div>';
+            OverallStatistic_string += '<div class="row"><div class="span2  text-left"><p>' + lng["YESTERDAY"] + '</p></div></div>';
+            OverallStatistic_string += '<div class="row"><div class="span2  text-left"><p>' + lng["WEEK"] + '</p></div></div>';
+            OverallStatistic_string += '<div class="row"><div class="span2  text-left"><p>' + lng["MONTH"] + '</p></div></div>';
+            OverallStatistic_string += '<div class="row"><div class="span2  text-left"><p>' + lng["YEAR"] + '</p></div></div>';
+            OverallStatistic_string += '<div class="row"><div class="span2  text-left"><p>' + lng["OVERALL"] + '</p></div></div>';
+            OverallStatistic_string += '</div>';
+            OverallStatistic_string += '</div>';
+        }
+        $("#chartdiv").append(OverallStatistic_string);
+    }
+
+    function initSubMenuCharts()
+    {
+        switch (navbarNavigate.sub)
+        {
+            case "Status_houseConsumption" :
+                $('#btnStatus_houseConsumption').css({"border": "1px solid var(--main-color)"});
+                break;
+            case "Status_batteryCharge" :
+                $('#btnStatus_batteryCharge').css({"border": "1px solid var(--main-color)"});
+                break;
+            case "Status_gridImport"  :
+                $('#btnStatus_gridImport').css({"border": "1px solid var(--main-color)"});
+                break;
+            case "Status_pvGenerated"  :
+                $('#btnStatus_pvGenerated').css({"border": "1px solid var(--main-color)"});
+                break;
+            case "Status_batteryDischarge"  :
+                $('#btnStatus_batteryDischarge').css({"border": "1px solid var(--main-color)"});
+                break;
+            case "Status_gridExport"  :
+                $('#btnStatus_gridExport').css({"border": "1px solid var(--main-color)"});
+                break;
+            case "Status_PU0"  :
+                $('#btnStatus_PU0').css({"border": "1px solid var(--main-color)"});
+                break;
+            case "Status_PU1"  :
+                $('#btnStatus_PU1').css({"border": "1px solid var(--main-color)"});
+                break;
+            case "Status_PU2"  :
+                $('#btnStatus_PU2').css({"border": "1px solid var(--main-color)"});
+                break;
+            case "Status_PU3"  :
+                $('#btnStatus_PU3').css({"border": "1px solid var(--main-color)"});
+                break;
+            case "Status_PU4"  :
+                $('#btnStatus_PU4').css({"border": "1px solid var(--main-color)"});
+                break;
+            case "Status_PU5"  :
+                $('#btnStatus_PU5').css({"border": "1px solid var(--main-color)"});
+                break;
+        }
+    }
+    
+    $(document).bind("page.unload", function() {
+        $('#hCategoryHeader').addClass('hidden').hide();
+        pageObj.stopPageRefresh();
+    });
+
+</script>
+
+<div class="row">
+    <div class= "span1 offset2">
+        <div class="img_clip_icon_home_50px img-button" id="btnStatus_houseConsumption">
+            <img src="./img/all_images.gif">
+        </div>
+    </div>
+    <div class= "span1" >
+        <div  class="img_clip_icon_pv_50px img-button" id="btnStatus_pvGenerated">
+            <img src="./img/all_images.gif">
+        </div>
+    </div>
+    <div class= "span1">
+        <div  class="img_clip_icon_discharge_50px img-button" id="btnStatus_batteryDischarge">
+            <img src="./img/all_images.gif">
+        </div>
+    </div>
+    <div class= "span1" >
+        <div  class="img_clip_icon_charge_50px img-button" id="btnStatus_batteryCharge">
+            <img src="./img/all_images.gif">
+        </div>
+    </div>
+    <div class= "span1" >
+        <div  class="img_clip_icon_grid_import_50px img-button" id="btnStatus_gridImport">
+            <img src="./img/all_images.gif">
+        </div>
+    </div>
+    <div class= "span1">
+        <div  class="img_clip_icon_grid_export_50px img-button" id="btnStatus_gridExport">
+            <img src="./img/all_images.gif">
+        </div>
+    </div>
+</div>   
+
+<div class="row">
+    <div class= "span1 offset2 d-hide" id="btnPU0">
+        <div  class="img_clip_icon_pu0 img-button" id="btnStatus_PU0">
+            <img src="./img/all_images.gif">
+        </div>
+    </div>
+    <div class= "span1 d-hide" id="btnPU1">
+        <div  class="img_clip_icon_pu1 img-button" id="btnStatus_PU1">
+            <img src="./img/all_images.gif">
+        </div>
+    </div>
+    <div class= "span1 d-hide" id="btnPU2">
+        <div  class="img_clip_icon_pu2 img-button" id="btnStatus_PU2">
+            <img src="./img/all_images.gif">
+        </div>
+    </div>
+    <div class= "span1 d-hide" id="btnPU3">
+        <div  class="img_clip_icon_pu3 img-button" id="btnStatus_PU3">
+            <img src="./img/all_images.gif">
+        </div>
+    </div>
+    <div class= "span1 d-hide" id="btnPU4">
+        <div  class="img_clip_icon_pu4 img-button" id="btnStatus_PU4">
+            <img src="./img/all_images.gif">
+        </div>
+    </div>
+    <div class= "span1 d-hide" id="btnPU5">
+        <div  class="img_clip_icon_pu5 img-button" id="btnStatus_PU5">
+            <img src="./img/all_images.gif">
+        </div>
+    </div>
+</div>   
+
+<div class="row" style="margin-top: 20px; margin-bottom: 20px;">
+    <div class= "span8 offset1" >
+        <div id="chartdiv"></div>
+    </div>
+</div>
+
+<div class="hide">
+    <!-- offset year-->
+    <p id="STATISTICSTAT_YEAR_START"></p>
+    <!-- Year data-->
+    <p id="STATISTICSTAT_YEAR_E_PV_ARR0"></p>
+    <p id="STATISTICSTAT_YEAR_E_PV_ARR1"></p>
+    <p id="STATISTICSTAT_YEAR_E_PV_ARR2"></p>
+    <p id="STATISTICSTAT_YEAR_E_PV_ARR3"></p>
+    <p id="STATISTICSTAT_YEAR_E_PV_ARR4"></p>
+    <p id="STATISTICSTAT_YEAR_E_PV_ARR5"></p>
+    <p id="STATISTICSTAT_YEAR_E_PV_ARR6"></p>
+    <p id="STATISTICSTAT_YEAR_E_PV_ARR7"></p>
+    <p id="STATISTICSTAT_YEAR_E_PV_ARR8"></p>
+    <p id="STATISTICSTAT_YEAR_E_PV_ARR9"></p>
+    <p id="STATISTICSTAT_YEAR_E_PV_ARR10"></p>
+    <p id="STATISTICSTAT_YEAR_E_PV_ARR11"></p>
+    <p id="STATISTICSTAT_YEAR_E_PV_ARR12"></p>
+    <p id="STATISTICSTAT_YEAR_E_PV_ARR13"></p>
+    <p id="STATISTICSTAT_YEAR_E_PV_ARR14"></p>
+    <p id="STATISTICSTAT_YEAR_E_PV_ARR15"></p>
+    <p id="STATISTICSTAT_YEAR_E_PV_ARR16"></p>
+    <p id="STATISTICSTAT_YEAR_E_PV_ARR17"></p>
+    <p id="STATISTICSTAT_YEAR_E_PV_ARR18"></p>
+    <p id="STATISTICSTAT_YEAR_E_PV_ARR19"></p>
+    <p id="STATISTICSTAT_YEAR_E_PV_ARR20"></p>
+    <p id="STATISTICSTAT_YEAR_E_PV_ARR21"></p>
+    <p id="STATISTICSTAT_YEAR_E_PV_ARR22"></p>
+    <p id="STATISTICSTAT_YEAR_E_PV_ARR23"></p>
+    <p id="STATISTICSTAT_YEAR_E_PV_ARR24"></p>
+    <p id="STATISTICSTAT_YEAR_E_PV_ARR25"></p>
+    <p id="STATISTICSTAT_YEAR_E_PV_ARR26"></p>
+    <p id="STATISTICSTAT_YEAR_E_PV_ARR27"></p>
+    <p id="STATISTICSTAT_YEAR_E_PV_ARR28"></p>
+    <p id="STATISTICSTAT_YEAR_E_PV_ARR29"></p>
+
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR0"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR1"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR2"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR3"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR4"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR5"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR6"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR7"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR8"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR9"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR10"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR11"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR12"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR13"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR14"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR15"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR16"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR17"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR18"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR19"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR20"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR21"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR22"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR23"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR24"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR25"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR26"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR27"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR28"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR29"></p>
+
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR0"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR1"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR2"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR3"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR4"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR5"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR6"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR7"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR8"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR9"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR10"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR11"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR12"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR13"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR14"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR15"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR16"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR17"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR18"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR19"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR20"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR21"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR22"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR23"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR24"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR25"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR26"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR27"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR28"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR29"></p>
+
+    <p id="STATISTICSTAT_YEAR_E_GRID_EXP_ARR0"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_EXP_ARR1"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_EXP_ARR2"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_EXP_ARR3"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_EXP_ARR4"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_EXP_ARR5"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_EXP_ARR6"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_EXP_ARR7"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_EXP_ARR8"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_EXP_ARR9"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_EXP_ARR10"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_EXP_ARR11"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_EXP_ARR12"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_EXP_ARR13"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_EXP_ARR14"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_EXP_ARR15"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_EXP_ARR16"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_EXP_ARR17"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_EXP_ARR18"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_EXP_ARR19"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_EXP_ARR20"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_EXP_ARR21"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_EXP_ARR22"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_EXP_ARR23"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_EXP_ARR24"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_EXP_ARR25"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_EXP_ARR26"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_EXP_ARR27"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_EXP_ARR28"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_EXP_ARR29"></p>
+
+    <p id="STATISTICSTAT_YEAR_E_BAT_CHR_ARR0"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_CHR_ARR1"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_CHR_ARR2"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_CHR_ARR3"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_CHR_ARR4"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_CHR_ARR5"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_CHR_ARR6"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_CHR_ARR7"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_CHR_ARR8"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_CHR_ARR9"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_CHR_ARR10"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_CHR_ARR11"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_CHR_ARR12"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_CHR_ARR13"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_CHR_ARR14"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_CHR_ARR15"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_CHR_ARR16"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_CHR_ARR17"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_CHR_ARR18"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_CHR_ARR19"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_CHR_ARR20"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_CHR_ARR21"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_CHR_ARR22"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_CHR_ARR23"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_CHR_ARR24"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_CHR_ARR25"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_CHR_ARR26"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_CHR_ARR27"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_CHR_ARR28"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_CHR_ARR29"></p>
+
+    <p id="STATISTICSTAT_YEAR_E_BAT_DIS_ARR0"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_DIS_ARR1"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_DIS_ARR2"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_DIS_ARR3"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_DIS_ARR4"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_DIS_ARR5"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_DIS_ARR6"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_DIS_ARR7"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_DIS_ARR8"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_DIS_ARR9"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_DIS_ARR10"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_DIS_ARR11"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_DIS_ARR12"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_DIS_ARR13"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_DIS_ARR14"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_DIS_ARR15"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_DIS_ARR16"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_DIS_ARR17"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_DIS_ARR18"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_DIS_ARR19"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_DIS_ARR20"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_DIS_ARR21"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_DIS_ARR22"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_DIS_ARR23"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_DIS_ARR24"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_DIS_ARR25"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_DIS_ARR26"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_DIS_ARR27"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_DIS_ARR28"></p>
+    <p id="STATISTICSTAT_YEAR_E_BAT_DIS_ARR29"></p>
+    
+    <p id="STATISTICSTAT_YEAR_E_PU0_ARR0"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU0_ARR1"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU0_ARR2"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU0_ARR3"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU0_ARR4"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU0_ARR5"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU0_ARR6"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU0_ARR7"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU0_ARR8"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU0_ARR9"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU0_ARR10"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU0_ARR11"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU0_ARR12"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU0_ARR13"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU0_ARR14"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU0_ARR15"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU0_ARR16"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU0_ARR17"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU0_ARR18"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU0_ARR19"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU0_ARR20"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU0_ARR21"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU0_ARR22"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU0_ARR23"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU0_ARR24"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU0_ARR25"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU0_ARR26"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU0_ARR27"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU0_ARR28"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU0_ARR29"></p>
+    
+    <p id="STATISTICSTAT_YEAR_E_PU1_ARR0"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU1_ARR1"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU1_ARR2"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU1_ARR3"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU1_ARR4"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU1_ARR5"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU1_ARR6"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU1_ARR7"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU1_ARR8"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU1_ARR9"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU1_ARR10"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU1_ARR11"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU1_ARR12"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU1_ARR13"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU1_ARR14"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU1_ARR15"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU1_ARR16"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU1_ARR17"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU1_ARR18"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU1_ARR19"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU1_ARR20"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU1_ARR21"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU1_ARR22"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU1_ARR23"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU1_ARR24"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU1_ARR25"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU1_ARR26"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU1_ARR27"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU1_ARR28"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU1_ARR29"></p>
+    
+    <p id="STATISTICSTAT_YEAR_E_PU2_ARR0"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU2_ARR1"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU2_ARR2"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU2_ARR3"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU2_ARR4"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU2_ARR5"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU2_ARR6"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU2_ARR7"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU2_ARR8"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU2_ARR9"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU2_ARR10"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU2_ARR11"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU2_ARR12"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU2_ARR13"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU2_ARR14"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU2_ARR15"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU2_ARR16"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU2_ARR17"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU2_ARR18"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU2_ARR19"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU2_ARR20"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU2_ARR21"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU2_ARR22"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU2_ARR23"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU2_ARR24"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU2_ARR25"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU2_ARR26"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU2_ARR27"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU2_ARR28"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU2_ARR29"></p>
+    
+    <p id="STATISTICSTAT_YEAR_E_PU3_ARR0"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU3_ARR1"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU3_ARR2"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU3_ARR3"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU3_ARR4"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU3_ARR5"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU3_ARR6"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU3_ARR7"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU3_ARR8"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU3_ARR9"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU3_ARR10"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU3_ARR11"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU3_ARR12"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU3_ARR13"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU3_ARR14"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU3_ARR15"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU3_ARR16"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU3_ARR17"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU3_ARR18"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU3_ARR19"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU3_ARR20"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU3_ARR21"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU3_ARR22"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU3_ARR23"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU3_ARR24"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU3_ARR25"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU3_ARR26"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU3_ARR27"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU3_ARR28"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU3_ARR29"></p>
+    
+    <p id="STATISTICSTAT_YEAR_E_PU4_ARR0"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU4_ARR1"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU4_ARR2"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU4_ARR3"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU4_ARR4"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU4_ARR5"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU4_ARR6"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU4_ARR7"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU4_ARR8"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU4_ARR9"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU4_ARR10"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU4_ARR11"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU4_ARR12"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU4_ARR13"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU4_ARR14"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU4_ARR15"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU4_ARR16"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU4_ARR17"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU4_ARR18"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU4_ARR19"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU4_ARR20"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU4_ARR21"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU4_ARR22"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU4_ARR23"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU4_ARR24"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU4_ARR25"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU4_ARR26"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU4_ARR27"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU4_ARR28"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU4_ARR29"></p>
+    
+    <p id="STATISTICSTAT_YEAR_E_PU5_ARR0"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU5_ARR1"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU5_ARR2"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU5_ARR3"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU5_ARR4"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU5_ARR5"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU5_ARR6"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU5_ARR7"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU5_ARR8"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU5_ARR9"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU5_ARR10"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU5_ARR11"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU5_ARR12"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU5_ARR13"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU5_ARR14"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU5_ARR15"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU5_ARR16"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU5_ARR17"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU5_ARR18"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU5_ARR19"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU5_ARR20"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU5_ARR21"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU5_ARR22"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU5_ARR23"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU5_ARR24"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU5_ARR25"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU5_ARR26"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU5_ARR27"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU5_ARR28"></p>
+    <p id="STATISTICSTAT_YEAR_E_PU5_ARR29"></p>
+    
+    <p id="PWR_UNITTYPE0"></p>
+    <p id="PWR_UNITTYPE1"></p>
+    <p id="PWR_UNITTYPE2"></p>
+    <p id="PWR_UNITTYPE3"></p>
+    <p id="PWR_UNITTYPE4"></p>
+    <p id="PWR_UNITTYPE5"></p>
+</div>
+
+
+
+
+
+
+

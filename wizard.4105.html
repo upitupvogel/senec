@@ -1,0 +1,60 @@
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" id="btnWizard4105_close" onclick="confwizardClose();">×</button>
+    <h3 id="l4105Header"></h3>
+</div>
+
+<div id="pnWizard4105ModalBody" class="modal-body">
+	<!-- Parameter Seite  -->           
+    <div id="lblWizard4105CheckResult"  class="wizard-check-result"> </div>
+    <table>
+        <tr>
+            <td>
+                <label for="checkboxWizard4105_cosphi" id="lCosPhiReg"></label>
+            </td>
+            <td>
+                <input type="checkbox" id="checkboxWizard4105_cosphi" onchange="CosPhi4105Update()" style="margin-left:3px;">
+            </td>
+        </tr>
+        <tr class="CosPhiRamp">
+            <td>
+                <label for="WIZARDPWRCFG_COS_POINT1" id="lCosPhi1"></label>
+            </td>
+            <td>
+                <input class="has-tooltip" title="-0.95..-0.99 | 1..0.95" type="text" id="WIZARDPWRCFG_COS_POINT1" value="Test">
+            </td>
+        </tr>
+        <tr class="CosPhiRamp">
+            <td>
+                <label for="WIZARDPWRCFG_COS_POINT_2A" id="lCosPhi2a"></label>
+            </td>
+            <td>
+                <input class="has-tooltip" title="-0.95..-0.99 | 1..0.95" type="text" id="WIZARDPWRCFG_COS_POINT_2A" value="Test">
+            </td>
+        </tr>
+        <tr class="CosPhiRamp">
+            <td>
+                <label for="WIZARDPWRCFG_COS_POINT_2B" id="lCosPhi2b"></label>
+            </td>
+            <td>
+                <input class="has-tooltip" title="20-85%" type="text" id="WIZARDPWRCFG_COS_POINT_2B" value="Test">
+            </td>
+        </tr>
+        <tr class="CosPhiRamp">
+            <td>
+                <label for="WIZARDPWRCFG_COS_POINT3" id="lCosPhi3"></label>
+            </td>
+            <td>
+                <input class="has-tooltip" title="-0.95..-0.99 | 1..0.95" type="text" id="WIZARDPWRCFG_COS_POINT3" value="Test">
+            </td>
+        </tr>   
+    </table>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-wizard" onclick="confwizard4105NextPage()" id="Save"></button>
+</div>
+
+
+<div class="hidden">
+    <p id="WIZARDPWRCFG_USE_COS_PHI_CURVE"></p>
+</div>
+

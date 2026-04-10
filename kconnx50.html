@@ -1,0 +1,136 @@
+<script type="text/javascript">
+
+    var pageObj;
+
+    function connX50UpdatePage()
+    {
+        $("#output_vars").find("p").each(
+            function()
+            {
+                if ($('#' + this.id).val() & 1)
+                {
+                    $('#CB_' + this.id).prop("checked", true);
+                }
+                else
+                {
+                    $('#CB_' + this.id).prop("checked", false);
+                }
+            }
+        );
+    }
+
+    /* make jshint silent for connX50UpdateCb: */
+    /* exported connX50UpdateCb */
+    function connX50UpdateCb(pin)
+    {
+        var value = 0;
+
+        if ($('#CB_CONNX50' + pin).prop('checked') == true)
+        {
+            value = 1;
+        }
+
+        pageObj.handleCheckBoxUpdate("CONNX50", pin, pageObj.castVarValue("u8", value));
+    }
+
+    function connX50RequestCb(data)
+    {
+        var respObj = $.parseJSON(JSON.stringify(data));
+
+        // check if response is an object
+        if ($.type(respObj) !== "object") {
+            console.log("Error: Parsing JSON response not possible.");
+            return;
+        }
+
+        // check if CONNX50 object is available
+        if (typeof(respObj.CONNX50) === "undefined") {
+            console.log("Error: CONNX50 object not available.");
+            return;
+        }
+
+        // create page
+        pageObj = new senecPage(connX50UpdatePage);
+        pageObj.add_json_object("CONNX50");
+
+        // create pins
+        const pins = Object.keys(respObj.CONNX50);
+        for(const pin of pins)
+        {
+            // add pin to variable monitor list
+            pageObj.add_property_to_object("CONNX50", pin, "");
+
+            // add pin to input list
+            if (pin.startsWith("IN_")) {
+                $("#input_labels").append("<div class='labels'>" + pin.substr(3) + "</div>");
+                $("#input_states").append("<div class='labels_value'><p id='CONNX50" + pin + "'>?</p></div>");
+            }
+
+            // add pin to output list
+            if (pin.startsWith("OUT_")) {
+                $("#output_labels").append("<div class='labels'>" + pin.substr(4) + "</div>");
+                $("#output_states").append("<div class='labels_value'><p class='labels'><input id='CB_CONNX50" + pin + "' type='checkbox' onchange='connX50UpdateCb(\"" + pin + "\");'></p></div>");
+                $("#output_vars").append("<p id='CONNX50" + pin + "'></p>");
+            }
+        }
+
+        pageObj.singlePageRefresh();
+        pageObj.startPageRefresh(1000);
+    }
+
+    $(document).bind("page.loaded", function() {
+        $("a").unbind();
+        $("a").click(function() {
+            navigate(this.id);
+        });
+
+        // Request list of provided objects
+        $.ajax({
+            type: "POST",
+            async: true,
+            url: "/lala.cgi",
+            data: JSON.stringify({"CONNX50":{}}),
+            dataType: "json",
+            success: connX50RequestCb,
+        });
+    });
+
+    $(document).bind("page.unload", function() {
+        pageObj.stopPageRefresh();
+    });
+</script>
+
+<div class="pagecontent">
+    <div class="row">
+        <div class="span4 labels_title">
+            <p>Inputs</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="span3" id="input_labels">
+        </div>
+
+        <div class="span1">
+            <div style="background: var(--sub-color);" id="input_states">
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="span4 labels_title">
+            <p>Outputs</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="span3" id="output_labels">
+        </div>
+
+        <div class="span1">
+            <div style="background: var(--sub-color);" id="output_states">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="hide" id="output_vars">
+</div>

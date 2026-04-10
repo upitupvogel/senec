@@ -1,0 +1,301 @@
+<script type="text/javascript">
+/** Prevent JSHint warning about supposingly unused functions. */
+/* exported LoaderShow, navbarNavigate, get_navigate, GuiDataMaintenanceChargebtnClick, GuiDataModuleRplbtnClick, GuiDataConfirmMaintenancebtnClick, GuiDataSafetyChargebtnClick, GuiDataDischargeAllowbtnClick, GuiDataSulfateChargebtnClick, GuiDataEqualizationchaChargebtnClick */
+
+    function updateAccuServicePage()
+    {
+        updateAccuServiceState();
+
+        if (isLoggedIn())
+        {
+            $('.autorisiert').show();
+        }else {
+            $('.autorisiert').hide();
+        }
+    }
+
+    function obj_init()
+    {
+        pageObj = new senecPage(updateAccuServicePage);
+
+        //add child object to parent object
+        pageObj.add_json_object("ENERGY");
+
+        // maintenance charge buttons and state
+        pageObj.add_property_to_object("ENERGY", "STAT_MAINT_REQUIRED", "");
+        pageObj.add_property_to_object("ENERGY", "GUI_MAINT_CHARGE_START", "");
+        pageObj.add_property_to_object("ENERGY", "GUI_MAINT_CHARGE_STOP", "");
+        pageObj.add_property_to_object("ENERGY", "MAINT_CHARGE_RUNNING", "");
+        pageObj.add_property_to_object("ENERGY", "MAINT_CHARGE_READY", "");
+
+        // safety charge buttons and state
+        pageObj.add_property_to_object("ENERGY", "SAFE_CHARGE_FORCE", "");
+        pageObj.add_property_to_object("ENERGY", "SAFE_CHARGE_PROHIBIT", "");
+        pageObj.add_property_to_object("ENERGY", "SAFE_CHARGE_RUNNING", "");
+
+        // equalization charge buttons and state
+        pageObj.add_property_to_object("ENERGY", "GUI_EQUAL_CHARGE_START", "");
+        pageObj.add_property_to_object("ENERGY", "GUI_EQUAL_CHARGE_STOP", "");
+        pageObj.add_property_to_object("ENERGY", "GUI_EQUAL_CHARGE_RUN", "");
+
+        // sulfate charge buttons and state
+        pageObj.add_property_to_object("ENERGY", "GUI_SULFAT_CHARGE_START", "");
+        pageObj.add_property_to_object("ENERGY", "GUI_SULFAT_CHARGE_STOP", "");
+        pageObj.add_property_to_object("ENERGY", "SULFAT_CHARGE_RUN", "");
+        
+        // module replacement charge buttons and state
+        pageObj.add_property_to_object("ENERGY", "LI_STORAGE_MODE_START", "");
+        pageObj.add_property_to_object("ENERGY", "LI_STORAGE_MODE_STOP", "");
+        pageObj.add_property_to_object("ENERGY", "LI_STORAGE_MODE_RUNNING", "");
+
+        pageObj.singlePageRefresh();
+        pageObj.startPageRefresh(1000);
+    }
+
+    $(document).bind("page.loaded", function() {
+        $("a").unbind();
+        $("a").click(function() {
+            navigate(this.id);
+        });
+        updateLanguage();
+        obj_init();
+    });
+
+    $(document).bind("page.unload", function() {
+        pageObj.stopPageRefresh();
+    });
+
+    var MaintenanceRequired;
+    var MaintenanceCharge;
+    var MaintenanceChargeReady;
+    var SafetyCharge;
+    var SulfateCharge;
+    var EqualizationCharge;
+    var ModuleReplacement;
+
+    function updateAccuServiceState()
+    {
+        MaintenanceRequired = htmlAsNumber('#ENERGYSTAT_MAINT_REQUIRED');
+        MaintenanceCharge = htmlAsNumber('#ENERGYMAINT_CHARGE_RUNNING');
+        MaintenanceChargeReady = htmlAsNumber('#ENERGYMAINT_CHARGE_READY');
+        SafetyCharge = htmlAsNumber('#ENERGYSAFE_CHARGE_RUNNING');
+        SulfateCharge = htmlAsNumber('#ENERGYSULFAT_CHARGE_RUN');
+        EqualizationCharge = htmlAsNumber('#ENERGYGUI_EQUAL_CHARGE_RUN');
+        ModuleReplacement = htmlAsNumber('#ENERGYLI_STORAGE_MODE_RUNNING');
+
+        if (MaintenanceCharge == 1)
+        {
+            if (MaintenanceChargeReady == 1)
+            {
+                $('#GuiMaintenanceState').html(lng["lAccuServiceWaterRefill"]);
+            }
+            else
+            {
+                $('#GuiMaintenanceState').html(lng["lAccuServiceMntRunning"]);
+            }
+        }
+        else if (MaintenanceRequired == 1)
+        {
+            $('#GuiMaintenanceState').html(lng["lAccuServiceMntNeeded"]);
+        }
+        else
+        {
+            $('#GuiMaintenanceState').html("");
+        }
+
+        if (MaintenanceCharge == 1)
+        {
+            $('#iconMaintenanceCharge').css({"border": "1px solid var(--main-color)"});
+        }
+        else
+        {
+            $('#iconMaintenanceCharge').css({"border": "0px solid var(--main-color)"});
+        }
+
+        if (SafetyCharge == 1)
+        {
+            $('#iconSafetyCharge').css({"border": "1px solid var(--main-color)"});
+        }
+        else
+        {
+            $('#iconSafetyCharge').css({"border": "0px solid var(--main-color)"});
+        }
+
+        if (SulfateCharge == 1)
+        {
+            $('#icon_sulfatcharge').css({"border": "1px solid var(--main-color)"});
+        }
+        else
+        {
+            $('#icon_sulfatcharge').css({"border": "0px solid var(--main-color)"});
+        }
+
+        if (EqualizationCharge == 1)
+        {
+            $('#icon_equalizationcharge').css({"border": "1px solid var(--main-color)"});
+        }
+        else
+        {
+            $('#icon_equalizationcharge').css({"border": "0px solid var(--main-color)"});
+        }
+        
+        if (ModuleReplacement == 1)
+        {
+            $('#iconModuleRepl').css({"border": "1px solid var(--main-color)"});
+        }
+        else
+        {
+            $('#iconModuleRepl').css({"border": "0px solid var(--main-color)"});
+        }
+
+        // Check Lithium variable
+        if (htmlAsNumber('#isLithium') == 1)
+        {
+            $('.pb_only').hide();
+            $('.li_only').show();
+        }
+        else
+        {
+            $('.pb_only').show();
+            $('.li_only').hide();
+        }
+        
+        $('.pageinfo').addClass('hidden').hide();
+        $('.pagecontent').removeClass('hidden').show();
+    }
+
+    function GuiDataMaintenanceChargebtnClick()
+    {
+        if (MaintenanceCharge == 1)
+        {
+            pageObj.handleButtonClick("ENERGY", "GUI_MAINT_CHARGE_STOP");
+        }
+        else
+        {
+            pageObj.handleButtonClick("ENERGY", "GUI_MAINT_CHARGE_START");
+        }
+    }
+    
+    function GuiDataModuleRplbtnClick()
+    {
+        if (ModuleReplacement == 1)
+        {
+            pageObj.handleButtonClick("ENERGY", "LI_STORAGE_MODE_STOP");
+        }
+        else
+        {
+            pageObj.handleButtonClick("ENERGY", "LI_STORAGE_MODE_START");
+        }
+    }
+    
+    function GuiDataSafetyChargebtnClick()
+    {
+        if (SafetyCharge == 1)
+        {
+            pageObj.handleButtonClick("ENERGY", "SAFE_CHARGE_PROHIBIT");
+        }
+        else
+        {
+            pageObj.handleButtonClick("ENERGY", "SAFE_CHARGE_FORCE");
+        }
+    }
+
+    function GuiDataDischargeAllowbtnClick()
+    {
+        if (SafetyCharge == 1)
+        {
+            pageObj.handleButtonClick("ENERGY", "SAFE_CHARGE_PROHIBIT");
+        }
+        if (SulfateCharge == 1)
+        {
+            pageObj.handleButtonClick("ENERGY", "GUI_SULFAT_CHARGE_STOP");
+        }
+        if (EqualizationCharge == 1)
+        {
+            pageObj.handleButtonClick("ENERGY", "GUI_EQUAL_CHARGE_STOP");
+        }
+        if (ModuleReplacement == 1)
+        {
+            pageObj.handleButtonClick("ENERGY", "LI_STORAGE_MODE_STOP");
+        }
+        if (MaintenanceCharge == 1)
+        {
+            pageObj.handleButtonClick("ENERGY", "GUI_MAINT_CHARGE_STOP");
+        }
+    }
+
+    function GuiDataSulfateChargebtnClick()
+    {
+        if (SulfateCharge == 1)
+        {
+            pageObj.handleButtonClick("ENERGY", "GUI_SULFAT_CHARGE_STOP");
+        }
+        else
+        {
+            pageObj.handleButtonClick("ENERGY", "GUI_SULFAT_CHARGE_START");
+        }
+    }
+
+    function GuiDataEqualizationchaChargebtnClick()
+    {
+        if (EqualizationCharge == 1)
+        {
+            pageObj.handleButtonClick("ENERGY", "GUI_EQUAL_CHARGE_STOP");
+        }
+        else
+        {
+            pageObj.handleButtonClick("ENERGY", "GUI_EQUAL_CHARGE_START");
+        }
+    }
+</script>
+
+<div class="pagecontent hidden">
+    <div class="row">
+        <div class="span2 offset1"><div class="img_clip_icon_fullcharge img-button" id='iconSafetyCharge'><img src="./img/all_images.gif" onclick='GuiDataSafetyChargebtnClick();'></div></div>
+        <div class="span2"><div class="img_clip_icon_dischargeallow img-button" id='iconAllowDischarge'><img src="./img/all_images.gif" onclick='GuiDataDischargeAllowbtnClick();'></div></div>
+        <div class="pb_only span2"><div class="img_clip_icon_sulfatcharge img-button" id='icon_sulfatcharge'><img src="./img/all_images.gif" onclick='GuiDataSulfateChargebtnClick();'></div></div>
+        <div class="pb_only span2"><div class="img_clip_icon_cellballancing img-button" id ='icon_equalizationcharge'><img src="./img/all_images.gif" onclick='GuiDataEqualizationchaChargebtnClick();'></div></div>
+    </div>
+    
+    <div class="row">
+        <div class="span2 offset1 text-center"><p id="lAccuServiceFullcharge"></p></div>
+        <div class="span2 text-center"><p id="lAccuServiceReleaseDischarge"></p></div>
+        <div class="pb_only span2 text-center"><p id="lAccuServiceDesulfatationCharge"></p></div>
+        <div class="pb_only span2 text-center"><p id="lAccuServiceEqualizationCarge"></p></div>
+    </div>
+    
+    <div class="row">
+        <div class="pb_only span2 offset1"><div class="img_clip_icon_wartungsladung img-button" id='iconMaintenanceCharge'><img src="./img/all_images.gif" onclick='GuiDataMaintenanceChargebtnClick();'></div></div>
+        <div class="autorisiert">
+            <div class="li_only offset1 span2"><div class="img_clip_icon_modultausch img-button" id='iconModuleRepl'><img src="./img/all_images.gif" onclick='GuiDataModuleRplbtnClick();'></div></div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="pb_only span2 offset1 text-center"><p id="lAccuServiceMntCharge"></p></div>
+        <div class="autorisiert">
+            <div class="li_only offset1 span2 text-center"><p id="lAccuServicePrepareModule"></p></div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="span6 offset2 text-center"><strong id="GuiMaintenanceState" style="margin-top: 50px;"></strong></div>
+    </div>
+</div>
+
+<div class="pageinfo row">
+    <div class="span6 offset2 text-center"><strong style="margin-top: 50px;" id="lLoadPage"></strong></div>
+</div>
+<div class="row">
+    <div class="span6 offset2 text-center"><strong id="GuiMaintenanceState" style="margin-top: 50px;"></strong></div>
+</div>
+
+<div class="hide">
+    <p id="ENERGYMAINT_CHARGE_RUNNING"></p>
+    <p id="ENERGYMAINT_CHARGE_READY"></p>
+    <p id="ENERGYSTAT_MAINT_REQUIRED"></p>
+    <p id="ENERGYSAFE_CHARGE_RUNNING"></p>
+    <p id="ENERGYGUI_EQUAL_CHARGE_RUN"></p>
+    <p id="ENERGYSULFAT_CHARGE_RUN"></p>
+    <p id="ENERGYLI_STORAGE_MODE_RUNNING"></p>
+</div>

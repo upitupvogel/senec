@@ -1,0 +1,643 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <script src="./js/jquery-3.2.1.min.js" type="text/javascript"></script>
+        <script src="./js/senec_values.js" type="text/javascript"></script>
+    </head>
+
+    <body>
+        <h1>VarMon &amp; Chart</h1>
+
+        <div>
+            Documentation: <a href="https://senec-ies.atlassian.net/wiki/x/TQKbL" target="_blank">VarMon &amp; Chart</a>
+            <br/>
+            <br/>
+        </div>
+        <div>
+            <input type="button" value="Show All" onclick="tableShowAll()" />
+            <input type="button" value="Hide Inactive" onclick="tableHideInactive()" />
+            <input type="button" value="Select All" onclick="tableSelectAll()" />
+            <input type="button" value="Deselect All" onclick="tableDeselectAll()" />
+            <input type="button" value="Chart" onclick="chartOpen()" />
+        </div>
+
+        <table id="variables" border="1px" style="float:left">
+            <tr>
+                <th>Enabled</th>
+                <th>Section</th>
+                <th>Variable</th>
+                <th>Index</th>
+                <th>Value</th>
+                <th>Force</th>
+                <th>Force Value</th>
+                <th>Update</th>
+            </tr>
+        </table>
+
+        <script type="text/javascript">
+            var variables = {};
+            var updateCounter = 1;
+
+            function tableInit()
+            {
+                const table = document.getElementById('variables');
+
+                // iterate through sections
+                for(var section in variables)
+                {
+                    // iterate through variables
+                    for(var variable in variables[section])
+                    {
+                        if(variable === ".init")
+                        {
+                            continue;
+                        }
+
+                        for(var cnt = 0; cnt < variables[section][variable].length; cnt++)
+                        {
+                            var smart = false;
+
+                            // check if variable belongs to smart section
+                            if(section.startsWith("V_"))
+                            {
+                                smart = true;
+                            }
+
+                            // skip smart variables meta elements
+                            if(smart && (variable.endsWith("#vf") || variable.endsWith("#f")))
+                            {
+                                continue;
+                            }
+
+                            var idActive = "active__" + section + "__" + variable + "__" + cnt;
+                            var idValue = "value__" + section + "__" + variable + "__" + cnt;
+                            var idProgress = "progress__" + section + "__" + variable + "__" + cnt;
+                            var actionValue = "setValue(\"" + section + "\", \"" + variable + "\", " + cnt + ")";
+
+                            var row = table.insertRow(-1);
+                            row.insertCell(-1).innerHTML = "<input type='checkbox' id='" + idActive + "'/>";
+                            row.insertCell(-1).innerHTML = section;
+                            row.insertCell(-1).innerHTML = (smart) ? variable.slice(0, -2) : variable;
+                            row.insertCell(-1).innerHTML = cnt;
+                            row.insertCell(-1).innerHTML = "<input type='text' onfocusout='" + actionValue + "' id='" + idValue + "' />";
+                            if(smart)
+                            {
+                                var varName = variable.slice(0, -2);
+                                var idForceFlag = "force__" + section + "__" + varName + "#f__" + cnt;
+                                var idForceValue = "forceValue__" + section + "__" + varName + "#vf__" + cnt;
+                                var actionForceFlag = "smartSetForceFlag(\"" + section + "\", \"" + varName + "\", " + cnt + ")";
+                                var actionForceValue = "smartSetForceValue(\"" + section + "\", \"" + varName + "\", " + cnt + ")";
+
+                                row.insertCell(-1).innerHTML = "<input type='checkbox' onclick='" + actionForceFlag + "' id='" + idForceFlag + "' />";
+                                row.insertCell(-1).innerHTML = "<input type='text' onfocusout='" + actionForceValue + "' id='" + idForceValue + "' />";
+                            }
+                            else
+                            {
+                                row.insertCell(-1).innerHTML = "";
+                                row.insertCell(-1).innerHTML = "";
+                            }
+                            row.insertCell(-1).innerHTML = "<span id='" + idProgress + "'>.</span>";
+                            variables[section][variable][cnt]['row'] = row;
+
+                            // initialize fields
+                            tableUpdateVariable(section, variable, cnt);
+                        }
+                    }
+                }
+
+                // request variables values
+                variablesRequest();
+            }
+
+            /* make jshint silent for tableShowAll: */
+            /* exported tableShowAll */
+            function tableShowAll()
+            {
+                // iterate through sections
+                for(var section in variables)
+                {
+                    // iterate through variables
+                    for(var variable in variables[section])
+                    {
+                        if(variable === ".init")
+                        {
+                            continue;
+                        }
+
+                        for(var cnt = 0; cnt < variables[section][variable].length; cnt++)
+                        {
+                            variables[section][variable][cnt]['row'].style.display = '';
+                        }
+                    }
+                }
+            }
+
+            /* make jshint silent for tableHideInactive: */
+            /* exported tableHideInactive */
+            function tableHideInactive()
+            {
+                // iterate through sections
+                for(var section in variables)
+                {
+                    // iterate through variables
+                    for(var variable in variables[section])
+                    {
+                        if(variable === ".init")
+                        {
+                            continue;
+                        }
+
+                        for(var cnt = 0; cnt < variables[section][variable].length; cnt++)
+                        {
+                            var elementActive = document.getElementById('active__' + section + '__' + variable + '__' + cnt);
+
+                            if(elementActive.checked === true)
+                            {
+                                variables[section][variable][cnt]['row'].style.display = '';
+                            }
+                            else
+                            {
+                                variables[section][variable][cnt]['row'].style.display = 'none';
+                            }
+                        }
+                    }
+                }
+            }
+
+            /* make jshint silent for tableSelectAll: */
+            /* exported tableSelectAll */
+            function tableSelectAll()
+            {
+                // iterate through sections
+                for(var section in variables)
+                {
+                    // iterate through variables
+                    for(var variable in variables[section])
+                    {
+                        if(variable === ".init")
+                        {
+                            continue;
+                        }
+
+                        for(var cnt = 0; cnt < variables[section][variable].length; cnt++)
+                        {
+                            if(section.startsWith("V_") && (variable.endsWith("#vf") || variable.endsWith("#f")))
+                            {
+                                continue;
+                            }
+
+                            var elementActive = document.getElementById('active__' + section + '__' + variable + '__' + cnt);
+                            elementActive.checked = true;
+                        }
+                    }
+                }
+            }
+
+            /* make jshint silent for tableDeselectAll: */
+            /* exported tableDeselectAll */
+            function tableDeselectAll()
+            {
+                // iterate through sections
+                for(var section in variables)
+                {
+                    // iterate through variables
+                    for(var variable in variables[section])
+                    {
+                        if(variable === ".init")
+                        {
+                            continue;
+                        }
+
+                        for(var cnt = 0; cnt < variables[section][variable].length; cnt++)
+                        {
+                            if(section.startsWith("V_") && (variable.endsWith("#vf") || variable.endsWith("#f")))
+                            {
+                                continue;
+                            }
+
+                            var elementActive = document.getElementById('active__' + section + '__' + variable + '__' + cnt);
+                            elementActive.checked = false;
+                        }
+                    }
+                }
+            }
+
+            function variablesRequest()
+            {
+                var found = false;
+                var json_variable = {};
+
+                // iterate through sections
+                for(var section in variables)
+                {
+                    // iterate through variables
+                    for(var variable in variables[section])
+                    {
+                        if(variable === ".init")
+                        {
+                            continue;
+                        }
+
+                        for(var cnt = 0; cnt < variables[section][variable].length; cnt++)
+                        {
+                            var elementActive = document.getElementById('active__' + section + '__' + variable + '__' + cnt);
+
+                            if((elementActive === null) || (elementActive.checked !== true))
+                            {
+                                continue;
+                            }
+
+                            if(variables[section][variable][cnt]['update'] === updateCounter)
+                            {
+                                continue;
+                            }
+
+                            /* add variable to request - if one array member is
+                             * selected, also the whole array is selected as the
+                             * variables interface doesn't allow for indexed access
+                             */
+                            if(!(section in json_variable)) {
+                                json_variable[section] = {};
+                            }
+
+                            if(section.startsWith("V_"))
+                            {
+                                var varName = variable.slice(0, -2);
+                                json_variable[section][varName + "#v"] = "";
+                                json_variable[section][varName + "#vf"] = "";
+                                json_variable[section][varName + "#f"] = "";
+                            }
+                            else
+                            {
+                                json_variable[section][variable] = "";
+                            }
+
+                            found = true;
+                        }
+                    }
+                }
+
+                if(found === true)
+                {
+                    /* request list of section variables */
+                    $.ajax({
+                        type: "POST",
+                        async: true,
+                        url: "/lala.cgi",
+                        data: JSON.stringify(json_variable),
+                        dataType: "json",
+                        success: variablesUpdate,
+                        timeout: 3000,
+                        error: variablesRequest,
+                    });
+
+                    return;
+                }
+
+                // increase update counter and start again
+                updateCounter++;
+                window.setTimeout(variablesRequest, 10);
+            }
+
+            function variablesUpdate(data)
+            {
+                var respObj = $.parseJSON(JSON.stringify(data));
+                var value;
+
+                // check if response is an object
+                if ($.type(respObj) !== "object") {
+                    console.log("Error: Parsing JSON response not possible.");
+                    return;
+                }
+
+                // iterate through response sections
+                for(var section in respObj)
+                {
+                    if(!(section in variables))
+                    {
+                        continue;
+                    }
+
+                    // update variables
+                    for(var variable in respObj[section])
+                    {
+                        if(!(variable in variables[section]))
+                        {
+                            continue;
+                        }
+
+                        if(Array.isArray(respObj[section][variable]))
+                        {
+                            for(var cnt = 0; cnt < respObj[section][variable].length; cnt++)
+                            {
+                                variablesUpdateSingle(respObj, section, variable, cnt);
+                            }
+                        }
+                        else
+                        {
+                            value = respObj[section][variable];
+                            respObj[section][variable] = [];
+                            respObj[section][variable][0] = value;
+                            variablesUpdateSingle(respObj, section, variable, 0);
+                        }
+                    }
+                }
+
+                // fetch next variable
+                variablesRequest();
+            }
+
+            function variablesUpdateSingle(respObj, section, variable, cnt)
+            {
+                variables[section][variable][cnt]['value'] = Senec.jsonValUnpack(respObj[section][variable][cnt]);
+                variables[section][variable][cnt]['update'] = updateCounter;
+
+                tableUpdateVariable(section, variable, cnt);
+            }
+
+            function variablesAdd(data)
+            {
+                var respObj = $.parseJSON(JSON.stringify(data));
+
+                // check if response is an object
+                if ($.type(respObj) !== "object") {
+                    console.log("Error: Parsing JSON response not possible.");
+                    return;
+                }
+
+                // iterate through response sections
+                for(var section in respObj)
+                {
+                    if(!(section in variables))
+                    {
+                        continue;
+                    }
+
+                    // create variables objects
+                    for(var variable in respObj[section])
+                    {
+                        variables[section][variable] = [];
+
+                        if(Array.isArray(respObj[section][variable]))
+                        {
+                            for(var cnt = 0; cnt < respObj[section][variable].length; cnt++)
+                            {
+                                variables[section][variable][cnt] = {};
+                                variables[section][variable][cnt]['datatype'] = respObj[section][variable][cnt].substring(0, 2);
+                                variables[section][variable][cnt]['value'] = Senec.jsonValUnpack(respObj[section][variable][cnt]);
+                            }
+                        }
+                        else
+                        {
+                            variables[section][variable][0] = {};
+                            variables[section][variable][0]['datatype'] = respObj[section][variable].substring(0, 2);
+                            variables[section][variable][0]['value'] = Senec.jsonValUnpack(respObj[section][variable]);
+                        }
+                    }
+
+                    // mark section as initialized
+                    variables[section][".init"] = true;
+                }
+
+                // fetch next section
+                variablesInit();
+            }
+
+            function variablesInit()
+            {
+                for(var section in variables)
+                {
+                    /* skip initialized sections */
+                    if(".init" in variables[section])
+                    {
+                        continue;
+                    }
+
+                    var json_section = {};
+                    json_section[section] = {};
+
+                    /* request list of section variables */
+                    $.ajax({
+                        type: "POST",
+                        async: true,
+                        url: "/lala.cgi",
+                        data: JSON.stringify(json_section),
+                        dataType: "json",
+                        success: variablesAdd,
+                        timeout: 3000,
+                        error: variablesInit,
+                    });
+
+                    return;
+                }
+
+                /* all sections are initialized */
+                tableInit();
+            }
+
+            function sectionsAdd(data)
+            {
+                var respObj = $.parseJSON(JSON.stringify(data));
+                var section;
+
+                // check if response is an object
+                if ($.type(respObj) !== "object") {
+                    console.log("Error: Parsing JSON response not possible.");
+                    return;
+                }
+
+                // iterate through response sections
+                for(section in respObj["DEBUG"]["SECTIONS"])
+                {
+                    variables[respObj["DEBUG"]["SECTIONS"][section].substring(3)] = {};
+                }
+
+                // iterate through response sections
+                for(section in respObj["PLAIN"]["SECTIONS"])
+                {
+                    variables[respObj["PLAIN"]["SECTIONS"][section].substring(3)] = {};
+                }
+
+                // iterate through response sections
+                for(section in respObj["V"]["SECTIONS"])
+                {
+                    variables["V_" + respObj["V"]["SECTIONS"][section]] = {};
+                }
+
+                variablesInit();
+            }
+
+            function sectionsInit()
+            {
+                /* request list of section variables */
+                $.ajax({
+                    type: "POST",
+                    async: true,
+                    url: "/lala.cgi",
+                    data: JSON.stringify({"DEBUG":{"SECTIONS":""},"PLAIN":{"SECTIONS":""},"V":{"SECTIONS":""}}),
+                    dataType: "json",
+                    success: sectionsAdd,
+                    timeout: 3000,
+                    error: sectionsInit,
+                });
+            }
+
+            /* make jshint silent: */
+            /* exported chartOpen */
+            function chartOpen()
+            {
+                var getReq = "";
+                var found = false;
+
+                Object.keys(variables).forEach(function (section)
+                {
+                    Object.keys(variables[section]).forEach(function (variable)
+                    {
+                        for(cnt = 0; cnt < variables[section][variable].length; cnt++)
+                        {
+                            // skip smart meta variables
+                            if(section.startsWith("V_") && (variable.endsWith("#vf") || variable.endsWith("#f")))
+                            {
+                                continue;
+                            }
+
+                            var elementActive = document.getElementById('active__' + section + '__' + variable + '__' + cnt);
+
+                            if(elementActive.checked !== true)
+                            {
+                                continue;
+                            }
+
+                            if(getReq.length !== 0)
+                            {
+                                getReq += "&";
+                            }
+                            getReq += section + "." + variable + "." + cnt;
+
+                            found = true;
+                        }
+                    });
+                });
+
+                if(found === true)
+                {
+                    window.open("chart.html?" + getReq, "_blank");
+                }
+                else
+                {
+                    alert("No variables selected!");
+                }
+            }
+
+            /* make jshint silent: */
+            /* exported setValue */
+            function setValue(section, variable, cnt)
+            {
+                var elementValue = document.getElementById("value__" + section + "__" + variable + "__" + cnt);
+                var dataType = variables[section][variable][0]['datatype'];
+                var json_variable = {};
+
+                json_variable[section] = {};
+                if(elementValue.value !== "")
+                {
+                    json_variable[section][variable] = Senec.jsonValPack(dataType, elementValue.value);
+                }
+                else
+                {
+                    json_variable[section][variable] = "";
+                }
+
+                /* request list of section variables */
+                $.ajax({
+                    type: "POST",
+                    async: true,
+                    url: "/lala.cgi",
+                    data: JSON.stringify(json_variable),
+                    dataType: "json",
+                    success: variablesUpdate
+                });
+            }
+
+            /* make jshint silent: */
+            /* exported smartSetForceFlag */
+            function smartSetForceFlag(section, variable, cnt)
+            {
+                var elementForceFlag = document.getElementById("force__" + section + "__" + variable + "#f__" + cnt);
+                var json_variable = {};
+
+                json_variable[section] = {};
+                json_variable[section][variable + "#f"] = (elementForceFlag.checked) ? "u8_01" :"u8_00";
+                json_variable[section][variable + "#v"] = "";
+                json_variable[section][variable + "#vf"] = "";
+
+                /* request list of section variables */
+                $.ajax({
+                    type: "POST",
+                    async: true,
+                    url: "/lala.cgi",
+                    data: JSON.stringify(json_variable),
+                    dataType: "json",
+                    success: variablesUpdate
+                });
+            }
+
+            /* make jshint silent: */
+            /* exported smartSetForceValue */
+            function smartSetForceValue(section, variable, cnt)
+            {
+                var elementForceValue = document.getElementById("forceValue__" + section + "__" + variable + "#vf__" + cnt);
+                var dataType = variables[section][variable + "#vf"][0]['datatype'];
+                var json_variable = {};
+
+                json_variable[section] = {};
+                json_variable[section][variable + "#vf"] = Senec.jsonValPack(dataType, elementForceValue.value);
+                json_variable[section][variable + "#v"] = "";
+                json_variable[section][variable + "#f"] = "";
+
+                /* request list of section variables */
+                $.ajax({
+                    type: "POST",
+                    async: true,
+                    url: "/lala.cgi",
+                    data: JSON.stringify(json_variable),
+                    dataType: "json",
+                    success: variablesUpdate
+                });
+            }
+
+            function tableUpdateVariable(section, variable, cnt)
+            {
+                var smart = false;
+                var varName = variable;
+
+                if(section.startsWith("V_"))
+                {
+                    var tmp = variable.split('#');
+                    varName = tmp[0];
+                    variable = varName + "#v";
+                    smart = true;
+                }
+
+                var elementValue = document.getElementById("value__" + section + "__" + variable + "__" + cnt);
+                var elementProgress = document.getElementById("progress__" + section + "__" + variable + "__" + cnt);
+
+                elementValue.value = variables[section][variable][cnt]['value'];
+                elementProgress.innerHTML = ".".repeat((updateCounter % 10) + 1);
+
+                if(smart)
+                {
+                    var elementForceFlag = document.getElementById("force__" + section + "__" + varName + "#f__" + cnt);
+                    var elementForceValue = document.getElementById("forceValue__" + section + "__" + varName + "#vf__" + cnt);
+
+                    elementForceFlag.checked = parseInt(variables[section][varName + "#f"][cnt]['value']);
+                    elementForceValue.value = variables[section][varName + "#vf"][cnt]['value'];
+                    elementForceValue.style.fontWeight = (elementForceFlag.checked) ? "bold" : "";
+                }
+            }
+
+            window.addEventListener("load", sectionsInit);
+        </script>
+    </body>
+</html>

@@ -1,0 +1,356 @@
+<!doctype html>
+<html style="margin:0;padding:0">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <script src="./js/jquery-3.2.1.min.js" type="text/javascript"></script>
+        <script src="./chart/Chart.min.js" type="text/javascript"></script>
+        <script src="./chart/chartjs-plugin-colorschemes.js" type="text/javascript"></script>
+    </head>
+
+    <body style="margin:0;padding:0">
+        <div style="height:100%;width:100%;position:absolute">
+            <canvas id="chart"></canvas>
+        </div>
+
+        <script type="text/javascript">
+            const chartPoints = 500;
+
+            var variables = {};
+
+            /* chart options */
+            var chartCtx = document.getElementById('chart');
+            var chartData = {
+                labels: [],
+                datasets: [],
+            };
+            var chart = new Chart(chartCtx, {
+                type: 'line',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    animation: false,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        colorschemes: {
+                            scheme: 'brewer.Paired12',
+                        },
+                    },
+                    scales: {
+                        xAxes: [{
+                            ticks: {
+                                callback: function(value) {
+                                    return new Date(value * 1000).toLocaleTimeString('de-DE');
+                                }
+                            }
+                        }],
+                        yAxes: [{
+                            ticks: {
+                                callback: function(...args) {
+                                    const value = Chart.Ticks.formatters.logarithmic.call(this, ...args);
+                                    if (value.length) {
+                                        return Number(value).toLocaleString();
+                                    }
+                                    return value;
+                                }
+                            }
+                        }],
+                    },
+                }
+            });
+
+            function variablesRequest()
+            {
+                var json_variable = {};
+                json_variable["RTC"] = {};
+                json_variable["RTC"]["UTC_OFFSET"] = "";
+                json_variable["RTC"]["WEB_TIME"] = "";
+
+                // iterate through sections
+                for(var section in variables)
+                {
+                    // iterate through variables
+                    for(var variable in variables[section])
+                    {
+                        for(var cnt = 0; cnt < variables[section][variable].length; cnt++)
+                        {
+                            /* add variable to request - if one array member is
+                             * selected, also the whole array is selected as the
+                             * variables interface doesn't allow for indexed access
+                             */
+                            if(!(section in json_variable)) {
+                                json_variable[section] = {};
+                            }
+
+                            json_variable[section][variable] = "";
+                        }
+                    }
+                }
+
+                /* request list of section variables */
+                $.ajax({
+                    type: "POST",
+                    async: true,
+                    url: "/lala.cgi",
+                    data: JSON.stringify(json_variable),
+                    dataType: "json",
+                    success: variablesUpdate,
+                    timeout: 3000,
+                    error: variablesRequest,
+                });
+            }
+
+            function variablesUpdate(data)
+            {
+                var respObj = $.parseJSON(JSON.stringify(data));
+                var value;
+
+                // check if response is an object
+                if ($.type(respObj) !== "object") {
+                    console.log("Error: Parsing JSON response not possible.");
+                    return;
+                }
+
+                // get timestamp
+                rtcWebtime = parseInt(variablesDecode(respObj["RTC"]["WEB_TIME"]));
+                rtcUtcOffset = parseInt(variablesDecode(respObj["RTC"]["UTC_OFFSET"]));
+                rtcWebtime -= (rtcUtcOffset * 60);
+
+                /* remove last element if arrays contain more than chartPoints elements */
+                for(; chartData.labels.length > chartPoints; chartData.labels.shift());
+
+                // iterate through response sections
+                for(var section in respObj)
+                {
+                    if(!(section in variables))
+                    {
+                        continue;
+                    }
+
+                    // update variables
+                    for(var variable in respObj[section])
+                    {
+                        if(!(variable in variables[section]))
+                        {
+                            continue;
+                        }
+
+                        if(Array.isArray(respObj[section][variable]))
+                        {
+                            for(var cnt = 0; cnt < respObj[section][variable].length; cnt++)
+                            {
+                                value = variablesDecode(respObj[section][variable][cnt]);
+                                chartAddValue(section, variable, cnt, parseFloat(value));
+                            }
+                        }
+                        else
+                        {
+                            value = variablesDecode(respObj[section][variable]);
+                            chartAddValue(section, variable, -1, parseFloat(value));
+                        }
+                    }
+                }
+
+                /* update chart */
+                chartData.labels.push(rtcWebtime);
+                chart.update();
+
+                // fetch next variable
+                variablesRequest();
+            }
+
+            function variablesDecode(data)
+            {
+                var tmp = data.split('_');
+                var value = tmp[1];
+                switch (tmp[0])
+                {
+                    case 'fl':
+                        tmp[1] = "0x" + tmp[1];
+                        value = _hex2float(tmp[1]);
+                        value = Math.round(value * 100) / 100;
+                        break;
+                    case 'u8':
+                        //alert("u8");
+                        value = _hex2dec(value);
+                        if (value < 10)
+                        {
+                            value = "0" + value;
+                        }
+                        break;
+                    case 'u1':
+                        //alert("u1");
+                        value = _hex2dec(value);
+                        if (value < 10)
+                        {
+                            value = "0" + value;
+                        }
+                        break;
+                    case 'u3':
+                        value = _hex2dec(value);
+                        break;
+                    case 'u6':
+                        value = _hex2dec(value);
+                        break;
+                    case 'i1':
+                        value = parseInt(value, 16);
+
+                        if(!isNaN(value)) {
+                            if (value < 10) {
+                                value = "0" + value;
+                            }
+                            if ((value & 0x8000) > 0) {
+                                value = value - 0x10000;
+                            }
+                        }
+                        else  {
+                            value = NaN;
+                        }
+                        break;
+                    case 'i3':
+                        value = parseInt(value, 16);
+                        if(!isNaN(value))
+                        {
+                            if (value < 10) {
+                                value = "0" + value;
+                            }
+
+                            if ((Math.abs(value & 0x80000000)) > 0) {
+                                value = value - 0x100000000;
+                            }
+                        }
+                        else  {
+                            value = NaN;
+                        }
+
+                        break;
+                    case 'i8':
+                        value = parseInt(value, 16);
+                        if (value < 10) {
+                            value = "0" + value;
+                        }
+                        if ((value & 0x80) > 0) {
+                            value = value - 0x100;
+                        }
+                        break;
+                    case 'ch':
+                        //alert("ch");
+                        break;
+                    case 'st':
+                        //alert("st");
+                        break;
+                    case 'er':
+                        console.log("error: " + data);
+                        break;
+                    default:
+                        console.log("error: unknown variable type: " + data);
+                        break;
+                }
+
+                return value;
+
+                function _hex2float(num) {
+                    var sign = (num & 0x80000000) ? -1 : 1;
+                    var exponent = ((num >> 23) & 0xff) - 127;
+                    var mantissa = ((num & 0x7fffff) + 0x800000).toString(2); // binary
+                    var float = 0;
+                    // Convert to float
+                    for (var i=0; i<mantissa.length; i+=1)
+                    {
+                        float += parseInt(mantissa[i])? Math.pow(2,exponent):0;
+                        exponent--;
+                    }
+                    return sign * float;
+                }
+
+                function _hex2dec(num)
+                {
+                    return parseInt(num, 16);
+                }
+            }
+
+            function chartAddValue(section, variable, idx, value)
+            {
+                var dataset = null;
+
+                /* add index if set */
+                idx = (idx === -1) ? "" : "[" + idx + "]";
+
+                for(var cnt = 0; cnt < chartData.datasets.length; cnt++)
+                {
+                    if(chartData.datasets[cnt].label === section + "." + variable + idx)
+                    {
+                        dataset = chartData.datasets[cnt];
+                        break;
+                    }
+                }
+
+                /* limit chart variables to 10 */
+                if((dataset === null) && (chartData.datasets.length >= 10))
+                {
+                    return;
+                }
+
+                if(dataset === null)
+                {
+                    dataset = {
+                        label: section + "." + variable + idx,
+                        fill: false,
+                        data: [],
+                    };
+                    chartData.datasets.push(dataset);
+                    for(; dataset.data.length < (chartData.labels.length - 1); dataset.data.push(dataset));
+                }
+                else
+                {
+                    for(; dataset.data.length >= chartData.labels.length; dataset.data.shift());
+
+                }
+
+                dataset.data.push(value);
+            }
+
+            function sectionsInit()
+            {
+                var urlStr = window.location.href;
+                var paramIdx = urlStr.indexOf('?');
+                var params;
+
+                if(paramIdx <= 1)
+                {
+                    alert("Chart parameters missing");
+                    return;
+                }
+
+                /* split parameters */
+                params = urlStr.substr(paramIdx + 1).split('&');
+
+                for(var cnt = 0; cnt < params.length; cnt++)
+                {
+                    var details = params[cnt].split('.');
+                    var section = details[0];
+                    var variable = details[1];
+                    var index = details[2];
+
+                    if(!(section in variables))
+                    {
+                        variables[section] = {};
+                    }
+
+                    if(!(variable in variables[section]))
+                    {
+                        variables[section][variable] = [];
+                    }
+
+                    variables[section][variable][index] = true;
+                }
+
+                console.log(variables);
+                variablesRequest();
+            }
+
+            for(; chartData.labels.length < chartPoints; chartData.labels.push(0));
+            window.addEventListener("load", sectionsInit);
+        </script>
+    </body>
+</html>

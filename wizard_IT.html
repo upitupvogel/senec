@@ -1,0 +1,1580 @@
+
+
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" id="btnWizard_close" onclick="confwizardClose();">×</button>
+    <h3>Assistente di configurazione</h3>
+</div>
+<div id="pnWizardModalBody" class="modal-body">
+    <div id="WizardCarousel" class="carousel">
+        <!-- Carousel items -->
+        <div id="pnWizardCarouselInner" class="carousel-inner">
+        
+            <!-- Seite Nutzungsbedingungen  -->
+            <div id="pnWizardCarouselEula" class="active item">
+                <h4>Condizioni di utilizzo</h4>
+                <p>
+                    SENEC GmbH si impegna costantemente a sviluppare e rendere sempre più conveniente il sistema di accumulo energetico SENEC.
+					Per mezzo di aggiornamenti, SENEC GmbH mette sempre a disposizione dei suoi clienti la versione standard più recente del suo software per accumulatori. A tale scopo, il sistema di accumulo è connesso tramite Internet al server di SENEC GmbH.
+					Il sistema di accumulo del cliente verifica autonomamente ad intervalli periodici se sono disponibili aggiornamenti ed eventualmente li scarica e installa automaticamente. Con l'aggiornamento si perdono le statistiche del dispositivo SENEC per il giorno in corso. Questo costituisce la sola forma di perdita di dati.</p>
+                <p>
+                    Gli aggiornamenti possono comportare rilevamento, trattamento, elaborazione e utilizzo di dati (dati sull'uso ecc.) eventualmente classificabili come "dati personali" secondo le disposizioni della legge sulla protezione dei dati. SENEC GmbH dichiara di trattare con il massimo della riservatezza tutte le informazioni ottenute in tale contesto. SENEC GmbH si impegna a conservare o salvare i dati personali solo ai fini dell'assistenza e dell'ottimizzazione dell'autonomia del sistema. Eventuali terze parti, collegate direttamente a SENEC GmbH, possono eventualmente accedere a tali dati per operazioni di manutenzione.
+                    Altre forme di riproduzione, sfruttamento e utilizzo sono esplicitamente escluse. I dati vengono utilizzati unicamente per l'utilizzo e per il miglioramento del prodotto. È vietato elaborare, trasmettere, rendere accessibili o sfruttare in qualsiasi altro modo senza autorizzazione i dati personali importanti a scopi diversi da quelli legati allo svolgimento dei compiti legalmente ammessi. SENEC GmbH si impegna a rispettare le disposizioni della legge italiana sulla protezione dei dati e sulla comunicazione elettronica e ad addestrare i propri collaboratori in merito, nonché ad informare il proprio personale e a vincolare anche questo al rispetto delle leggi summenzionate.</p>
+                <p>
+                    Con la presente il cliente dichiara la sua accettazione e autorizzazione esplicita a rilevamento, trattamento, elaborazione e utilizzo dei suoi dati personali (sull'utilizzo ecc.) da parte di SENEC GmbH, allo scopo di migliorare e ottimizzare i sistemi di accumulo del marchio SENEC, soprattutto ai fini dell'ottenimento di un ulteriore risparmio sui costi da parte del cliente e per migliorarne la redditivita`.
+                </p>
+                <form class="form-horizontal">
+                    <div class="controls">
+                        <label class="checkbox">
+                            <input type="checkbox" id="inputWizardAGBsAccepted" />Accetto le condizioni di utilizzo.
+                        </label>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Seite Daten Installateur  -->
+            <div  id="pnWizardCarouselInstallerData" class="item">
+                <h4>Dati installatore</h4>
+                <p>
+                     I campi contrassegnati con un asterisco (*) sono obbligatori!
+                </p>
+                <form class="wizard-form-horizontal">
+                    <div id="lblWizardInstallerCheckResult"  class="wizard-check-result"> </div>
+                   
+                    <div id="lblWizardInstallerEmailCheckResult" class="wizard-check-result"></div>
+                    <label class="control-label" for="txtWizardInstallerEmail">* E-Mail: </label>
+                    <div class="controls">
+                        <input type="text" id="txtWizardInstallerEmail" class="wizardautorisiert"/>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label" for="txtWizardInstallerPassword">* Password:</label>
+                        <div class="controls">
+                            <input type="password" id="txtWizardInstallerPassword" onkeydown = "if (event.keyCode == 13) confwizardNextPage()">
+                        </div>
+                        <br>
+                    </div>
+
+                    <div class="control-group parties_div hidden">
+                        <label class="control-label" for="inputWizardCONTRACTOR">Livello di Partnership:</label>
+                        <div class="controls">
+                            <select  id="inputWizardCONTRACTOR" class="select wizardautorisiert parties_select">
+                            </select>
+                        </div>
+                    </div>
+
+                    <table id="tblWizardCheckInternetConnection" class="wizard-check-internet-connection">
+                        <tr>
+                            <td><strong>Connessione via Internet di questo computer a <a id="senecURLhref" href="http://mein-senec.de"><label id="senecURLdisplay">www.mein-senec.de</label></a>: </strong></td><td><span id="lblWizardClientInternetConnection" class="wizard-check-internet-connection-status"></span></td>
+                        </tr>
+                        <img id="objCheckBrowserInternetConnection" class="wizard-check-internet-connection-pn" src="" width="100" height="100"></img>
+                    </table>
+                    
+                     <br>
+                    <input type="button" style="margin: 0px 30%;" onclick="confwizardCheckInternetConnection()" value="Testare nuovamente la connessione internet!" >
+                </form>
+            </div>
+            
+            <!-- Seite Daten Eigentümer  -->
+            <div  id="pnWizardCarouselCustomerData" class="item">
+                <h4>Dati del proprietario</h4>
+                <p>
+                     I campi contrassegnati con un asterisco (*) sono obbligatori!
+                </p>
+                <form class="wizard-form-horizontal">
+                    <div id="lblWizardCustomerCheckResult"  class="wizard-check-result"> </div>
+                    <label class="control-label" for="txtWizardOwner_Name">* Nome: </label>
+                    <div class="controls">
+                        <input type="text" id="txtWizardOwner_Name" placeholder="Nome" />
+                    </div>
+                    <label class="control-label" for="txtWizardOwner_Surname">* Cognome: </label>
+                    <div class="controls">
+                        <input type="text" id="txtWizardOwner_Surname" placeholder="Cognome" />
+                    </div>
+                    <label class="control-label" for="txtWizardOwner_Street">* Via: </label>
+                    <div class="controls">
+                        <input type="text" id="txtWizardOwner_Street" placeholder="Via" />
+                    </div>
+                    <label class="control-label" for="txtWizardOwner_HouseNumber">* N. civico: </label>
+                    <div class="controls" class="has-tooltip" title="Massimo di 10 caratteri.">
+                        <input type="text" id="txtWizardOwner_HouseNumber" placeholder="N. civico" />
+                    </div>
+                    <label class="control-label" for="txtWizardOwner_PostalCode">* CAP: </label>
+                    <div class="controls" class="has-tooltip" title="Massimo di 10 caratteri.">
+                        <input type="text" id="txtWizardOwner_PostalCode" placeholder="CAP" />
+                    </div>
+                    <label class="control-label"  for="txtWizardOwner_City">* Luogo: </label>
+                    <div class="controls">
+                        <input type="text" id="txtWizardOwner_City" placeholder="Luogo" />
+                    </div>
+
+                    <label class="control-label" for="inputWizardOWNER_COUNTRY">* Paese: </label>
+
+                    <div class="controls">
+                        <select  id="inputWizardOWNER_COUNTRY" class="select wizardautorisiert">
+                            <option value="">Seleziona</option>
+                            <option value="de">Germania</option>
+                            <option value="it">Italia</option>
+                            <option value="au">Australia</option>
+                            <option value="at">Austria</option>
+                            <option value="gb">Gran Bretagna</option>
+                            <option value="ch">Svizzera</option>
+                            <option value="fr">Francia</option>
+                            <option value="be">Belgio</option>
+                            <option value="nl">Paesi Bassi</option>
+                        </select>
+                    </div>
+                    <div id="lblWizardCustomerEmailCheckResult" class="wizard-check-result"></div>
+                    <label class="control-label" for="txtWizardOwner_Email">* E-Mail: </label>
+                    <div class="controls">
+                        <input type="text" id="txtWizardOwner_Email" placeholder="E-Mail" />
+                    </div>
+                    <label class="control-label" for="txtWizardOwnerConfirmEmail">* Conferma e-mail: </label>
+                    <div class="controls">
+                        <input type="text" id="txtWizardOwnerConfirmEmail" placeholder="E-Mail" />
+                    </div>
+                    <label class="control-label"  for="txtWizardOwner_Phone">Numero di telefono: </label>
+                    <div class="controls">
+                        <input type="text" id="txtWizardOwner_Phone" placeholder="Numero di telefono" />
+                    </div>
+                </form>
+            </div>
+
+            <!-- Seite Installationsort  -->
+            <div  id="pnWizardCarouselInstallationPlace" class="item">
+                <h4>Luogo di installazione</h4>
+                <p>
+                     I campi contrassegnati con un asterisco (*) sono obbligatori!
+                </p>
+                <!-- Button um Daten zu übernehmen -->
+                <button class="btn btn-wizard"  onclick="fetch_customer_data()" id="btnWizard_fetch_costumer_data">Rilevare i dati dei clienti</button>
+                <form class="wizard-form-horizontal">
+                    <div id="lblWizardInstallationPlaceCheckResult"  class="wizard-check-result"> </div>
+
+                    <label class="control-label" for="txtWizardAkkuSiteGeo_Street">* Via: </label>
+                    <div class="controls">
+                        <input type="text" id="txtWizardAkkuSiteGeo_Street" placeholder="Via"  class="wizardautorisiert">
+                    </div>
+                    <label class="control-label" for="txtWizardAkkuSiteGeo_HouseNum">* N. civico: </label>
+                    <div class="controls" class="has-tooltip" title="Massimo di 5 caratteri.">
+                        <input type="text" id="txtWizardAkkuSiteGeo_HouseNum" placeholder="N. civico" class="wizardautorisiert">
+                    </div>
+                    <label class="control-label" for="txtWizardAkkuSiteGeo_PostalCode">* CAP: </label>
+                    <div class="controls" class="has-tooltip" title="Massimo di 5 caratteri.">
+                        <input type="text" id="txtWizardAkkuSiteGeo_PostalCode" placeholder="CAP" class="wizardautorisiert">
+                    </div>
+                    
+                    <label class="control-label" for="txtWizardAkkuSiteGeo_City">* Luogo: </label>
+                    <div class="controls">
+                        <input type="text" id="txtWizardAkkuSiteGeo_City" placeholder="Luogo" class="wizardautorisiert">
+                    </div>
+                    
+                    <label class="control-label" for="inputWizardAKKU_SITE_GEO_COUNTRY">* Paese: </label>
+                    <div class="controls">
+                        <select  id="inputWizardAKKU_SITE_GEO_COUNTRY" class="select wizardautorisiert" onchange="fillTimeZoneSelect(this.value)">
+                            <option value="">Seleziona</option>
+                            <option value="de">Germania</option>
+                            <option value="it">Italia</option>
+                            <option value="au">Australia</option>
+                            <option value="at">Austria</option>
+                            <option value="gb">Gran Bretagna</option>
+                            <option value="ch">Svizzera</option>
+                            <option value="fr">Francia</option>
+                            <option value="be">Belgio</option>
+                            <option value="nl">Paesi Bassi</option>
+                        </select>
+                    </div>   
+                    
+                    <label class="control-label" for="inputWizardTimeZone">* Fuso orario:</label>
+                    <div class="controls">
+                        <select disabled id="inputWizardTimeZone" class="select wizardautorisiert">
+                            <option value="">Selezionare un paese prima.</option>
+                        </select>
+                        <br>
+                    </div>  
+                    
+                </form>
+            </div>
+            
+            <!-- Seite Konfiguration Kaskadierung  -->
+            <div id="pnWizardMasterSlave" class="item">
+                <h4 class="has-tooltip" title="Le modifiche si applicano solo dopo il riavvio" >Configurazione collegamento in cascata</h4>
+
+                <form class="form-horizontal">
+                <label class="control-label" for="inputWizardMasterSlaveMode">Modalità: </label>
+                <div class="controls">
+                  <select id="inputWizardMasterSlaveMode" class="select wizardautorisiert">
+                      <option value="0">Nessun coll. a cascata</option>
+                      <option value="1">Master</option>
+                      <option value="2">Slave</option>
+                  </select>
+                </div>
+                
+                <div class="for_master_only">
+                    <label class="control-label" for="inputWizwardSlaveCountSelect">Numero Slave: </label>
+                    <div class="controls">
+                        <select  id="inputWizwardSlaveCountSelect" class="select wizardautorisiert">
+                            <option value="1" selected="selected">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="for_master_and_slave">
+                    <label id="lbl_slave_address0" class="control-label has-tooltip" for="WIZARDMASTER_SLAVE_ADDRESSES0" title="Null entspricht deaktiviertem System.">Indirizzo 1: </label>
+                    <div class="controls">
+                      <input type="text" id="WIZARDMASTER_SLAVE_ADDRESSES0" value="0" class="wizardautorisiert">
+                    </div>
+                </div>
+
+                <div class="for_master_only">
+                    <div class="slave2container">
+                        <label class="control-label has-tooltip" for="WIZARDMASTER_SLAVE_ADDRESSES1" title="Null entspricht deaktiviertem System.">Indirizzo 2: </label>
+                        <div class="controls">
+                          <input type="text" id="WIZARDMASTER_SLAVE_ADDRESSES1" value="0" class="wizardautorisiert">
+                        </div>
+                    </div>
+                    
+                    <div class="slave3container">
+                        <label class="control-label has-tooltip" for="WIZARDMASTER_SLAVE_ADDRESSES2" title="Null entspricht deaktiviertem System.">Indirizzo 3: </label>
+                        <div class="controls">
+                          <input type="text" id="WIZARDMASTER_SLAVE_ADDRESSES2" value="0" class="wizardautorisiert">
+                        </div>
+                    </div>
+    
+                    <div class="slave4container">
+                        <label class="control-label has-tooltip" for="WIZARDMASTER_SLAVE_ADDRESSES3" title="Null entspricht deaktiviertem System.">Indirizzo 4: </label>
+                        <div class="controls">
+                          <input type="text" id="WIZARDMASTER_SLAVE_ADDRESSES3" value="0" class="wizardautorisiert">
+                       </div>
+                    </div>
+                    
+                    <div class="slave5container">
+                        <label class="control-label has-tooltip" for="WIZARDMASTER_SLAVE_ADDRESSES4" title="Null entspricht deaktiviertem System.">Indirizzo 5: </label>
+                        <div class="controls">
+                          <input type="text" id="WIZARDMASTER_SLAVE_ADDRESSES4" value="0" class="wizardautorisiert">
+                        </div>
+                    </div>
+                    
+                    <div class="slave6container">
+                        <label class="control-label has-tooltip" for="WIZARDMASTER_SLAVE_ADDRESSES5" title="Null entspricht deaktiviertem System.">Indirizzo 6: </label>
+                        <div class="controls">
+                          <input type="text" id="WIZARDMASTER_SLAVE_ADDRESSES5" value="0" class="wizardautorisiert">
+                        </div>
+                    </div>
+                    <div id="warningSlaveNum" class="hidden">
+                        Se più di 4 slave sono collegati in cascata, è necessario collegare un amplificatore bus RS485 tra i sottosistemi 3 e 4. <br>
+                        Si prega di fare riferimento ai dettagli della guida all'installazione o contattare il nostro servizio clienti.   
+                    </div>
+                </div>
+                </form>
+            </div>
+            
+            <!-- Seite Einspeiseleistung  -->
+            <div  id="pnWizardCarouselConfigStandard" class="item">
+                <h4>Impostazione collegamento rete</h4>
+
+                <form class="form-horizontal">
+                    <div class="PhaseSelectionContainer">
+	                    <h6>
+	                        <span title="Si prega di specificare se il sistema è stato collegato ad una rete trifase o una fase ponte." class="has-tooltip" >Collegamento alla rete</span>
+	                    </h6>
+	                    
+	                    <label class="control-label">
+	                        <div id="img_phase_selection" class="img_clip_icon_singlephase d-hide">
+	                            <img src="./img/all_images.gif" alt="" style="margin-right:30px;">
+	                        </div>
+	                    </label>
+	                    
+	                    <div class="controls" style="height:150px;">
+	                        <label class="checkbox">
+	                            <input type="checkbox" id="inputWizardSystemSetupGridConnectionSinglePhase" class="wizardautorisiert"> Monofase - L1-L1-L1 N PE
+	                        </label>
+	                        
+	                        <label class="checkbox">
+	                            <input type="checkbox" id="inputWizardSystemSetupGridConnectionMultiPhase" class="wizardautorisiert"> Trifase - L1 L2 L3 N PE
+	                        </label>
+	                    </div>
+                    </div>
+                    
+                    <div class="inputInverterPhaseSelection d-hide">
+                        <h6>
+                            <span title="Selezionare la fase utilizzata dal sistema. Deve essere la fase alla quale il sistema è collegato al primo misuratore di potenza. Questa selezione è importante per una corretta limitazione dello spiramento della rete." class="has-tooltip" >Fase di lavoro del sistema SENEC</span>
+                        </h6>
+    
+                        <label class="control-label" for="inputWizardSystemSetupXtenderPhase">Fase collegata: </label>
+                        <div class="controls">
+                            <select  id="inputWizardSystemSetupXtenderPhase" class="select wizardautorisiert"></select>
+                            <div id="lblWizardConfigBatteryCheckResult"  class="wizard-check-result"> </div>
+                        </div>
+                    </div>
+                    
+                    <div class="master_setup_only">
+                        <h6>
+                            <span title="Attivare casa misuratore di potenza (Enfluri 2 o 3) se non si utilizza un inverter FV leggibile." class="has-tooltip">Wattmetro abitazione</span>
+                        </h6>
+                        <!-- Enfluri Selection -->
+                        <label class="control-label" for="inputWizardSystemSetupPowerMeterConsumer">Secondo misuratore di potenza </label>
+                        <div class="controls">  
+                            <label class="checkbox">
+                                <input type="checkbox" id="inputWizardSystemSetupPowerMeterConsumer" class="wizardautorisiert"> misura dei consumi (Tipo 2).
+                            </label>
+                            <label class="checkbox">
+                                <input type="checkbox" id="inputWizardSystemSetupPowerMeterProducer" class="wizardautorisiert"> misura della produzione (Tipo 3).
+                            </label>
+                            <label class="checkbox">
+                                <input type="checkbox" id="inputWizardSystemSetupPowerMeterNone" class="wizardautorisiert"> non esiste. Sara` configurato un inverter fotovoltaico certificato.
+                            </label>
+                        </div>
+                        
+                        <!-- Senec Cloud Section -->
+                        <div class="cloud-container">
+                        <h6>
+                            <span title="Questi contatori supplementari vengono utilizzati per SENEC.Cloud Servizi." class="has-tooltip">SENEC.Cloud meter</span>
+                        </h6>
+                            <!-- Senec-Cloud Meter -->
+                            <div class="controls">
+                                <label class="checkbox">
+                                    <input type="checkbox" id="inputWizardSystemSetupSenecMeter" class="wizardautorisiert"> SENEC.Cloud meter disponibile
+                                </label>
+                            </div>                    
+                               
+                            <div class="d-hide" id="SenecMeter_Container">  
+                                <label class="control-label" id="inputWizardSystemSetupSenecMeterSerialLbl" for="inputWizardSystemSetupSenecMeterSerial"> Numero di serier: </label>
+                                <div class="controls">     
+                                        <input type="text" id="inputWizardSystemSetupSenecMeterSerial" class="wizardautorisiert">
+                                </div>
+                                <div class="controls"> 
+                                    <br>
+                                    <p id="inputWizardSenecMeterlTestResult">Si prega di iniziare i test</p>
+                                    <input type="button" id="btnWizardSenecMeterStartTest" value="Test di comunicazione!">
+                                </div>
+                            </div>
+                            <!-- Heatpump-meter -->
+                            <div class="controls">
+                                <label class="checkbox">
+                                    <input type="checkbox" id="inputWizardSystemSetupHeatpumpMeter" class="wizardautorisiert"> SENEC.Cloud Pompa di colore meter disponibile
+                                </label>
+                            </div>                    
+                               
+                            <div class="d-hide" id="HeatpumpMeter_Container">  
+                                <label class="control-label" id="inputWizardSystemSetupHeatpumpMeterSerialLbl" for="inputWizardSystemSetupHeatpumpMeterSerial"> Numero di serier: </label>
+                                <div class="controls">     
+                                        <input type="text" id="inputWizardSystemSetupHeatpumpMeterSerial" class="wizardautorisiert">
+                                </div>
+                                <div class="controls"> 
+                                    <br>
+                                    <p id="inputWizardHeatpumpMeterTestResult">Si prega di iniziare i test</p>
+                                    <input type="button" id="btnWizardHeatpumpMeterStartTest" value="Test di comunicazione!">
+                                </div>
+                            </div>
+                            <!-- Generation-meter -->
+                            <div class="controls">
+                                <label class="checkbox">
+                                    <input type="checkbox" id="inputWizardSystemSetupGenerationMeter" class="wizardautorisiert"> SENEC.Cloud Generazione meter disponibile
+                                </label>
+                            </div>                    
+                               
+                            <div class="d-hide" id="GenerationMeter_Container">  
+                                <label class="control-label" id="inputWizardSystemSetupGenerationMeterSerialLbl" for="inputWizardSystemSetupGenerationMeterSerial"> Numero di serier: </label>
+                                <div class="controls">     
+                                        <input type="text" id="inputWizardSystemSetupGenerationMeterSerial" class="wizardautorisiert">
+                                </div>
+                                <div class="controls"> 
+                                    <br>
+                                    <p id="inputWizardGenerationMeterlTestResult">Si prega di iniziare i test</p>
+                                    <input type="button" id="btnWizardGenerationMeterStartTest" value="Test di comunicazione!">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Seite Konfiguration Inverter FV  -->
+            <div  id="pnWizardCarouselConfigSystem" class="item">
+                <h4>Configurazione Sistema FV</h4>
+                <form class="form-horizontal">
+                    <h6>
+                        <span title="Si prega di inserire informazioni sul vostro Sistema FV." class="has-tooltip" >Inverter FV</span>
+                    </h6>
+                    <label class="control-label" for="inputWizardSiteMaxPVPower">Max. potenza FV (Wp): </label>
+                    <div class="controls">
+                        <input type="text" id="inputWizardSiteMaxPVPower" value="5000" class="wizardautorisiert" >
+                    </div>
+
+                    <h6>
+                        <span title="Selezionando essere su quanta potenza dell'inverter FV sforzo limitato." class="has-tooltip" >Limitazione Inverter FV</span>
+                    </h6>
+                    
+                    <label class="control-label" for="inputWizardSystemSetupFeedInLimitOpt">Tipo di limitazione: </label>
+                    <div class="controls">
+                        <select  id="inputWizardSystemSetupFeedInLimitOpt" class="select wizardautorisiert">
+                            <option value="0">Per cento</option>
+                            <option value="1">Assolutamente</option>
+                        </select>
+                    </div>
+
+                    <div id="PowerRuleContainer">
+	                    <label class="control-label" for="inputWizardSystemSetupPowerRule">Limitazione dinamica immissione (%): </label>
+	                    <div class="controls">
+	                        <select  id="inputWizardSystemSetupPowerRule" class="select wizardautorisiert"
+	                                onchange="fillChargePrio($('#optWizardPU_Usage').val())">
+	                            <option value="0">0 - Esportazione zero</option>
+	                            <option value="10">10</option>
+	                            <option value="20">20</option>
+	                            <option value="30">30</option>
+	                            <option value="40">40</option>
+	                            <option value="50">50</option>
+	                            <option value="60">60</option>
+	                            <option value="70">70</option>
+	                            <option value="80">80</option>
+	                            <option value="90">90</option>
+	                            <option value="100">100 - Nessuna limitazione</option>
+	                        </select>
+	                    </div>
+                    </div>
+                    
+                    <div id="AbsolutePowerContainer">
+                        <label class="control-label" for="inputWizardSiteMaxFeedInPower">max. La potenza di alimentazione (W): </label>
+                        <div class="controls">
+                            <input type="text" id="inputWizardSiteMaxFeedInPower" value="5000" class="wizardautorisiert" >
+                        </div>
+                    </div>
+                    
+                    <label class="control-label steca" for="checkboxWizardExternalPV">Configurare l'inverter FV esterno</label>
+                    <div class="controls steca">
+                       <label class="checkbox">
+                           <input type="checkbox" id="checkboxWizardExternalPV" class="wizardautorisiert">
+                       </label>
+                    </div>  
+                            
+                    <div id="ExternalPVContainer" class="d-hide">
+                    <h6>Inverter FV</h6>
+                    <label class="has-tooltip control-label" title="Selezionare il produttore dell'inverter."  for="inputWizardSystemSetupInvManufacturer">Produttore: </label>
+                    <div class="controls">
+                        <select  id="inputWizardSystemSetupInvManufacturer" class="select wizardautorisiert" onChange="fillInverterTypeList(this.value)">
+                            <option value="0">Selezionare</option>
+                            <option value="1">Kostal</option>
+                            <option value="2">Solarinvert</option>
+                            <option value="3">Delta</option>
+                            <option value="4">Fronius</option>
+                            <option value="5">SolarMax</option>
+                            <option value="6">SMA</option>
+                            <option value="7">SolarEdge</option>
+                        </select>
+                    </div>
+                    <label class="has-tooltip control-label" title="Selezionare l'inverter Tipo."  for="inputWizardSystemSetupInverterType"  id="inputWizardSystemSetupInverterType_LBL">Tipo: </label>
+                    <div class="controls">
+                        <select  id="inputWizardSystemSetupInverterType" class="select wizardautorisiert" onChange="fillInverterTypeAdressLabel(this.value)">
+                            <option value="0">Selezionare</option>
+                        </select>
+                    </div>
+               
+                    <!-- PV-Inverter count selection -->
+                    <label class="has-tooltip control-label"  title="Numero di inverter (max. 6 pezzi), appaiono a seconda del numero delle opzioni appropriate."  for="optWizardPvInverterCount">Quantità: </label>
+                    <div class="controls">
+                        <select  id="optWizardPvInverterCount" class="select wizardautorisiert">
+                            <option value="0">Nessuno/disattivato</option>
+                            <option value="1" selected="selected" >1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                        </select>
+                    </div>
+
+            <!-- PV-Inverter 1 -->
+            <div id="pnWizardPVInverter0Container">
+                <h6>Inverter FV 1</h6>    
+                <label  class="control-label" for="WIZARDDEVICE_INV_SLAVE_ADRESS0">RS485-Indirizzo: </label>
+                <div class="controls">
+                    <input type="text" id="WIZARDDEVICE_INV_SLAVE_ADRESS0" value="03" class="wizardautorisiert">
+                </div>
+                <!-- Only shown if INV is SMA WebConnect-Module -->                        
+                <label  class="control-label" for="WIZARDDEVICE_INV_IP0">IP-Indirizzo: </label>
+                <div class="controls">
+                    <input type="text" id="WIZARDDEVICE_INV_IP0" value="192.168.1.100" class="wizardautorisiert">
+                </div>
+            </div>
+
+            <!-- PV-Inverter 2 -->
+            <div id="pnWizardPVInverter1Container">
+                <h6>Inverter FV 2</h6>
+                <label class="control-label" for="WIZARDDEVICE_INV_SLAVE_ADRESS1">RS485-Indirizzo: </label>
+                <div class="controls">
+                    <input type="text" id="WIZARDDEVICE_INV_SLAVE_ADRESS1" value="255" class="wizardautorisiert">
+                </div>
+                <!-- Only shown if INV is SMA WebConnect-Module -->                        
+                <label  class="control-label" for="WIZARDDEVICE_INV_IP1">IP-Indirizzo: </label>
+                <div class="controls">
+                    <input type="text" id="WIZARDDEVICE_INV_IP1" value="192.168.1.101" class="wizardautorisiert">
+                </div>
+            </div>
+
+            <!-- PV-Inverter 3 -->
+            <div id="pnWizardPVInverter2Container">
+                <h6>Inverter FV 3</h6>
+                <label class="control-label" for="WIZARDDEVICE_INV_SLAVE_ADRESS2">RS485-Indirizzo: </label>
+                <div class="controls">
+                    <input type="text" id="WIZARDDEVICE_INV_SLAVE_ADRESS2" value="255" class="wizardautorisiert">
+                </div>
+                <!-- Only shown if INV is SMA WebConnect-Module -->                        
+                <label  class="control-label" for="WIZARDDEVICE_INV_IP2">IP-Indirizzo: </label>
+                <div class="controls">
+                    <input type="text" id="WIZARDDEVICE_INV_IP2" value="192.168.1.102" class="wizardautorisiert">
+                </div>
+            </div>
+
+            <!-- PV-Inverter 4 -->
+            <div id="pnWizardPVInverter3Container">
+                <h6>Inverter FV 4</h6>
+                <label class="control-label" for="WIZARDDEVICE_INV_SLAVE_ADRESS3">RS485-Indirizzo: </label>
+                <div class="controls">
+                    <input type="text" id="WIZARDDEVICE_INV_SLAVE_ADRESS3" value="255" class="wizardautorisiert" >
+                </div>
+                <!-- Only shown if INV is SMA WebConnect-Module -->                        
+                <label  class="control-label" for="WIZARDDEVICE_INV_IP3">IP-Indirizzo: </label>
+                <div class="controls">
+                    <input type="text" id="WIZARDDEVICE_INV_IP3" value="192.168.1.103" class="wizardautorisiert">
+                </div>
+            </div>
+
+            <!-- PV-Inverter5 -->
+            <div id="pnWizardPVInverter4Container">
+                <h6>Inverter FV 5</h6>
+                <label class="control-label" for="WIZARDDEVICE_INV_SLAVE_ADRESS4">RS485-Indirizzo: </label>
+                <div class="controls">
+                    <input type="text" id="WIZARDDEVICE_INV_SLAVE_ADRESS4" value="255" class="wizardautorisiert">
+                </div>
+                <!-- Only shown if INV is SMA WebConnect-Module -->                        
+                <label  class="control-label" for="WIZARDDEVICE_INV_IP4">IP-Indirizzo: </label>
+                <div class="controls">
+                    <input type="text" id="WIZARDDEVICE_INV_IP4" value="192.168.1.104" class="wizardautorisiert">
+                </div>
+            </div>
+
+            <!-- PV-Inverter 6 -->
+            <div id="pnWizardPVInverter5Container">
+                <h6>Inverter FV 6</h6>
+                <label class="control-label" for="WIZARDDEVICE_INV_SLAVE_ADRESS5">RS485-Indirizzo: </label>
+                <div class="controls">
+                    <input type="text" id="WIZARDDEVICE_INV_SLAVE_ADRESS5" value="255" class="wizardautorisiert">
+                </div>
+                <!-- Only shown if INV is SMA WebConnect-Module -->                        
+                <label  class="control-label" for="WIZARDDEVICE_INV_IP5">IP-Indirizzo: </label>
+                <div class="controls">
+                    <input type="text" id="WIZARDDEVICE_INV_IP5" value="192.168.1.105" class="wizardautorisiert">
+                </div>
+            </div>
+            </div>
+                </form>
+            </div>
+            
+            <!-- Config Page Wallbox  -->
+            <div  id="pnWizardCarouselConfigWallbox" class="item">
+                <h4>Configurazione Wallbox</h4>
+                <form class="form-horizontal">
+                    
+                    <h6>
+                        <span title="Si prega di inserire le informazioni relative al tuo Wallbox." class="has-tooltip" >Wallbox</span>
+                    </h6>
+               
+
+                    <!-- Wallbox count selection   -->
+                    <label class="has-tooltip control-label" title="Numero di wallbox (max. 4 pezzi), appaiono a seconda del numero delle opzioni appropriate." for="optWizardWallboxCount">Numero: </label>
+                    <div class="controls">
+                        <select id="optWizardWallboxCount" class="select wizardautorisiert">
+                            <option value="0">Nessuno/disattivato</option>
+                            <option value="1" selected="selected" >1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                        </select>
+                    </div>
+                    <label class="has-tooltip control-label" title="0 = nessuno" for="optWizardWallboxMaxTotalGrid">Limite di corrente (A) del gestore di rete: </label>
+                    <div class="controls">
+                        <input type="text" id="optWizardWallboxMaxTotalGrid" value="0" class="wizardautorisiert" >
+                    </div>
+
+                <!-- Wallbox 1 -->
+                <div id="pnWizardWallbox0Container">
+                    <h6>Wallbox 1</h6>    
+                    <label  class="control-label" for="WIZARDSETUP_WALLBOX_IDS0">RS485-Indirizzo: </label>
+                    <div class="controls">
+                        <input type="text" id="WIZARDSETUP_WALLBOX_IDS0" value="01" class="wizardautorisiert">
+                    </div>
+                    <label  class="control-label" for="wizardWallboxSerial0">Numero di serie: </label>
+                    <div class="controls-row">
+                        <select  id="WIZARDSETUP_WALLBOX_TYPE0" class="select wizardautorisiert" style="width:88px;margin-left: 2px">
+                            <option value="1W11G1">1W11G1</option>
+                            <option value="1W22G1">1W22G1</option>
+                            <option value="1W11G2">1W11G2</option>
+                            <option value="1W72G1">1W72G1</option>
+                            <!-- These are the old types. Serve them as well to trick those who have bought wallboxes directly from abl into telling us -->
+                            <option value="1W1101">1W1101</option>
+                            <option value="1W1121">1W1121</option>
+                            <option value="1W2201">1W2201</option>
+                            <option value="1W2221">1W2221</option>
+                        </select>
+                        <input type="text" id="wizardWallboxSerial0" value="" class="wizardautorisiert" style="width:114px;">
+                    </div>
+                </div>
+
+                <!-- Wallbox 2 -->
+                <div id="pnWizardWallbox1Container">
+                    <h6>Wallbox 2</h6>
+                    <label class="control-label" for="WIZARDSETUP_WALLBOX_IDS1">RS485-Indirizzo: </label>
+                    <div class="controls">
+                        <input type="text" id="WIZARDSETUP_WALLBOX_IDS1" value="02" class="wizardautorisiert">
+                    </div>
+                    <label  class="control-label" for="wizardWallboxSerial1">Numero di serie: </label>
+                    <div class="controls-row">
+                        <select  id="WIZARDSETUP_WALLBOX_TYPE1" class="select wizardautorisiert" style="width:88px;margin-left: 2px">
+                            <option value="1W11G1">1W11G1</option>
+                            <option value="1W22G1">1W22G1</option>
+                            <option value="1W11G2">1W11G2</option>
+                            <option value="1W72G1">1W72G1</option>
+                            <!-- These are the old types. Serve them as well to trick those who have bought wallboxes directly from abl into telling us -->
+                            <option value="1W1101">1W1101</option>
+                            <option value="1W1121">1W1121</option>
+                            <option value="1W2201">1W2201</option>
+                            <option value="1W2221">1W2221</option>
+                        </select>
+                        <input type="text" id="wizardWallboxSerial1" value="" class="wizardautorisiert" style="width:114px;">
+                    </div>
+                </div>
+
+                <!-- Wallbox 3 -->
+                <div id="pnWizardWallbox2Container">
+                    <h6>Wallbox 3</h6>
+                    <label class="control-label" for="WIZARDSETUP_WALLBOX_IDS2">RS485-Indirizzo: </label>
+                    <div class="controls">
+                        <input type="text" id="WIZARDSETUP_WALLBOX_IDS2" value="03" class="wizardautorisiert">
+                    </div>
+                    <label  class="control-label" for="wizardWallboxSerial2">Numero di serie: </label>
+                    <div class="controls-row">
+                        <select  id="WIZARDSETUP_WALLBOX_TYPE2" class="select wizardautorisiert" style="width:88px;margin-left: 2px">
+                            <option value="1W11G1">1W11G1</option>
+                            <option value="1W22G1">1W22G1</option>
+                            <option value="1W11G2">1W11G2</option>
+                            <option value="1W72G1">1W72G1</option>
+                            <!-- These are the old types. Serve them as well to trick those who have bought wallboxes directly from abl into telling us -->
+                            <option value="1W1101">1W1101</option>
+                            <option value="1W1121">1W1121</option>
+                            <option value="1W2201">1W2201</option>
+                            <option value="1W2221">1W2221</option>
+                        </select>
+                        <input type="text" id="wizardWallboxSerial2" value="" class="wizardautorisiert" style="width:114px;">
+                    </div>
+                </div>
+
+                <!-- Wallbox 4 -->
+                <div id="pnWizardWallbox3Container">
+                    <h6>Wallbox 4</h6>
+                    <label class="control-label" for="WIZARDSETUP_WALLBOX_IDS3">RS485-Indirizzo: </label>
+                    <div class="controls">
+                        <input type="text" id="WIZARDSETUP_WALLBOX_IDS3" value="04" class="wizardautorisiert" >
+                    </div>
+                    <label  class="control-label" for="wizardWallboxSerial3">Numero di serie: </label>
+                    <div class="controls-row">
+                        <select  id="WIZARDSETUP_WALLBOX_TYPE3" class="select wizardautorisiert" style="width:88px;margin-left: 2px">
+                            <option value="1W11G1">1W11G1</option>
+                            <option value="1W22G1">1W22G1</option>
+                            <option value="1W11G2">1W11G2</option>
+                            <option value="1W72G1">1W72G1</option>
+                            <!-- These are the old types. Serve them as well to trick those who have bought wallboxes directly from abl into telling us -->
+                            <option value="1W1101">1W1101</option>
+                            <option value="1W1121">1W1121</option>
+                            <option value="1W2201">1W2201</option>
+                            <option value="1W2221">1W2221</option>
+                        </select>
+                        <input type="text" id="wizardWallboxSerial3" value="" class="wizardautorisiert" style="width:114px;">
+                    </div>
+                </div>
+            </form>
+            </div>
+
+            <!-- Seite Power Unit Config -->
+            <div  id="pnWizardCarouselConfigPowerUnit" class="item">
+                <h4>Configurazione Unità di regolazione della potenza (PWM AC)</h4>
+                <form class="form-horizontal">
+                    <h6>Unità di regolazione della potenza</h6>
+                    <!--  Power Unit Count Selection   -->
+                    <label class="has-tooltip control-label"  title="Quantità der Unità di regolazione della potenzaen eingeben (max. 6 Stück), je nach Quantità erscheinen die entsprechenden Optionen."  for="optWizardPwrUnitCount">Quantità: </label>
+                    <div class="controls">
+                        <select  id="optWizardPwrUnitCount" class="select wizardautorisiert">
+                            <option value="0" selected="selected">Nessuno/disattivato</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                        </select>
+                    </div>
+                    <!-- Power Unit 1 -->
+                    <div id="pnWizardPWRUnit0Container">
+                        <hr>
+                        <label  class="control-label" for="optWizardPU_Usage">Uso / Connessione: </label>
+                        <div class="controls">
+                             <select  id="optWizardPU_Usage" style="border:1px solid #cccccc; width: 250px;" class="wizardautorisiert"
+                                    onchange="fillChargePrio(this.value)">
+                                <option value="0" selected="selected">EconamicGrid + Generazione FV</option>
+                                <option value="1">Solo EconamicGrid</option>
+                                <option value="2">Solo generazione FV</option>
+                                <option value="3">Solo controllo della temp.</option>
+                            </select>
+                        </div>
+                        <label  class="control-label" for="optWizardChargePrio">Priorità carica: </label>
+                        <div class="controls">
+                             <select  id="optWizardChargePrio" style="border:1px solid #cccccc; width: 270px;" class="wizardautorisiert">
+                                <option value="0" selected="selected">Batteria -> Riscaldamento -> Esportazione</option>
+                                <option value="1">Riscaldamento -> Batteria -> Esportazione</option>
+                                <option value="2">Batteria -> Esportazione -> Riscaldamento</option>
+                            </select>
+                        </div>
+                        <hr>
+                        <h6>Unità di regolazione della potenza 1</h6>
+                        <!-- Power Unit Modello Selection-->    
+                        <label class="control-label" for="inputWizardSystemSetupPowerUnit0Model">Modello: </label>
+                        <div class="controls">
+                            <select  id="inputWizardSystemSetupPowerUnit0Model" class="select wizardautorisiert"
+                                onchange="showPUtempContainer()">
+                                <option value="00">Nessuno/disattivato</option>
+                                <option value="01">Solarinvert</option>
+                                <option value="02">SENEC.Heat</option>
+                            </select>
+                        </div>
+                        <hr>
+                        <!-- Power Unit Max Power -->
+                        <label  class="control-label" for="gui_pwr_unit_total0">Potenza totale (W): </label>
+                        <div class="controls">
+                            <input type="text" readonly="readonly" id="gui_pwr_unit_total0" value="6000" class="wizardautorisiert">
+                        </div>
+                        <label  class="control-label" for="PWR_UNITCONNPWR_10">Potenza max. L1 (W): </label>
+                        <div class="controls">
+                            <input type="text" id="PWR_UNITCONNPWR_10" value="2000" class="wizardautorisiert" onKeyUp="PWR_UNIT_update_total_power()">
+                        </div>
+                        <label  class="control-label" for="PWR_UNITCONNPWR_20">Potenza max. L2 (W): </label>
+                        <div class="controls">
+                            <input type="text" id="PWR_UNITCONNPWR_20" value="2000" class="wizardautorisiert" onKeyUp="PWR_UNIT_update_total_power()">
+                        </div>
+                        <label  class="control-label" for="PWR_UNITCONNPWR_30">Potenza max. L3 (W): </label>
+                        <div class="controls">
+                            <input type="text" id="PWR_UNITCONNPWR_30" value="2000" class="wizardautorisiert" onKeyUp="PWR_UNIT_update_total_power()">
+                        </div>
+                        <!-- Power Unit Temperature Sensor Count -->
+                        <label  class="control-label" for="inputWizardSystemSetupPowerUnit0TempCount">Numero di sensori di temperatura: </label>
+                        <div class="controls">
+                            <select  id="inputWizardSystemSetupPowerUnit0TempCount" class="select wizardautorisiert"
+                                onchange="showPUtempContainer()">
+                                <option value="0" selected="selected">Nessuno</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                            </select>
+                        </div>
+	                        <div class="PUtempContainer0">
+	                        <!-- Power Unit Min Temp -->
+	                        <label  class="control-label" for="PWR_UNITTEMPMIN0">Temperatura min. (°C): </label>
+	                        <div class="controls">
+	                            <input type="text" id="PWR_UNITTEMPMIN0" value="50" class="wizardautorisiert">
+	                        </div>
+	                        <!-- Power Unit Max Temp -->
+	                        <label  class="control-label" for="PWR_UNITTEMPMAX0">Temperatura max. (°C): </label>
+	                        <div class="controls">
+	                            <input type="text" id="PWR_UNITTEMPMAX0" value="80" class="wizardautorisiert">
+	                        </div>
+	                        <!-- Power Unit Water Volume -->
+	                        <label  class="control-label" for="PWR_UNITWATERVOL0">Volume serbatoio (L): </label>
+	                        <div class="controls">
+	                            <input type="text" id="PWR_UNITWATERVOL0" value="200" class="wizardautorisiert">
+	                        </div>
+                        </div>
+                        <!-- Power Unit RS485 -->
+                        <label  class="control-label" for="PWR_UNITADRESS0">RS485-Indirizzo: </label>
+                        <div class="controls">
+                            <input type="text" id="PWR_UNITADRESS0" value="2" class="wizardautorisiert">
+                        </div>
+                        <!--Power Unit Choose Enfluri Usage-->
+                        <div class="d-hide" id="gui_pwr_unit_enfluri0_container">
+                            <label  class="control-label" for="gui_pwr_unit_enfluri0">Enfluri: </label>
+                            <div class="controls">
+                                <select  id="gui_pwr_unit_enfluri0" class="select wizardautorisiert">
+                                    <option value="00">Nessuno/disattivato</option>
+                                    <option value="01">ABB B2x</option>
+                                    <option value="02">DTS353F-2</option>
+                                </select>
+                            </div>
+                        </div>                        
+                    </div>
+                    <!-- Power Unit 2 -->
+                    <div id="pnWizardPWRUnit1Container">
+                    <hr>
+                        <h6>Unità di regolazione della potenza 2</h6>
+                        <!-- Power Unit Modello Selection-->    
+                        <label class="control-label" for="inputWizardSystemSetupPowerUnit1Model">Modello: </label>
+                        <div class="controls">
+                            <select  id="inputWizardSystemSetupPowerUnit1Model" class="select wizardautorisiert"
+                                onchange="showPUtempContainer()">
+                                <option value="00">Nessuno/disattivato</option>
+                                <option value="01">Solarinvert</option>
+                                <option value="02">SENEC.Heat</option>
+                            </select>
+                        </div>
+                        <hr>
+                        <!-- Power Unit Max Power -->
+                        <label  class="control-label" for="gui_pwr_unit_total1">Potenza totale (W): </label>
+                        <div class="controls">
+                            <input type="text" readonly="readonly" id="gui_pwr_unit_total1" value="6000" class="wizardautorisiert">
+                        </div>
+                        <label  class="control-label" for="PWR_UNITCONNPWR_11">Potenza max. L1 (W): </label>
+                        <div class="controls">
+                            <input type="text" id="PWR_UNITCONNPWR_11" value="2000" class="wizardautorisiert" onKeyUp="PWR_UNIT_update_total_power()">
+                        </div>
+                        <label  class="control-label" for="PWR_UNITCONNPWR_21">Potenza max. L2 (W): </label>
+                        <div class="controls">
+                            <input type="text" id="PWR_UNITCONNPWR_21" value="2000" class="wizardautorisiert" onKeyUp="PWR_UNIT_update_total_power()">
+                        </div>
+                        <label  class="control-label" for="PWR_UNITCONNPWR_31">Potenza max. L3 (W): </label>
+                        <div class="controls">
+                            <input type="text" id="PWR_UNITCONNPWR_31" value="2000" class="wizardautorisiert" onKeyUp="PWR_UNIT_update_total_power()">
+                        </div>
+                        <!-- Power Unit Temperature Sensor Count -->
+                        <label  class="control-label" for="inputWizardSystemSetupPowerUnit1TempCount">Numero di sensori di temperatura: </label>
+                        <div class="controls">
+                            <select  id="inputWizardSystemSetupPowerUnit1TempCount" class="select wizardautorisiert"
+                                onchange="showPUtempContainer()">
+                                <option value="0" selected="selected">Nessuno</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                            </select>
+                        </div>
+                        <div class="PUtempContainer1">
+	                        <!-- Power Unit Min Temp -->
+	                        <label  class="control-label" for="PWR_UNITTEMPMIN1">Temperatura min. (°C): </label>
+	                        <div class="controls">
+	                            <input type="text" id="PWR_UNITTEMPMIN1" value="50" class="wizardautorisiert">
+	                        </div>
+	                        <!-- Power Unit Max Temp -->
+	                        <label  class="control-label" for="PWR_UNITTEMPMAX1">Temperatura max. (°C): </label>
+	                        <div class="controls">
+	                            <input type="text" id="PWR_UNITTEMPMAX1" value="80" class="wizardautorisiert">
+	                        </div>
+	                        <!-- Power Unit Water Volume -->
+	                        <label  class="control-label" for="PWR_UNITWATERVOL1">Volume serbatoio (L): </label>
+	                        <div class="controls">
+	                            <input type="text" id="PWR_UNITWATERVOL1" value="200" class="wizardautorisiert">
+	                        </div>
+                        </div>
+                        <!-- Power Unit RS485 -->
+                        <label  class="control-label" for="PWR_UNITADRESS1">RS485-Indirizzo: </label>
+                        <div class="controls">
+                            <input type="text" id="PWR_UNITADRESS1" value="3" class="wizardautorisiert">
+                        </div>
+                        <!--Power Unit Choose Enfluri Usage-->
+                        <div class="d-hide" id="gui_pwr_unit_enfluri1_container">
+                            <label  class="control-label" for="gui_pwr_unit_enfluri1">Enfluri: </label>
+                            <div class="controls">
+                                <select  id="gui_pwr_unit_enfluri1" class="select wizardautorisiert">
+                                    <option value="00">Nessuno/disattivato</option>
+                                    <option value="01">ABB B2x</option>
+                                    <option value="02">DTS353F-2</option>
+                                </select>
+                            </div>
+                        </div>                       
+                    </div>
+                    <!-- Power Unit 3 -->
+                    <div id="pnWizardPWRUnit2Container">
+                        <h6>Unità di regolazione della potenza 3</h6>
+                        <!-- Power Unit Modello Selection-->    
+                        <label class="control-label" for="inputWizardSystemSetupPowerUnit2Model">Modello: </label>
+                        <div class="controls">
+                            <select  id="inputWizardSystemSetupPowerUnit2Model" class="select wizardautorisiert"
+                                onchange="showPUtempContainer()">
+                                <option value="00">Nessuno/disattivato</option>
+                                <option value="01">Solarinvert</option>
+                                <option value="02">SENEC.Heat</option>
+                            </select>
+                        </div>
+                        <hr>
+                        <!-- Power Unit Max Power -->
+                        <label  class="control-label" for="gui_pwr_unit_total2">Potenza totale (W): </label>
+                        <div class="controls">
+                            <input type="text" readonly="readonly" id="gui_pwr_unit_total2" value="6000" class="wizardautorisiert">
+                        </div>
+                        <label  class="control-label" for="PWR_UNITCONNPWR_12">Potenza max. L1 (W): </label>
+                        <div class="controls">
+                            <input type="text" id="PWR_UNITCONNPWR_12" value="2000" class="wizardautorisiert" onKeyUp="PWR_UNIT_update_total_power()">
+                        </div>
+                        <label  class="control-label" for="PWR_UNITCONNPWR_22">Potenza max. L2 (W): </label>
+                        <div class="controls">
+                            <input type="text" id="PWR_UNITCONNPWR_22" value="2000" class="wizardautorisiert" onKeyUp="PWR_UNIT_update_total_power()">
+                        </div>
+                        <label  class="control-label" for="PWR_UNITCONNPWR_32">Potenza max. L3 (W): </label>
+                        <div class="controls">
+                            <input type="text" id="PWR_UNITCONNPWR_32" value="2000" class="wizardautorisiert" onKeyUp="PWR_UNIT_update_total_power()">
+                        </div>
+                        <!-- Power Unit Temperature Sensor Count -->
+                        <label  class="control-label" for="inputWizardSystemSetupPowerUnit2TempCount">Numero di sensori di temperatura: </label>
+                        <div class="controls">
+                            <select  id="inputWizardSystemSetupPowerUnit2TempCount" class="select wizardautorisiert"
+                                onchange="showPUtempContainer()">
+                                <option value="0" selected="selected">Nessuno</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                            </select>
+                        </div>
+                        <div class="PUtempContainer2">
+	                        <!-- Power Unit Min Temp -->
+	                        <label  class="control-label" for="PWR_UNITTEMPMIN2">Temperatura min. (°C): </label>
+	                        <div class="controls">
+	                            <input type="text" id="PWR_UNITTEMPMIN2" value="50" class="wizardautorisiert">
+	                        </div>
+	                        <!-- Power Unit Max Temp -->
+	                        <label  class="control-label" for="PWR_UNITTEMPMAX2">Temperatura max. (°C): </label>
+	                        <div class="controls">
+	                            <input type="text" id="PWR_UNITTEMPMAX2" value="80" class="wizardautorisiert">
+	                        </div>
+	                        <!-- Power Unit Water Volume -->
+	                        <label  class="control-label" for="PWR_UNITWATERVOL2">Volume serbatoio (L): </label>
+	                        <div class="controls">
+	                            <input type="text" id="PWR_UNITWATERVOL2" value="200" class="wizardautorisiert">
+	                        </div>
+                        </div>
+                        <!-- Power Unit RS485 -->
+                        <label  class="control-label" for="PWR_UNITADRESS2">RS485-Indirizzo: </label>
+                        <div class="controls">
+                            <input type="text" id="PWR_UNITADRESS2" value="4" class="wizardautorisiert">
+                        </div>
+                        <!--Power Unit Choose Enfluri Usage-->
+                        <div class="d-hide" id="gui_pwr_unit_enfluri2_container">
+                                 <label  class="control-label" for="gui_pwr_unit_enfluri2">Enfluri: </label>
+                            <div class="controls">
+                                <select  id="gui_pwr_unit_enfluri2" class="select wizardautorisiert">
+                                    <option value="00">Nessuno/disattivato</option>
+                                    <option value="01">ABB B2x</option>
+                                    <option value="02">DTS353F-2</option>
+                                </select>
+                            </div>
+                        </div>                        
+                    </div>
+                    <!-- Power Unit 4 -->
+                    <div id="pnWizardPWRUnit3Container">
+                        <h6>Unità di regolazione della potenza 4</h6>
+                        <!-- Power Unit Modello Selection-->    
+                        <label class="control-label" for="inputWizardSystemSetupPowerUnit3Model">Modello: </label>
+                        <div class="controls">
+                            <select  id="inputWizardSystemSetupPowerUnit3Model" class="select wizardautorisiert"
+                                onchange="showPUtempContainer()">
+                                <option value="00">Nessuno/disattivato</option>
+                                <option value="01">Solarinvert</option>
+                                <option value="02">SENEC.Heat</option>
+                            </select>
+                        </div>
+                        <hr>
+                        <!-- Power Unit Max Power -->
+                        <label  class="control-label" for="gui_pwr_unit_total3">Potenza totale (W): </label>
+                        <div class="controls">
+                            <input type="text" readonly="readonly" id="gui_pwr_unit_total3" value="6000" class="wizardautorisiert">
+                        </div>
+                        <label  class="control-label" for="PWR_UNITCONNPWR_13">Potenza max. L1 (W): </label>
+                        <div class="controls">
+                            <input type="text" id="PWR_UNITCONNPWR_13" value="2000" class="wizardautorisiert" onKeyUp="PWR_UNIT_update_total_power()">
+                        </div>
+                        <label  class="control-label" for="PWR_UNITCONNPWR_23">Potenza max. L2 (W): </label>
+                        <div class="controls">
+                            <input type="text" id="PWR_UNITCONNPWR_23" value="2000" class="wizardautorisiert" onKeyUp="PWR_UNIT_update_total_power()">
+                        </div>
+                        <label  class="control-label" for="PWR_UNITCONNPWR_33">Potenza max. L3 (W): </label>
+                        <div class="controls">
+                            <input type="text" id="PWR_UNITCONNPWR_33" value="2000" class="wizardautorisiert" onKeyUp="PWR_UNIT_update_total_power()">
+                        </div>
+                        <!-- Power Unit Temperature Sensor Count -->
+                        <label  class="control-label" for="inputWizardSystemSetupPowerUnit3TempCount">Numero di sensori di temperatura: </label>
+                        <div class="controls">
+                            <select  id="inputWizardSystemSetupPowerUnit3TempCount" class="select wizardautorisiert"
+                                onchange="showPUtempContainer()">
+                                <option value="0" selected="selected">Nessuno</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                            </select>
+                        </div>
+                        <div class="PUtempContainer3">
+	                        <!-- Power Unit Min Temp -->
+	                        <label  class="control-label" for="PWR_UNITTEMPMIN3">Temperatura min. (°C): </label>
+	                        <div class="controls">
+	                            <input type="text" id="PWR_UNITTEMPMIN3" value="50" class="wizardautorisiert">
+	                        </div>
+	                        <!-- Power Unit Max Temp -->
+	                        <label  class="control-label" for="PWR_UNITTEMPMAX3">Temperatura max. (°C): </label>
+	                        <div class="controls">
+	                            <input type="text" id="PWR_UNITTEMPMAX3" value="80" class="wizardautorisiert">
+	                        </div>
+	                        <!-- Power Unit Water Volume -->
+	                        <label  class="control-label" for="PWR_UNITWATERVOL3">Volume serbatoio (L): </label>
+	                        <div class="controls">
+	                            <input type="text" id="PWR_UNITWATERVOL3" value="200" class="wizardautorisiert">
+	                        </div>
+                        </div>
+                        <!-- Power Unit RS485 -->
+                        <label  class="control-label" for="PWR_UNITADRESS3">RS485-Indirizzo: </label>
+                        <div class="controls">
+                            <input type="text" id="PWR_UNITADRESS3" value="5" class="wizardautorisiert">
+                        </div>
+                        <!--Power Unit Choose Enfluri Usage-->
+                        <div class="d-hide" id="gui_pwr_unit_enfluri3_container">
+                            <label  class="control-label" for="gui_pwr_unit_enfluri3">Enfluri: </label>
+                            <div class="controls">
+                                <select  id="gui_pwr_unit_enfluri3" class="select wizardautorisiert">
+                                    <option value="00">Nessuno/disattivato</option>
+                                    <option value="01">ABB B2x</option>
+                                    <option value="02">DTS353F-2</option>
+                                </select>
+                            </div>
+                        </div>                        
+                    </div>
+                    <!-- Power Unit 5 -->
+                    <div id="pnWizardPWRUnit4Container">
+                        <h6>Unità di regolazione della potenza 5</h6>
+                        <!-- Power Unit Modello Selection-->    
+                        <label class="control-label" for="inputWizardSystemSetupPowerUnit4Model">Modello: </label>
+                        <div class="controls">
+                            <select  id="inputWizardSystemSetupPowerUnit4Model" class="select wizardautorisiert"
+                                onchange="showPUtempContainer()">
+                                <option value="00">Nessuno/disattivato</option>
+                                <option value="01">Solarinvert</option>
+                                <option value="02">SENEC.Heat</option>
+                            </select>
+                        </div>
+                        <hr>
+                        <!-- Power Unit Max Power -->
+                        <label  class="control-label" for="gui_pwr_unit_total4">Potenza totale (W): </label>
+                        <div class="controls">
+                            <input type="text" readonly="readonly" id="gui_pwr_unit_total4" value="6000" class="wizardautorisiert">
+                        </div>
+                        <label  class="control-label" for="PWR_UNITCONNPWR_14">Potenza max. L1 (W): </label>
+                        <div class="controls">
+                            <input type="text" id="PWR_UNITCONNPWR_14" value="2000" class="wizardautorisiert" onKeyUp="PWR_UNIT_update_total_power()">
+                        </div>
+                        <label  class="control-label" for="PWR_UNITCONNPWR_24">Potenza max. L2 (W): </label>
+                        <div class="controls">
+                            <input type="text" id="PWR_UNITCONNPWR_24" value="2000" class="wizardautorisiert" onKeyUp="PWR_UNIT_update_total_power()">
+                        </div>
+                        <label  class="control-label" for="PWR_UNITCONNPWR_34">Potenza max. L3 (W): </label>
+                        <div class="controls">
+                            <input type="text" id="PWR_UNITCONNPWR_34" value="2000" class="wizardautorisiert" onKeyUp="PWR_UNIT_update_total_power()">
+                        </div>
+                        <!-- Power Unit Temperature Sensor Count -->
+                        <label  class="control-label" for="inputWizardSystemSetupPowerUnit4TempCount">Numero di sensori di temperatura: </label>
+                        <div class="controls">
+                            <select  id="inputWizardSystemSetupPowerUnit4TempCount" class="select wizardautorisiert"
+                                onchange="showPUtempContainer()">
+                                <option value="0" selected="selected">Nessuno</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                            </select>
+                        </div>
+                        <div class="PUtempContainer4">
+	                        <!-- Power Unit Min Temp -->
+	                        <label  class="control-label" for="PWR_UNITTEMPMIN4">Temperatura min. (°C): </label>
+	                        <div class="controls">
+	                            <input type="text" id="PWR_UNITTEMPMIN4" value="50" class="wizardautorisiert">
+	                        </div>
+	                        <!-- Power Unit Max Temp -->
+	                        <label  class="control-label" for="PWR_UNITTEMPMAX4">Temperatura max. (°C): </label>
+	                        <div class="controls">
+	                            <input type="text" id="PWR_UNITTEMPMAX4" value="80" class="wizardautorisiert">
+	                        </div>
+	                        <!-- Power Unit Water Volume -->
+	                        <label  class="control-label" for="PWR_UNITWATERVOL4">Volume serbatoio (L): </label>
+	                        <div class="controls">
+	                            <input type="text" id="PWR_UNITWATERVOL4" value="200" class="wizardautorisiert">
+	                        </div>
+                        </div>
+                        <!-- Power Unit RS485 -->
+                        <label  class="control-label" for="PWR_UNITADRESS4">RS485-Indirizzo: </label>
+                        <div class="controls">
+                            <input type="text" id="PWR_UNITADRESS4" value="6" class="wizardautorisiert">
+                        </div>
+                         <!--Power Unit Choose Enfluri Usage-->
+                        <div class="d-hide" id="gui_pwr_unit_enfluri4_container">
+                            <label  class="control-label" for="gui_pwr_unit_enfluri4">Enfluri: </label>
+                            <div class="controls">
+                                <select  id="gui_pwr_unit_enfluri4" class="select wizardautorisiert">
+                                    <option value="00">Nessuno/disattivato</option>
+                                    <option value="01">ABB B2x</option>
+                                    <option value="02">DTS353F-2</option>
+                                </select>
+                            </div>
+                        </div>                       
+                    </div>
+                    <!-- Power Unit 6 -->
+                    <div id="pnWizardPWRUnit5Container">
+                        <h6>Unità di regolazione della potenza 6</h6>
+                        <!-- Power Unit Modello Selection-->    
+                        <label class="control-label" for="inputWizardSystemSetupPowerUnit5Model">Modello: </label>
+                        <div class="controls">
+                            <select  id="inputWizardSystemSetupPowerUnit5Model" class="select wizardautorisiert"
+                                onchange="showPUtempContainer()">
+                                <option value="00">Nessuno/disattivato</option>
+                                <option value="01">Solarinvert</option>
+                                <option value="02">SENEC.Heat</option>
+                            </select>
+                        </div>
+                        <hr>
+                        <!-- Power Unit Max Power -->
+                        <label  class="control-label" for="gui_pwr_unit_total5">Potenza totale (W): </label>
+                        <div class="controls">
+                            <input type="text" readonly="readonly" id="gui_pwr_unit_total5" value="6000" class="wizardautorisiert">
+                        </div>
+                        <label  class="control-label" for="PWR_UNITCONNPWR_15">Potenza max. L1 (W): </label>
+                        <div class="controls">
+                            <input type="text" id="PWR_UNITCONNPWR_15" value="2000" class="wizardautorisiert" onKeyUp="PWR_UNIT_update_total_power()">
+                        </div>
+                        <label  class="control-label" for="PWR_UNITCONNPWR_25">Potenza max. L2 (W): </label>
+                        <div class="controls">
+                            <input type="text" id="PWR_UNITCONNPWR_25" value="2000" class="wizardautorisiert" onKeyUp="PWR_UNIT_update_total_power()">
+                        </div>
+                        <label  class="control-label" for="PWR_UNITCONNPWR_35">Potenza max. L3 (W): </label>
+                        <div class="controls">
+                            <input type="text" id="PWR_UNITCONNPWR_35" value="2000" class="wizardautorisiert" onKeyUp="PWR_UNIT_update_total_power()">
+                        </div>
+                        <!-- Power Unit Temperature Sensor Count -->
+                        <label  class="control-label" for="inputWizardSystemSetupPowerUnit5TempCount">Numero di sensori di temperatura: </label>
+                        <div class="controls">
+                            <select  id="inputWizardSystemSetupPowerUnit5TempCount" class="select wizardautorisiert"
+                                onchange="showPUtempContainer()">
+                                <option value="0" selected="selected">Nessuno</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                            </select>
+                        </div>
+                        <div class="PUtempContainer5">
+	                        <!-- Power Unit Min Temp -->
+	                        <label  class="control-label" for="PWR_UNITTEMPMIN5">Temperatura min. (°C): </label>
+	                        <div class="controls">
+	                            <input type="text" id="PWR_UNITTEMPMIN5" value="50" class="wizardautorisiert">
+	                        </div>
+	                        <!-- Power Unit Max Temp -->
+	                        <label  class="control-label" for="PWR_UNITTEMPMAX5">Temperatura max. (°C): </label>
+	                        <div class="controls">
+	                            <input type="text" id="PWR_UNITTEMPMAX5" value="80" class="wizardautorisiert">
+	                        </div>
+	                        <!-- Power Unit Water Volume -->
+	                        <label  class="control-label" for="PWR_UNITWATERVOL5">Volume serbatoio (L): </label>
+	                        <div class="controls">
+	                            <input type="text" id="PWR_UNITWATERVOL5" value="200" class="wizardautorisiert">
+	                        </div>
+                        </div>
+                        <!-- Power Unit RS485 -->
+                        <label  class="control-label" for="PWR_UNITADRESS5">RS485-Indirizzo: </label>
+                        <div class="controls">
+                            <input type="text" id="PWR_UNITADRESS5" value="7" class="wizardautorisiert">
+                        </div>
+                        <!--Power Unit Choose Enfluri Usage-->
+                        <div class="d-hide" id="gui_pwr_unit_enfluri5_container">
+                            <label  class="control-label" for="gui_pwr_unit_enfluri5">Enfluri: </label>
+                            <div class="controls">
+                                <select  id="gui_pwr_unit_enfluri5" class="select wizardautorisiert">
+                                    <option value="00">Nessuno/disattivato</option>
+                                    <option value="01">ABB B2x</option>
+                                    <option value="02">DTS353F-2</option>
+                                </select>
+                            </div>
+                        </div>                        
+                    </div>
+                </form>
+            </div>
+            <div  id="pnWizardCarouselConfigExtended" class="item">
+                <h4>Configurazione avanzata</h4>
+                <form class="form-horizontal">
+                <div class="master_setup_only">
+					<h6>
+					    <span title="Produttore e tipo possono essere letti sul dispositivo." class="has-tooltip"> Wattmetri</span>
+					</h6>
+					<label class="control-label" for="inputWizardSystemSetupPowerMeterType">Tipo: </label>
+					<div class="controls">
+					<select  id="inputWizardSystemSetupPowerMeterType" class="select wizardautorisiert">
+                        <option value="02">DTS353F-2</option>
+					    <option value="00">Carlo Gavazzi EM24</option>
+					    <option value="01">ABB B2x</option>
+					</select>
+					</div>
+                </div>
+              <div id="extended_su_container" class="d-hide">
+                  <h6>Inverter per batteria</h6>
+                  <label class="control-label" for="inputWizardSystemSetupBatteryManufacturer">Tipo: </label>
+                    <div class="controls">
+                        <select id="inputWizardSystemSetupBatteryManufacturer" class="select wizardautorisiert">
+                        <option value="00">Studer Xtender XTM</option>
+                        <option value="01">SENEC.Batt Inverter</option>
+                        <option value="02">SENEC.Inverter V2</option>
+                        <option value="03">SENEC.Inverter V2.1</option>
+                        <option value="04">SENEC.Inverter V3 LV</option>
+                        </select>
+                    </div>
+                    <div class="ExcludeItaly">      
+						<h6>
+						    <span title="Limitare il carico asimmetrico è 4600 W." class="has-tooltip"> Limitazione sbilanciamento</span>
+						</h6>
+						<div class="controls">
+						    <label class="checkbox">
+						        <input type="checkbox" id="inputWizardBufferPowerConfuseMaxPowerSkew" class="wizardautorisiert"> Attivare
+						    </label>
+						</div>
+                    </div>
+              </div> 
+                <div class="master_setup_only"> 
+              <h6>
+                  <span title="Per favore attivare solo quando in realtà collegato al sistema." class="has-tooltip">Ricevitore ripple control</span>
+              </h6>
+              <div class="controls">
+                  <label class="checkbox">
+                      <input type="checkbox" id="inputWizardSystemSetupuseRCR"> Attivare
+                  </label>
+              </div>
+              <div id="RCRcontainer" class="d-hide">
+                  <label class="control-label" for="WIZARDSETUP_RCR_STEPS0">Parametro di riduzione 1: </label>
+                  <div class="controls">
+                      <input type="text" class="input-mini-wizard wizardautorisiert txt-align-r" id="WIZARDSETUP_RCR_STEPS0" value="0">% (valore tipico: 0%)
+                  </div>
+                  <label class="control-label" for="WIZARDSETUP_RCR_STEPS1">Parametro di riduzione 2: </label>
+                  <div class="controls">
+                      <input type="text" class="input-mini-wizard wizardautorisiert txt-align-r" id="WIZARDSETUP_RCR_STEPS1" value="0">%
+                  </div>
+                  <label class="control-label" for="WIZARDSETUP_RCR_STEPS2">Parametro di riduzione 3: </label>
+                  <div class="controls">
+                      <input type="text" class="input-mini-wizard wizardautorisiert txt-align-r" id="WIZARDSETUP_RCR_STEPS2" value="0">%
+                  </div>
+                  <label class="control-label" for="WIZARDSETUP_RCR_STEPS3">Parametro di riduzione 4: </label>
+                  <div class="controls">
+                      <input type="text" class="input-mini-wizard wizardautorisiert txt-align-r" id="WIZARDSETUP_RCR_STEPS3" value="0">% (valore tipico: 100%)
+                  </div>
+              </div>
+                </div> 
+              <div id="DHCPcontainer">
+              <h6>
+                  <span title="nach den Vorgaben der VNB" class="has-tooltip" >Configurazione rete</span>
+              </h6>
+               <div class="controls">
+                  <label class="checkbox">
+                      <input type="checkbox" id="inputWizardNetworkuseDHCP" class="wizardautorisiert">DHCP attivo
+                  </label>
+               </div>
+                <div id="noDHCPcontainer" class="d-hide">
+                    <label class="control-label" for="inputWizardNetworkstaticIP_Adr">IP-Indirizzo: </label>
+                    <div class="controls">
+                        <input type="text" id="inputWizardNetworkstaticIP_Adr" placeholder="IP-Indirizzo" class="wizardautorisiert no_dhcp">
+                    </div>
+                    <label class="control-label" for="inputWizardNetworkNetworkMask">Subnet mask:: </label>
+                    <div class="controls">
+                        <input type="text" id="inputWizardNetworkNetworkMask" placeholder="Subnetzmaske" class="wizardautorisiert no_dhcp">
+                    </div>
+                    <label class="control-label" for="inputWizardNetworkGateWayIP">Default gateway: </label>
+                    <div class="controls">
+                        <input type="text" id="inputWizardNetworkGateWayIP" placeholder="Standardgateway" class="wizardautorisiert no_dhcp">
+                    </div>
+                    <label class="control-label" for="inputWizardNetworkDNS_Server_IP">Server DNS: </label>
+                    <div class="controls">
+                        <input type="text" id="inputWizardNetworkDNS_Server_IP" placeholder="DNS-Server" class="wizardautorisiert no_dhcp">
+                    </div>
+                </div>    
+                </div>           
+<!--                    ONLY FOR superuser  -->
+            <div id="pnWizardNetworkSenecExtended" class="d-hide wizard-network-senec-ip">
+            <h6>
+                <span title="Mit diesen Server kommuniziert die MCU" class="has-tooltip" >Servereinstellung</span>
+            </h6>
+            <div class="controls">
+                <label class="checkbox">
+                    <input type="checkbox" id="inputWizardUseSettingsUrl" class="wizardautorisiert">Communicate with SENEC-Testserver
+                </label>
+            </div>
+            </div>
+                </form>
+    </div>
+
+    <div  id="pnWizardCarouselPackageCheck" class="item">
+        <h4>Pacchetti opzionali - Attivazione</h4>
+        <form class="form-horizontal">
+              <h6>
+                  <span>Inserire un codice pacchetto</span>
+              </h6>
+            <label class="control-label" for="inputWizardPackageCode">Codice pacchetto:</label>
+            <div class="controls">
+                <input type="text" id="inputWizardPackageCode" placeholder="XXX" class="wizardautorisiert">
+            </div>
+            <br>
+                    <table style="margin: 30px 0px 30px 15%;">
+                        <tr>
+                            <td><strong>Stato: </strong></td>
+                            <td><span id="inputWizardPackageCheckResult" > Non verificato </span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Descrizione pacchetto: </strong></td>
+                            <td><span id="lblWizardPackageInfo" > Nessun dato di pacchetto ricevuto</span></td>
+                        </tr>
+                    </table>
+                    <br>
+                    <input type="button" id="btnWizardCheckCode" value="Confermare il codice">
+                    <input type="button" id="btnWizardConfirmCode" value="Verificare il codice" style="display: none">
+        </form>
+    </div>
+
+        <!-- Seite 9: Installateur Bestaetigung -->
+            <div  id="pnWizardCarouselRegistration" class="item">
+                <h4>Conferma installazione</h4>
+                <form id="fmWizardInstallationConfirmation" action="https://mein-senec.de/sps/sps_public/G2P/wizard/app/controllers/senec_wizard_installation_confirmation.php" enctype="multipart/form-data" method="post" target="_blank" class="form-horizontal">
+                    <p>
+                        L'installatore, <strong><span id="lblWizardInstallerName"></span></strong>, conferma di aver svolto le seguenti operazioni basandosi sulle istruzioni aggiornate riportate su <a href="http://www.senec-ies.com"  target="_blank">www.senec-ies.com</a> :
+                    </p>
+                    <div id="lblWizardConfirmationCheckResult"  class="wizard-check-result"> </div>
+                    <div class="wizard-installation-registration-controls" id="lblWizardInstallerRegConfirmDensity">
+                        <label class="checkbox">
+                            <input type="checkbox" id="chkWizardInstallerRegConfirmDensity" class="wizardautorisiert" />
+                            Verifica della tenuta dello sfiato centrale. Controllo della tenuta dei tubi flessibili fra i tappi.
+                        </label>
+                    </div>
+                    <div class="wizard-installation-registration-controls" id="lblWizardInstallerRegConfirmVDE">
+                        <label class="checkbox">
+                            <input type="checkbox" id="chkWizardInstallerRegConfirmVDE" class="wizardautorisiert" />
+                            L'operatore dispone di conoscenze specialistiche nelle installazioni elettriche e tutti i cavi CA sono collegati secondo le norme CEI.
+                        </label>
+                    </div>
+                    <div class="wizard-installation-registration-controls" id="lblWizardInstallerRegConfirmAccuPole">
+                        <label class="checkbox">
+                            <input type="checkbox" id="chkWizardInstallerRegConfirmAccuPole" class="wizardautorisiert" />
+                            <span id="lblConfirmAccuPole">I poli dell'accumulatore sono puliti e ingrassati con grasso apposito. La coppia di serraggio non è superiore a 17 Nm.</span>
+                        </label>
+                    </div>
+                    <div class="wizard-installation-registration-controls" id="lblWizardInstallerRegConfirmKnowledge">
+                        <label class="checkbox">
+                            <input type="checkbox" id="chkWizardInstallerRegConfirmKnowledge" class="wizardautorisiert" />
+                            L'operatore dispone di conoscenze specialistiche nella manipolazione di accumulatori al piombo.
+                        </label>
+                    </div>
+                    <div class="wizard-installation-registration-controls" id="lblWizardInstallerRegConfirmAccuFull">
+                        <label class="checkbox">
+                            <input type="checkbox" id="chkWizardInstallerRegConfirmAccuFull" class="wizardautorisiert" />
+                            L'accumulatore è stato riempito con acqua distillata in condizione di carica completa (tensione a riposo superiore a 50,5 V).
+                        </label>
+                    </div>
+                    <div class="wizard-installation-registration-controls" id="lblWizardInstallerRegConfirmElectr">
+                        <label class="checkbox">
+                            <input type="checkbox" id="chkWizardInstallerRegConfirmElectr" class="wizardautorisiert" />
+                            La struttura per la circolazione elettrolitica è priva di pieghe ad angolo vivo e la tenuta è stata verificata.
+                        </label>
+                    </div>
+
+                    <div id="pnWizardAccuPhotoFileUploadContainer" class="wizard-installation-registration-controls">
+                        <label class="checkbox">
+                            <span title="Laden Sie das Foto bitte hier hoch. Die Dateigr&ouml;&szlig;e darf 4MB nicht &uuml;berschreiten!" class="has-tooltip">
+                                <strong>Fotografia dell'installazione (vista dall'alto)</strong> dell'accumulatore (dimensioni file max. 4 MB):
+                            </span>
+                            <input id="filWizardAccuPhotoFileUpload"  name="fWizardAccuPhotoFileUpload" type="file" size="50" maxlength="4000000" accept="image/*">
+                        </label>
+                    </div>
+
+                    <div class="wizard-installation-registration-controls">
+                        <div id="lblWizardSenecSerialCheckResult" class="wizard-check-result"> </div>
+                        <label class="checkbox">
+                            <span>
+                                <strong>Numero di serie SENEC (vedere case SENEC):</strong>
+                            </span>
+                            <input type="text" name="sWizardSenecSerial" id="lblWizardSenecSerial" />
+                        </label>
+                    </div>
+                    <div class="wizard-installation-registration-controls">
+                        <label class="checkbox">
+                            <input type="checkbox" id="chkWizardInstallerRegConfirmReadDocs" class="wizardautorisiert" />
+                            <strong>Confermo di aver letto la documentazione per intero.</strong>
+                        </label>
+                    </div>
+                    
+                    <div class="wizard-installation-registration-controls">
+                        <label class="checkbox">
+                            <input type="checkbox" id="chkWizardInstallerRegConfirmAll" class="wizardautorisiert" />
+                            <strong>Confermo la correttezza di tutti i dati indicati.</strong>
+                        </label>
+                    </div>
+                    
+                    <div class="hidden">
+                        <!-- Installer -->
+                        <input name="sWizardInstallerEmail" id="lblWizardInstallerEmail" />
+                        <input name="sWizardInstallerPassword" id="lblWizardInstallerPassword" />
+                        <input name="sWizardInstallerContractor" id="lblWizardInstallerContractor" />
+                        <!-- Customer -->
+                        <input name="sWizardCustomerSurname" id="lblWizardCustomerSurname" />
+                        <input name="sWizardCustomerName" id="lblWizardCustomerName" />
+                        <input name="sWizardCustomerStreet" id="lblWizardCustomerStreet" />
+                        <input name="sWizardCustomerHouseNumber" id="lblWizardCustomerHouseNumber" />
+                        <input name="sWizardCustomerPostalCode" id="lblWizardCustomerPostalCode" />
+                        <input name="sWizardCustomerCity" id="lblWizardCustomerCity" />
+                        <input name="sWizardCustomerCountry" id="lblWizardCustomerCountry" />
+                        <input name="sWizardCustomerEmail" id="lblWizardCustomerEmail" />
+                        <input name="sWizardCustomerPhoneNumber" id="lblWizardCustomerPhoneNumber" />
+                        <!-- Installation Place -->
+                        <input name="sWizardSiteTimezone" id="lblWizardSiteTimezone" />
+                        <input name="sWizardSiteStreet" id="lblWizardSiteStreet" />
+                        <input name="sWizardSiteHouseNumber" id="lblWizardSiteHouseNumber" />
+                        <input name="sWizardSitePostalCode" id="lblWizardSitePostalCode" />
+                        <input name="sWizardSiteCity" id="lblWizardSiteCity" />
+                        <input name="sWizardSiteCountry" id="lblWizardSiteCountry" />
+                        
+                        <!-- Hidden and Checkfields -->
+                        <input name="sWizardMCUSerial" id="lblWizardMCUSerial" />              
+                    </div>
+                </form>
+                
+                <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
+                <h5 style="margin-top: 15px;">Dati del proprietario</h5>                 
+                <!-- Show wizard data -->
+                <table style="margin: 0px 0px 20px 15%;">
+                    <tr>
+                        <td><strong>Nome: </strong></td>
+                        <td><span id="lblWizardCustomerName_Check"></span><span id="lblWizardCustomerSurname_Check"></span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Via, N. civico: </strong></td>
+                        <td><span id="lblWizardCustomerStreet_Check"></span><span id="lblWizardCustomerHouseNumber_Check"></span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>CAP, Luogo: </strong></td>
+                        <td><span id="lblWizardCustomerPostalCode_Check"></span><span id="lblWizardCustomerCity_Check"></span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Paese: </strong></td>
+                        <td><span id="lblWizardCustomerCountry_Check" ></span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>E-Mail: </strong></td>
+                        <td><span id="lblWizardCustomerEmail_Check" ></span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Numero di telefono: </strong></td>
+                        <td><span id="lblWizardCustomerPhoneNumber_Check" ></span></td>
+                    </tr>
+                </table>
+                <h5>Luogo di installazione</h5>
+                <table style="margin: 0px 0px 30px 15%;">
+                    <tr>
+                        <td><strong>Via, N. civico: </strong></td>
+                        <td><span id="lblWizardSiteStreet_Check"></span><span id="lblWizardSiteHouseNumber_Check"></span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>CAP, Luogo: </strong></td>
+                        <td><span id="lblWizardSitePostalCode_Check"></span><span id="lblWizardSiteCity_Check"></span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Paese: </strong></td>
+                        <td><span id="lblWizardSiteCountry_Check" ></span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Fuso orario: </strong></td>
+                        <td><span id="lblWizardSiteTimezone_Check" ></span></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <span id="confwizardStatus"></span>
+    <button class="btn btn-wizard"  onclick="confwizardPrevPage()" id="btnWizard_prev">Indietro</button>
+    <button class="btn btn-wizard" onclick="confwizardNextPage()" id="btnWizard_next">Avanti</button>
+</div>
+
+
+<div class="hidden">
+    <p id="WIZARDSETUP_AGBS_ACCEPTED"></p>
+
+    <p id="WIZARDDEVICE_BATTERY_TYPE"></p>
+    <p id="WIZARDSETUP_USED_PHASE"></p>
+
+    <p id="GRIDCONFIGPWRCFG_USE_MAX_PWR_SKEW"></p>
+    <p id="WIZARDSETUP_USE_RCR"></p>
+    <p id="WIZARDSETUP_POWER_RULE"></p>
+    <p id="WIZARDPWRCFG_PEAK_PV_POWER"></p>
+
+    <!-- EDL21 meter -->
+    <p id="WIZARDSENEC_METER_SN"></p>
+    <p id="WIZARDSENEC_METER_REPLACES_ENFLURI1"></p>
+    <p id="WIZARDHEATPUMP_METER_SN"></p>
+    <p id="WIZARDGENERATION_METER_SN"></p>
+    <p id="WIZARDTEST_SENEC_METER">0</p>
+    <p id="WIZARDTEST_HEATPUMP_METER">0</p>
+    <p id="WIZARDTEST_GENERATION_METER">0</p>
+    
+    <p id="WIZARDDEVICE_PM_TYPE"></p>
+    <p id="WIZARDDEVICE_PM_HOUSE_ENABLED"></p>
+    <p id="WIZARDSETUP_PM_HOUSE_ADR"></p>
+    <p id="WIZARDDEVICE_INVERTER_TYPE"></p>
+    <p id="WIZARDDEVICE_INV_ENABLED0"></p>
+    <p id="WIZARDDEVICE_INV_ENABLED1"></p>
+    <p id="WIZARDDEVICE_INV_ENABLED2"></p>
+    <p id="WIZARDDEVICE_INV_ENABLED3"></p>
+    <p id="WIZARDDEVICE_INV_ENABLED4"></p>
+    <p id="WIZARDDEVICE_INV_ENABLED5"></p>
+    
+    <p id="WIZARDSETUP_PV_INV_IP0"></p>
+    <p id="WIZARDSETUP_PV_INV_IP1"></p>
+    <p id="WIZARDSETUP_PV_INV_IP2"></p>
+    <p id="WIZARDSETUP_PV_INV_IP3"></p>
+    <p id="WIZARDSETUP_PV_INV_IP4"></p>    
+    <p id="WIZARDSETUP_PV_INV_IP5"></p>
+
+    <p id="WIZARDMASTER_SLAVE_MODE"></p>
+    
+    <p id="WIZARDGRID_CONNECTION_TYPE"></p>
+    
+    <!--PWR_UNIT Seite-->
+    <p id="PWR_UNITTYPE0"></p>
+    <p id="PWR_UNITTYPE1"></p>
+    <p id="PWR_UNITTYPE2"></p>
+    <p id="PWR_UNITTYPE3"></p>
+    <p id="PWR_UNITTYPE4"></p>
+    <p id="PWR_UNITTYPE5"></p>
+    <p id="PWR_UNITTEMP_COUNT0"></p>
+    <p id="PWR_UNITTEMP_COUNT1"></p>
+    <p id="PWR_UNITTEMP_COUNT2"></p>
+    <p id="PWR_UNITTEMP_COUNT3"></p>
+    <p id="PWR_UNITTEMP_COUNT4"></p>
+    <p id="PWR_UNITTEMP_COUNT5"></p>
+    <p id="PWR_UNITTEMP_LIMIT_LOWER"></p>
+    <p id="PWR_UNITTEMP_LIMIT_UPPER"></p>
+    <p id="PWR_UNITENFLURI0"></p>
+    <p id="PWR_UNITENFLURI1"></p>
+    <p id="PWR_UNITENFLURI2"></p>
+    <p id="PWR_UNITENFLURI3"></p>
+    <p id="PWR_UNITENFLURI4"></p>
+    <p id="PWR_UNITENFLURI5"></p>
+    <p id="WIZARDCHARGE_PRIO"></p>    
+    <p id="WIZARDHEAT_CONN_TYPE"></p> 
+    
+    <!--seite9--->
+    <p id="WIZARDNET_SENEC_USE_DHCP"></p>
+
+    <p id="WIZARDNET_SENEC_STATIC_IP"></p>
+    <p id="WIZARDNET_NETWORK_MASK"></p>
+    <p id="WIZARDNET_GATEWAY_IP"></p>
+    <p id="WIZARDNET_DNS_SERVER_IP"></p>
+    <p id="WIZARDNET_SENEC_SERVER_IP"></p>
+    
+    <p id="WIZARDUSE_TESTSERVER"></p>
+
+<!--   check internet connection results   -->
+    <p id="lblWizardBrowserInternetAvailable"></p>
+
+<!--     user-level info to filter wizard-pages -->    
+    <p id="WIZARDSETUP_ABS_POWER"></p>
+    <p id="WIZARDSETUP_USE_ABS_POWER"></p>
+    
+    <p id="SOCKETSENABLE0"></p>
+    <p id="SOCKETSENABLE1"></p>
+    
+    <p id="WIZARDSETUP_NUMBER_WALLBOXES"></p>   
+</div>

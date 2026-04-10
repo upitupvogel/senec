@@ -1,0 +1,94 @@
+<script type="text/javascript">
+    var pageObj;
+
+    function updateCB()
+    {
+        var FuelGauge = (($("#ENERGYGUI_BAT_DATA_FUEL_CHARGE").html() * 1) + 10) / 20;
+
+        $('.chargeBalk').removeClass("chargeBalkActive");
+        for(var i=0;i<=FuelGauge;i++){
+          $('.chargeBalk:eq('+(5-i)+')').addClass("chargeBalkActive");
+        }
+
+        $("#GuiDataAvailableCapacity").html(100 - 20 * $("#ENERGYDOD_REDUCTION_LEVEL").html());
+        var userLevel = $('#LOGUSER_LEVEL').html() * 1;
+        if (userLevel == 5)
+        {
+            $('.superuser_only').show();
+        }
+        else
+        {
+            $('.superuser_only').hide();
+        }
+    }
+
+    function obj_init()
+    {
+        pageObj = new senecPage("AKKUMULATOR", updateCB);
+
+        pageObj.add_json_object("ENERGY");
+        pageObj.add_property_to_object("ENERGY", "STAT_STATE", "");
+        pageObj.add_property_to_object("ENERGY", "STAT_STATE_DECODE", "");
+
+        pageObj.add_property_to_object("ENERGY", "GUI_BAT_DATA_VOLTAGE", "");
+        pageObj.add_property_to_object("ENERGY", "GUI_BAT_DATA_CURRENT", "");
+
+        pageObj.add_property_to_object("ENERGY", "GUI_BAT_DATA_FUEL_CHARGE", "");
+        pageObj.add_property_to_object("ENERGY", "DOD_REDUCTION_LEVEL", "");
+        pageObj.singlePageRefresh();
+        pageObj.startPageRefresh(1000);
+        
+        $('.pageinfo').addClass('hidden').hide();
+        $('.battery_content').removeClass('hidden').show();
+    }
+
+    $(document).bind("page.loaded", function() {
+        $('#hCategoryName').empty();
+        $('#hCategoryName').text(lng["lAccumulatorHeader"]);
+        $('#hCategoryHeader').removeClass('hidden').show();
+        updateLanguage();
+        obj_init();
+    });
+
+    $(document).bind("page.unload", function() {
+        $('#hCategoryHeader').addClass('hidden').hide();
+        pageObj.stopPageRefresh();
+    });
+</script>
+
+<div class="row battery_content hidden" >
+    <div  class= "span3 offset4" >
+        <div class="row">
+            <div class= "span1" >
+                <div class="charge_measure" style="margin-top: 1em;">
+                    <img src="./img/icon_battery_status.gif"/>
+                    <div class="chargeBalks">
+                        <div class="chargeBalk"></div>
+                        <div class="chargeBalk"></div>
+                        <div class="chargeBalk"></div>
+                        <div class="chargeBalk"></div>
+                        <div class="chargeBalk"></div>
+                    </div>
+                </div>
+            </div>
+            <div class= "span2" >
+                 <div class= "superuser_only"><div class="row"><div class= "span2 labels" > <p id="lFuelGauge"></p> </div></div>
+                <div class="row"><div class= "span2 labels_value" ><p id="ENERGYGUI_BAT_DATA_FUEL_CHARGE"> </p></div></div></div>
+                <div class="row"><div class= "span2 labels" > <p id="lCurrent"></p> </div></div>
+                <div class="row"><div class= "span2 labels_value" ><p id="ENERGYGUI_BAT_DATA_CURRENT"> </p> </div></div>
+                <div class="row"><div class= "span2 labels" > <p id="lVoltage"></p> </div></div>
+                <div class="row"><div class= "span2 labels_value" ><p id="ENERGYGUI_BAT_DATA_VOLTAGE"> </p> </div></div>
+                <div class="row"><div class= "span2 labels" > <p id="lCapacity"></p> </div></div>
+                <div class="row"><div class= "span2 labels_value" ><p id="GuiDataAvailableCapacity"> </p></div></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="pageinfo row">
+    <div class= "span6 offset2 text-center" ><strong><p id="lLoadPage" style="margin-top: 50px;"></p></strong></div>
+</div>
+
+<div class="hidden">
+    <p id="ENERGYDOD_REDUCTION_LEVEL"></p>
+</div>

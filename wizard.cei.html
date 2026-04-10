@@ -1,0 +1,162 @@
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" id="btnWizardCEI_close" onclick="confwizardClose();">×</button>
+    <h3 id="lCEIHeader"></h3>
+</div>
+
+<div class="modal-body">
+	<div id="lblWizardCEICheckResult"  class="wizard-check-result"> </div>
+	<table>
+	 <tr>
+	        <td>
+	            <label for="GRIDCONFIGCEI_FREQ_MAX" id="lCEIsyncFreqMax"></label>
+	        </td>
+	        <td>
+	            <input class="has-tooltip" title="50000..51000" type="text" id="GRIDCONFIGCEI_FREQ_MAX">
+	        </td>
+	    </tr>
+	    <tr>
+	        <td>
+	            <label for="GRIDCONFIGCEI_FREQ_MIN" id="lCEIsyncFreqMin"></label>
+	        </td>
+	        <td>
+	            <input class="has-tooltip" title="49000..50000" type="text" id="GRIDCONFIGCEI_FREQ_MIN">
+	        </td>
+	    </tr>
+	    <tr>
+	        <td>
+	            <label for="GRIDCONFIGCEI_REC_TIME" id="lCEIreconnectTime"></label>
+	        </td>
+	        <td>
+	            <input class="has-tooltip" title="0..900" type="text" id="GRIDCONFIGCEI_REC_TIME">
+	        </td>
+	    </tr>
+	    <tr>
+	        <td>
+	            <label for="GRIDCONFIGCEI_RED_DROP" id="lCEIreductionDrop"></label>
+	        </td>
+	        <td>
+	            <input class="has-tooltip" title="20..50" type="text" id="GRIDCONFIGCEI_RED_DROP">
+	        </td>
+	    </tr>
+	    <tr>
+	        <td>
+	            <label for="GRIDCONFIGCEI_CPHI_LOIN" id="lCEIcosPhiLockIn"></label>
+	        </td>
+	        <td>
+	            <input class="has-tooltip" title="100..110" type="text" id="GRIDCONFIGCEI_CPHI_LOIN">
+	        </td>
+	    </tr>
+	    <tr>
+	        <td>
+	            <label for="GRIDCONFIGCEI_CPHI_LOUT" id="lCEIcosPhiLockOut"></label>
+	        </td>
+	        <td>
+	            <input class="has-tooltip" title="90..100" type="text" id="GRIDCONFIGCEI_CPHI_LOUT">
+	        </td>
+	    </tr>
+	    <tr>
+	        <td>
+	            <label for="GRIDCONFIGCEI_STAB_UP_TH" id="lCEIstabUpperThresh"></label>
+	        </td>
+	        <td>
+	            <input class="has-tooltip" title="50000..52000" type="text" id="GRIDCONFIGCEI_STAB_UP_TH">
+	        </td>
+	    </tr>
+	    <tr>
+	        <td>
+	            <label for="GRIDCONFIGCEI_STAB_LO_TH" id="lCEIstabLowerThresh"></label>
+	        </td>
+	        <td>
+	            <input class="has-tooltip" title="47000..50000" type="text" id="GRIDCONFIGCEI_STAB_LO_TH">
+	        </td>
+	    </tr>
+	    <tr>
+	        <td>
+	            <label for="GRIDCONFIGCEI_STAB_UP_CO" id="lCEIstabUpperCorner"></label>
+	        </td>
+	        <td>
+	            <input class="has-tooltip" title="50000..53000" type="text" id="GRIDCONFIGCEI_STAB_UP_CO">
+	        </td>
+	    </tr>
+	    <tr>
+	        <td>
+	            <label for="GRIDCONFIGCEI_STAB_LO_CO" id="lCEIstabLowerCorner"></label>
+	        </td>
+	        <td>
+	            <input class="has-tooltip" title="46000..50000" type="text" id="GRIDCONFIGCEI_STAB_LO_CO">
+	        </td>
+	    </tr>
+	    <tr>
+	        <td>
+	            <label for="GRIDCONFIGCEI_STAB_AC_DE" id="lCEIactivationDelay"></label>
+	        </td>
+	        <td>
+	            <input class="has-tooltip" title="0..1000" type="text" id="GRIDCONFIGCEI_STAB_AC_DE">
+	        </td>
+	    </tr>
+	    <tr>
+	        <td>
+	            <label for="GRIDCONFIGCEI_STAB_VOL_TH" id="lCEIvoltageThresh"></label>
+	        </td>
+	        <td>
+	            <input class="has-tooltip" title="105..115" type="text" id="GRIDCONFIGCEI_STAB_VOL_TH">
+	        </td>
+	    </tr>
+	    <tr>
+	        <td>
+	            <label for="checkboxWizardCEIfix_cosphi" id="lCEIcosPhiFix"></label>
+	        </td>
+	        <td>
+	            <input type="checkbox" id="checkboxWizardCEIfix_cosphi" onchange="CosPhiFixUpdate()" style="margin-left:3px;">
+	        </td>
+	    </tr>
+	    <tr id="CosPhiFix">
+	        <td>
+	            <label for="GRIDCONFIGCEI_COS_PHI" id="lCEIcosPhiLabel"></label>
+	        </td>
+	        <td>
+	            <input class="has-tooltip" title="-0.9..-0.99 | 1..0.9" type="text" id="GRIDCONFIGCEI_COS_PHI">
+	        </td>
+	    </tr>
+	    <tr class="CosPhiRamp">
+	        <td>
+	            <label for="GRIDCONFIGPWRCFG_COS_POINT1" id="lCosPhi1"></label>
+	        </td>
+	        <td>
+	            <input class="has-tooltip" title="-0.9..-0.99 | 1..0.9" type="text" id="GRIDCONFIGPWRCFG_COS_POINT1">
+	        </td>
+	    </tr>
+	    <tr class="CosPhiRamp">
+	        <td>
+	            <label for="GRIDCONFIGPWRCFG_COS_POINT_2A" id="lCosPhi2a"></label>
+	        </td>
+	        <td>
+	            <input class="has-tooltip" title="-0.9..-0.99 | 1..0.9" type="text" id="GRIDCONFIGPWRCFG_COS_POINT_2A">
+	        </td>
+	    </tr>
+	    <tr class="CosPhiRamp">
+	        <td>
+	            <label for="GRIDCONFIGPWRCFG_COS_POINT_2B" id="lCosPhi2b"></label>
+	        </td>
+	        <td>
+	            <input class="has-tooltip" title="0-100%" type="text" id="GRIDCONFIGPWRCFG_COS_POINT_2B">
+	        </td>
+	    </tr>
+	    <tr class="CosPhiRamp">
+	        <td>
+	            <label for="GRIDCONFIGPWRCFG_COS_POINT3" id="lCosPhi3"></label>
+	        </td>
+	        <td>
+	            <input class="has-tooltip" title="-0.9..-0.99 | 1..0.9" type="text" id="GRIDCONFIGPWRCFG_COS_POINT3">
+	        </td>
+	    </tr>
+	</table>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-wizard" onclick="confwizardCEINextPage()" id="Save"></button>
+</div>
+
+
+<div class="hidden">
+    <p id="GRIDCONFIGCEI_COS_PHI_ENABLE"></p>
+</div>

@@ -1,0 +1,549 @@
+<script type="text/javascript">
+/** Prevent JSHint warning about supposingly unused functions. */
+/* exported set_limits */
+    var pageObj;
+
+    function singleUpdateCB()
+    {      
+        // Show only activated devices
+        for (c = 0; c < 6; c++) {
+            // Check if activated
+            if(htmlAsNumber('#PWR_UNITTYPE' + c)){
+              $('.pwr_unit' + c).removeClass("hidden").show();
+              $('.pageinfo').addClass("hidden").hide();
+              }
+            
+            // Check if Solarinvert SHKW
+            if(htmlAsNumber('#PWR_UNITTYPE' + c) != 1){
+              $('.solarinvert_shkw' + c).show();}
+              else{
+              $('.solarinvert_shkw' + c).hide();}
+            
+            if(htmlAsNumber('#PWR_UNITTEMP_COUNT' + c) > 0){
+                $('.temp_sensor_only' + c).show();}
+                else{
+                $('.temp_sensor_only' + c).hide();}
+             
+            // Fill min & max input fields
+            $("#inputPUminLimit" + c).val($('#PWR_UNITTEMPMIN' + c).html());
+            $("#inputPUmaxLimit" + c).val($('#PWR_UNITTEMPMAX' + c).html());
+        }
+    }
+    
+    function set_limits()
+    {
+        var PWR_UNIT_TEMPMIN_ARR = '[';
+        var PWR_UNIT_TEMPMAX_ARR = '[';
+        for (c = 0; c < 6; c++) {
+            if(!isValidDecimal($("#inputPUminLimit" + c ).val()) ||
+               !isValidDecimal($("#inputPUmaxLimit" + c ).val()))
+            {
+               alert(lng.WIZARD_CHECK_POS_DECIMAL);
+               return;
+            }
+        	// Check if min is below max
+            if(parseInt($('#inputPUminLimit'+ c).val()) >= parseInt($('#inputPUmaxLimit'+ c).val()) &&
+               ($('#PWR_UNITTYPE' + c).val() * 1) > 0)
+   			{
+                alert(lng.WIZARD_CHECK_PU_MIN_TEMP);
+                return;
+   			}
+
+        	// Only update values for active units))	        
+            PWR_UNIT_TEMPMIN_ARR         += '"fl_' + pageObj.float2hex(parseInt($('#inputPUminLimit'+ c).val()));
+            PWR_UNIT_TEMPMAX_ARR         += '"fl_' + pageObj.float2hex(parseInt($('#inputPUmaxLimit'+ c).val()));
+            
+            /* Add trailing commas if needed */
+            if(c<5)
+            {
+                PWR_UNIT_TEMPMIN_ARR += '",';
+                PWR_UNIT_TEMPMAX_ARR += '",';
+            }
+        }
+ 
+        PWR_UNIT_TEMPMIN_ARR += '"]';
+        PWR_UNIT_TEMPMAX_ARR += '"]';
+        
+        pageObj.reInitJSONObject();
+        pageObj.add_json_object("PWR_UNIT");
+        pageObj.add_json_object("WIZARD");
+	    pageObj.add_property_to_object("PWR_UNIT", "TEMPMIN", PWR_UNIT_TEMPMIN_ARR);
+	    pageObj.add_property_to_object("PWR_UNIT", "TEMPMAX", PWR_UNIT_TEMPMAX_ARR);
+	    
+        /* Set flag to trigger update of settings file. */
+        pageObj.handleButtonClick("WIZARD", "CONFIG_MODIFIED_BY_USER");
+
+        pageObj.singlePageRefresh();
+        pageObj.reInitJSONObject();
+        obj_init();
+    }
+    
+    function PowerUnitUpdateCB()
+    {
+        // Get PWR_UNIT name and calculate total pwr
+        for (c = 0; c < 6; c++) 
+        {
+          $("#gui_pwr_unit_name" + c).html(pwr_unit_type_name[htmlAsNumber("#PWR_UNITTYPE" + c)]);
+        
+          $("#gui_pwr_unit_total_pwr" + c).html((parseFloat($('#PWR_UNITPOWER_L1' + c).html()) + parseFloat($('#PWR_UNITPOWER_L2' + c).html()) + parseFloat($('#PWR_UNITPOWER_L3' + c).html())).toFixed(2));
+            
+          var has_error = false; 
+          var error_string ="| ";
+          // Set Status
+          for (d = 0; d < 18; d++)
+            {
+                if (htmlAsNumber("#PWR_UNITSTATUS" + c) & (1<<d))
+                {
+                    error_string += pwr_unit_status_enum[d];
+                    error_string +=" | ";
+                    has_error = true;
+                }
+            }
+            if (has_error)
+            {  
+                  $("#gui_pwr_unit_status" + c).html(error_string);
+            }
+            else
+            {
+                $("#gui_pwr_unit_status" + c).html("Ok");
+            }
+        }
+    }
+
+    function obj_init() {
+        pageObj = new senecPage(singleUpdateCB);
+        pageObj.add_json_object("PWR_UNIT");
+        pageObj.add_property_to_object("PWR_UNIT", "TYPE", "");
+        pageObj.add_property_to_object("PWR_UNIT", "TEMPMIN", "");
+        pageObj.add_property_to_object("PWR_UNIT", "TEMPMAX", "");      
+        pageObj.add_property_to_object("PWR_UNIT", "TEMP_COUNT", ""); 
+        pageObj.singlePageRefresh();
+        pageObj.reInitJSONObject();      
+        
+        pageObj = new senecPage(PowerUnitUpdateCB);
+
+        pageObj.add_json_object("PWR_UNIT");
+        pageObj.add_property_to_object("PWR_UNIT", "POWER_L1", "");
+        pageObj.add_property_to_object("PWR_UNIT", "POWER_L2", "");
+        pageObj.add_property_to_object("PWR_UNIT", "POWER_L3", "");
+        pageObj.add_property_to_object("PWR_UNIT", "TEMPTARGET", "");
+        pageObj.add_property_to_object("PWR_UNIT", "TEMPMIN", "");
+        pageObj.add_property_to_object("PWR_UNIT", "TEMPMAX", "");
+        pageObj.add_property_to_object("PWR_UNIT", "CURRENTTEMP_MIN", "");
+        pageObj.add_property_to_object("PWR_UNIT", "CURRENTTEMP_MAX", "");
+        pageObj.add_property_to_object("PWR_UNIT", "TYPE", "");
+        pageObj.add_property_to_object("PWR_UNIT", "STATUS", "");
+        pageObj.add_property_to_object("PWR_UNIT", "ENFLURI", "");
+        pageObj.add_property_to_object("PWR_UNIT", "FW_VER", "");
+        pageObj.singlePageRefresh();
+        pageObj.startPageRefresh(1000);
+    }
+
+    $(document).bind("page.loaded", function() {
+        updateLanguage();
+        obj_init();
+    });
+
+    $(document).bind("page.unload", function() {
+        pageObj.stopPageRefresh();
+    });
+</script>
+
+<div class="pwr_unit0 hidden"> 
+    <div class="row">
+
+        <div class="row">
+            <div class="span10">
+                <div class="span3 labels_title"><p id="lPWRUTitle0"></p></div>
+                <div class="span7 labels_title"><p id="gui_pwr_unit_name0">********</p></div> 
+            </div> 
+        </div>
+      
+        <div class="row">
+            <div class="span3 labels" style="margin-bottom:3px"><p id="lPWRUState0"></p></div>
+            <div class="span7 labels_value_state" style="width: 695px;"><p id="gui_pwr_unit_status0">********</p></div>
+        </div>
+      
+        <div class="row">
+            <div class="span3">
+                <div class="span3 labels"><p id="lPWRUPowerEach0"></p></div>
+                <div class="span3 labels"><p id="lPWRUPowerTotal0"></p></div>
+                
+<!--                 Input fields for max and min temperature -->
+                <div class="temp_sensor_only0 span3 labels">
+                    <span id="lPUmin0"></span>                    
+                        <input type="text" class="span1" id="inputPUminLimit0" value="12"
+                        style="margin-left: 4px; margin-top: 11px; height: 11px; width: 20px; font-size: 11px; line-height: 11px;"> 
+                </div>
+                <div class="temp_sensor_only0 span3 labels">
+                    <span id="lPUmax0"></span>                    
+                        <input type="text" class="span1" id="inputPUmaxLimit0" value="12"
+                        style="margin-left: 4px; margin-top: 11px; height: 11px; width: 20px; font-size: 11px; line-height: 11px;">
+                    <button class="btn btn-mini" type="button"
+                        style="margin-left: 4px;" onclick="set_limits();" id="lPUSave0"></button>    
+                </div>
+            </div>
+        
+            <div class="span3" style="background: var(--sub-color);">
+                <div class="span1 labels_value_state" style="width: 65px;"><p id="PWR_UNITPOWER_L10">****</p></div>
+                <div class="span1 labels_value_state" style="width: 65px;"><p id="PWR_UNITPOWER_L20">****</p></div>
+                <div class="span1 labels_value_state" style="width: 65px;"><p id="PWR_UNITPOWER_L30">****</p></div>
+                <div class="span1 labels_value_state"></div>
+                <div class="span2 labels_value_state" style="width: 65px; margin-left: -5px;"><p id="gui_pwr_unit_total_pwr0">****</p></div>
+            </div>
+        
+            <div class="span3">
+                <div class="temp_sensor_only0 labels"><p id="lPWRUTempMin0"></p></div>
+                <div class="temp_sensor_only0 labels"><p id="lPWRUTempMax0"></p></div>
+                <div class="temp_sensor_only0 labels"><p id="lPWRUTempMin_Now0"></p></div>
+                <div class="temp_sensor_only0 labels"><p id="lPWRUTempMax_Now0"></p></div>
+                <div class="solarinvert_shkw0"><div class="labels"><p id="lPWRURev0"></p></div></div>
+            </div>
+        
+            <div class="span1" style="background: var(--sub-color);">
+                <div class="temp_sensor_only0 labels_value"><p id="PWR_UNITTEMPMIN0">********</p></div>
+                <div class="temp_sensor_only0 labels_value"><p id="PWR_UNITTEMPMAX0">********</p></div>
+                <div class="temp_sensor_only0 labels_value"><p id="PWR_UNITCURRENTTEMP_MIN0">********</p></div>
+                <div class="temp_sensor_only0 labels_value"><p id="PWR_UNITCURRENTTEMP_MAX0">********</p></div>
+                <div class="solarinvert_shkw0"><div style="width: 65px" class="span1 labels_value"><p id="PWR_UNITFW_VER0">********</p></div></div>
+            </div>
+        </div>
+        
+      </div>
+</div>
+
+<div class="pwr_unit1 hidden"> 
+    <div class="row">
+
+        <div class="row">
+            <div class="span10">
+                <div class="span3 labels_title"><p id="lPWRUTitle1"></p></div>
+                <div class="span7 labels_title"><p id="gui_pwr_unit_name1">********</p></div> 
+            </div> 
+        </div>
+      
+        <div class="row">
+            <div class="span3 labels" style="margin-bottom:3px"><p id="lPWRUState1"></p></div>
+            <div class="span7 labels_value_state" style="width: 695px;"><p id="gui_pwr_unit_status1">********</p></div>
+        </div>
+      
+        <div class="row">
+            <div class="span3">
+                <div class="span3 labels"><p id="lPWRUPowerEach1"></p></div>
+                <div class="span3 labels"><p id="lPWRUPowerTotal1"></p></div>
+<!--                 Input fields for max and min temperature -->
+                <div class="temp_sensor_only1 span3 labels">
+                    <span id="lPUmin1"></span>                    
+                        <input type="text" class="span1" id="inputPUminLimit1" value="12"
+                        style="margin-left: 4px; margin-top: 11px; height: 11px; width: 20px; font-size: 11px; line-height: 11px;"> 
+                </div>
+                <div class="temp_sensor_only1 span3 labels">
+                    <span id="lPUmax1"></span>                    
+                        <input type="text" class="span1" id="inputPUmaxLimit1" value="12"
+                        style="margin-left: 4px; margin-top: 11px; height: 11px; width: 20px; font-size: 11px; line-height: 11px;">
+                    <button class="btn btn-mini" type="button"
+                        style="margin-left: 4px;" onclick="set_limits();" id="lPUSave1"></button>    
+                </div>
+            </div>
+        
+            <div class="span3" style="background: var(--sub-color);">
+                <div class="span1 labels_value_state" style="width: 65px;"><p id="PWR_UNITPOWER_L11">****</p></div>
+                <div class="span1 labels_value_state" style="width: 65px;"><p id="PWR_UNITPOWER_L21">****</p></div>
+                <div class="span1 labels_value_state" style="width: 65px;"><p id="PWR_UNITPOWER_L31">****</p></div>
+                <div class="span1 labels_value_state"></div>
+                <div class="span2 labels_value_state" style="width: 65px; margin-left: -5px;"><p id="gui_pwr_unit_total_pwr1">****</p></div>
+            </div>
+        
+            <div class="span3">
+                <div class="temp_sensor_only1 labels"><p id="lPWRUTempMin1"></p></div>
+                <div class="temp_sensor_only1 labels"><p id="lPWRUTempMax1"></p></div>
+                <div class="temp_sensor_only1 labels"><p id="lPWRUTempMin_Now1"></p></div>
+                <div class="temp_sensor_only1 labels"><p id="lPWRUTempMax_Now1"></p></div>
+                <div class="solarinvert_shkw1"><div class="labels"><p id="lPWRURev1"></p></div></div>
+            </div>
+        
+            <div class="span1" style="background: var(--sub-color);">
+                <div class="temp_sensor_only1 labels_value"><p id="PWR_UNITTEMPMIN1">********</p></div>
+                <div class="temp_sensor_only1 labels_value"><p id="PWR_UNITTEMPMAX1">********</p></div>
+                <div class="temp_sensor_only1 labels_value"><p id="PWR_UNITCURRENTTEMP_MIN1">********</p></div>
+                <div class="temp_sensor_only1 labels_value"><p id="PWR_UNITCURRENTTEMP_MAX1">********</p></div>
+                <div class="solarinvert_shkw1"><div class="span1 labels_value"><p id="PWR_UNITFW_VER1">********</p></div></div>
+            </div>
+        </div>
+        
+      </div>
+</div>
+
+<div class="pwr_unit2 hidden"> 
+    <div class="row">
+
+        <div class="row">
+            <div class="span10">
+                <div class="span3 labels_title"><p id="lPWRUTitle2"></p></div>
+                <div class="span7 labels_title"><p id="gui_pwr_unit_name2">********</p></div> 
+            </div> 
+        </div>
+      
+        <div class="row">
+            <div class="span3 labels" style="margin-bottom:3px"><p id="lPWRUState2"></p></div>
+            <div class="span7 labels_value_state" style="width: 695px;"><p id="gui_pwr_unit_status2">********</p></div>
+        </div>
+      
+        <div class="row">
+            <div class="span3">
+                <div class="span3 labels"><p id="lPWRUPowerEach2"></p></div>
+                <div class="span3 labels"><p id="lPWRUPowerTotal2"></p></div>
+<!--                 Input fields for max and min temperature -->
+                <div class="temp_sensor_only2 span3 labels">
+                    <span id="lPUmin2"></span>                    
+                        <input type="text" class="span1" id="inputPUminLimit2" value="12"
+                        style="margin-left: 4px; margin-top: 11px; height: 11px; width: 20px; font-size: 11px; line-height: 11px;"> 
+                </div>
+                <div class="temp_sensor_only2 span3 labels">
+                    <span id="lPUmax2"></span>                    
+                        <input type="text" class="span1" id="inputPUmaxLimit2" value="12"
+                        style="margin-left: 4px; margin-top: 11px; height: 11px; width: 20px; font-size: 11px; line-height: 11px;">
+                    <button class="btn btn-mini" type="button"
+                        style="margin-left: 4px;" onclick="set_limits();" id="lPUSave2"></button>    
+                </div>
+            </div>
+        
+            <div class="span3" style="background: var(--sub-color);">
+                <div class="span1 labels_value_state" style="width: 65px;"><p id="PWR_UNITPOWER_L12">****</p></div>
+                <div class="span1 labels_value_state" style="width: 65px;"><p id="PWR_UNITPOWER_L22">****</p></div>
+                <div class="span1 labels_value_state" style="width: 65px;"><p id="PWR_UNITPOWER_L32">****</p></div>
+                <div class="span1 labels_value_state"></div>
+                <div class="span2 labels_value_state" style="width: 65px; margin-left: -5px;"><p id="gui_pwr_unit_total_pwr2">****</p></div> 
+            </div>
+        
+            <div class="span3">
+                <div class="temp_sensor_only2 labels"><p id="lPWRUTempMin2"></p></div>
+                <div class="temp_sensor_only2 labels"><p id="lPWRUTempMax2"></p></div>
+                <div class="temp_sensor_only2 labels"><p id="lPWRUTempMin_Now2"></p></div>
+                <div class="temp_sensor_only2 labels"><p id="lPWRUTempMax_Now2"></p></div>
+                <div class="solarinvert_shkw2"><div class="labels"><p id="lPWRURev2"></p></div></div>
+            </div>
+        
+            <div class="span1" style="background: var(--sub-color);">
+                <div class="temp_sensor_only2 labels_value"><p id="PWR_UNITTEMPMIN2">********</p></div>
+                <div class="temp_sensor_only2 labels_value"><p id="PWR_UNITTEMPMAX2">********</p></div>
+                <div class="temp_sensor_only2 labels_value"><p id="PWR_UNITCURRENTTEMP_MIN2">********</p></div>
+                <div class="temp_sensor_only2 labels_value"><p id="PWR_UNITCURRENTTEMP_MAX2">********</p></div>
+                <div class="solarinvert_shkw2"><div class="span1 labels_value"><p id="PWR_UNITFW_VER2">********</p></div></div>
+            </div>
+        </div>
+        
+      </div>
+</div>
+
+<div class="pwr_unit3 hidden"> 
+    <div class="row">
+
+        <div class="row">
+            <div class="span10">
+                <div class="span3 labels_title"><p id="lPWRUTitle3"></p></div>
+                <div class="span7 labels_title"><p id="gui_pwr_unit_name3">********</p></div> 
+            </div> 
+        </div>
+      
+        <div class="row">
+            <div class="span3 labels" style="margin-bottom:3px"><p id="lPWRUState3"></p></div>
+            <div class="span7 labels_value_state" style="width: 695px;"><p id="gui_pwr_unit_status3">********</p></div>
+        </div>
+      
+        <div class="row">
+            <div class="span3">
+                <div class="span3 labels"><p id="lPWRUPowerEach3"></p></div>
+                <div class="span3 labels"><p id="lPWRUPowerTotal3"></p></div>
+<!--                 Input fields for max and min temperature -->
+                <div class="temp_sensor_only3 span3 labels">
+                    <span id="lPUmin3"></span>                    
+                        <input type="text" class="span1" id="inputPUminLimit3" value="12"
+                        style="margin-left: 4px; margin-top: 11px; height: 11px; width: 20px; font-size: 11px; line-height: 11px;"> 
+                </div>
+                <div class="temp_sensor_only3 span3 labels">
+                    <span id="lPUmax3"></span>                    
+                        <input type="text" class="span1" id="inputPUmaxLimit3" value="12"
+                        style="margin-left: 4px; margin-top: 11px; height: 11px; width: 20px; font-size: 11px; line-height: 11px;">
+                    <button class="btn btn-mini" type="button"
+                        style="margin-left: 4px;" onclick="set_limits();" id="lPUSave3"></button>    
+                </div>
+            </div>
+        
+            <div class="span3" style="background: var(--sub-color);">
+                <div class="span1 labels_value_state" style="width: 65px;"><p id="PWR_UNITPOWER_L13">****</p></div>
+                <div class="span1 labels_value_state" style="width: 65px;"><p id="PWR_UNITPOWER_L23">****</p></div>
+                <div class="span1 labels_value_state" style="width: 65px;"><p id="PWR_UNITPOWER_L33">****</p></div>
+                <div class="span1 labels_value_state"></div>
+                <div class="span2 labels_value_state" style="width: 65px; margin-left: -5px;"><p id="gui_pwr_unit_total_pwr3">****</p></div>
+            </div>
+        
+            <div class="span3">
+                <div class="temp_sensor_only3 labels"><p id="lPWRUTempMin3"></p></div>
+                <div class="temp_sensor_only3 labels"><p id="lPWRUTempMax3"></p></div>
+                <div class="temp_sensor_only3 labels"><p id="lPWRUTempMin_Now3"></p></div>
+                <div class="temp_sensor_only3 labels"><p id="lPWRUTempMax_Now3"></p></div>
+                <div class="solarinvert_shkw3"><div class="labels"><p id="lPWRURev3"></p></div></div>
+            </div>
+        
+            <div class="span1" style="background: var(--sub-color);">
+                <div class="temp_sensor_only3 labels_value"><p id="PWR_UNITTEMPMIN3">********</p></div>
+                <div class="temp_sensor_only3 labels_value"><p id="PWR_UNITTEMPMAX3">********</p></div>
+                <div class="temp_sensor_only3 labels_value"><p id="PWR_UNITCURRENTTEMP_MIN3">********</p></div>
+                <div class="temp_sensor_only3 labels_value"><p id="PWR_UNITCURRENTTEMP_MAX3">********</p></div>
+                <div class="solarinvert_shkw3"><div class="span1 labels_value"><p id="PWR_UNITFW_VER3">********</p></div></div>
+            </div>
+        </div>
+        
+      </div>
+</div>
+
+<div class="pwr_unit4 hidden"> 
+    <div class="row">
+
+        <div class="row">
+            <div class="span10">
+                <div class="span3 labels_title"><p id="lPWRUTitle4"></p></div>
+                <div class="span7 labels_title"><p id="gui_pwr_unit_name4">********</p></div> 
+            </div> 
+        </div>
+      
+        <div class="row">
+            <div class="span3 labels" style="margin-bottom:3px"><p id="lPWRUState4"></p></div>
+            <div class="span7 labels_value_state" style="width: 695px;"><p id="gui_pwr_unit_status4">********</p></div>
+        </div>
+      
+        <div class="row">
+            <div class="span3">
+                <div class="span3 labels"><p id="lPWRUPowerEach4"></p></div>
+                <div class="span3 labels"><p id="lPWRUPowerTotal4"></p></div>
+<!--                 Input fields for max and min temperature -->
+                <div class="temp_sensor_only4 span3 labels">
+                    <span id="lPUmin4"></span>                    
+                        <input type="text" class="span1" id="inputPUminLimit4" value="12"
+                        style="margin-left: 4px; margin-top: 11px; height: 11px; width: 20px; font-size: 11px; line-height: 11px;"> 
+                </div>
+                <div class="temp_sensor_only4 span3 labels">
+                    <span id="lPUmax4"></span>                    
+                        <input type="text" class="span1" id="inputPUmaxLimit4" value="12"
+                        style="margin-left: 4px; margin-top: 11px; height: 11px; width: 20px; font-size: 11px; line-height: 11px;">
+                    <button class="btn btn-mini" type="button"
+                        style="margin-left: 4px;" onclick="set_limits();" id="lPUSave4"></button>    
+                </div>
+            </div>
+        
+            <div class="span3" style="background: var(--sub-color);">
+                <div class="span1 labels_value_state" style="width: 65px;"><p id="PWR_UNITPOWER_L14">****</p></div>
+                <div class="span1 labels_value_state" style="width: 65px;"><p id="PWR_UNITPOWER_L24">****</p></div>
+                <div class="span1 labels_value_state" style="width: 65px;"><p id="PWR_UNITPOWER_L34">****</p></div>
+                <div class="span1 labels_value_state"></div>
+                <div class="span2 labels_value_state" style="width: 65px; margin-left: -5px;"><p id="gui_pwr_unit_total_pwr4">****</p></div>
+            </div>
+        
+            <div class="span3">
+                <div class="temp_sensor_only4 labels"><p id="lPWRUTempMin4"></p></div>
+                <div class="temp_sensor_only4 labels"><p id="lPWRUTempMax4"></p></div>
+                <div class="temp_sensor_only4 labels"><p id="lPWRUTempMin_Now4"></p></div>
+                <div class="temp_sensor_only4 labels"><p id="lPWRUTempMax_Now4"></p></div>
+                <div class="solarinvert_shkw4"><div class="labels"><p id="lPWRURev4"></p></div></div>
+            </div>
+        
+            <div class="span1" style="background: var(--sub-color);">
+                <div class="temp_sensor_only4 labels_value"><p id="PWR_UNITTEMPMIN4">********</p></div>
+                <div class="temp_sensor_only4 labels_value"><p id="PWR_UNITTEMPMAX4">********</p></div>
+                <div class="temp_sensor_only4 labels_value"><p id="PWR_UNITCURRENTTEMP_MIN4">********</p></div>
+                <div class="temp_sensor_only4 labels_value"><p id="PWR_UNITCURRENTTEMP_MAX4">********</p></div>
+                <div class="solarinvert_shkw4"><div class="span1 labels_value"><p id="PWR_UNITFW_VER4">********</p></div></div>
+            </div>
+        </div>
+        
+      </div>
+</div>
+
+<div class="pwr_unit5 hidden"> 
+    <div class="row">
+
+        <div class="row">
+            <div class="span10">
+                <div class="span3 labels_title"><p id="lPWRUTitle5"></p></div>
+                <div class="span7 labels_title"><p id="gui_pwr_unit_name5">********</p></div> 
+            </div> 
+        </div>
+      
+        <div class="row">
+            <div class="span3 labels" style="margin-bottom:3px"><p id="lPWRUState5"></p></div>
+            <div class="span7 labels_value_state" style="width: 695px;"><p id="gui_pwr_unit_status5">********</p></div>
+        </div>
+      
+        <div class="row">
+            <div class="span3">
+                <div class="span3 labels"><p id="lPWRUPowerEach5"></p></div>
+                <div class="span3 labels"><p id="lPWRUPowerTotal5"></p></div>
+<!--                 Input fields for max and min temperature -->
+                <div class="temp_sensor_only5 span3 labels">
+                    <span id="lPUmin5"></span>                    
+                        <input type="text" class="span1" id="inputPUminLimit5" value="12"
+                        style="margin-left: 4px; margin-top: 11px; height: 11px; width: 20px; font-size: 11px; line-height: 11px;"> 
+                </div>
+                <div class="temp_sensor_only5 span3 labels">
+                    <span id="lPUmax5"></span>                    
+                        <input type="text" class="span1" id="inputPUmaxLimit5" value="12"
+                        style="margin-left: 4px; margin-top: 11px; height: 11px; width: 20px; font-size: 11px; line-height: 11px;">
+                    <button class="btn btn-mini" type="button"
+                        style="margin-left: 4px;" onclick="set_limits();" id="lPUSave5"></button>    
+                </div>
+            </div>
+        
+            <div class="span3" style="background: var(--sub-color);">
+                <div class="span1 labels_value_state" style="width: 65px;"><p id="PWR_UNITPOWER_L15">****</p></div>
+                <div class="span1 labels_value_state" style="width: 65px;"><p id="PWR_UNITPOWER_L25">****</p></div>
+                <div class="span1 labels_value_state" style="width: 65px;"><p id="PWR_UNITPOWER_L35">****</p></div>
+                <div class="span1 labels_value_state"></div>
+                <div class="span2 labels_value_state" style="width: 65px; margin-left: -5px;"><p id="gui_pwr_unit_total_pwr5">****</p></div> 
+            </div>
+        
+            <div class="span3">
+                <div class="temp_sensor_only5 labels"><p id="lPWRUTempMin5"></p></div>
+                <div class="temp_sensor_only5 labels"><p id="lPWRUTempMax5"></p></div>
+                <div class="temp_sensor_only5 labels"><p id="lPWRUTempMin_Now5"></p></div>
+                <div class="temp_sensor_only5 labels"><p id="lPWRUTempMax_Now5"></p></div>
+                <div class="solarinvert_shkw5"><div class="labels"><p id="lPWRURev5"></p></div></div>
+            </div>
+        
+            <div class="span1" style="background: var(--sub-color);">
+                <div class="temp_sensor_only5 labels_value"><p id="PWR_UNITTEMPMIN5">********</p></div>
+                <div class="temp_sensor_only5 labels_value"><p id="PWR_UNITTEMPMAX5">********</p></div>
+                <div class="temp_sensor_only5 labels_value"><p id="PWR_UNITCURRENTTEMP_MIN5">********</p></div>
+                <div class="temp_sensor_only5 labels_value"><p id="PWR_UNITCURRENTTEMP_MAX5">********</p></div>
+                <div class="solarinvert_shkw5"><div class="span1 labels_value"><p id="PWR_UNITFW_VER5">********</p></div></div>
+            </div>
+        </div>
+        
+      </div>
+</div>
+
+<div class="pageinfo row">
+    <div class="span6 offset2 text-center"><strong id="lPWRUNoConfig" style="margin-top: 50px;"></strong></div>
+</div>
+
+<div class="hidden">
+	<p id="PWR_UNITTYPE0"></p>
+	<p id="PWR_UNITTYPE1"></p>
+	<p id="PWR_UNITTYPE2"></p>
+	<p id="PWR_UNITTYPE3"></p>
+	<p id="PWR_UNITTYPE4"></p>
+	<p id="PWR_UNITTYPE5"></p>
+	<p id="PWR_UNITSTATUS0"></p>
+	<p id="PWR_UNITSTATUS1"></p>
+	<p id="PWR_UNITSTATUS2"></p>
+	<p id="PWR_UNITSTATUS3"></p>
+	<p id="PWR_UNITSTATUS4"></p>
+	<p id="PWR_UNITSTATUS5"></p>
+	<p id="PWR_UNITTEMP_COUNT0"></p>
+	<p id="PWR_UNITTEMP_COUNT1"></p>
+	<p id="PWR_UNITTEMP_COUNT2"></p>
+	<p id="PWR_UNITTEMP_COUNT3"></p>
+	<p id="PWR_UNITTEMP_COUNT4"></p>
+	<p id="PWR_UNITTEMP_COUNT5"></p>
+</div>
+

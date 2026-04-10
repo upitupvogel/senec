@@ -1,0 +1,75 @@
+<script type="text/javascript">
+/** Prevent JSHint warning about supposingly unused functions. */
+/* exported TriggerUpdate, ModalUpdateClose */
+    var modalUpdateObj;
+    var restart_running = false;
+
+    function obj_init() {
+      modalUpdateObj = new senecPage(UpdateValues);
+      modalUpdateObj.add_json_object("SYS_UPDATE");
+
+      modalUpdateObj.add_property_to_object("SYS_UPDATE", "FSM_STATE", "");
+      modalUpdateObj.singlePageRefresh();
+      modalUpdateObj.startPageRefresh(500);
+      $('.pageinfo').addClass('hidden').hide();
+      $('.pagecontent').removeClass('hidden').show();
+    }
+
+    function UpdateValues()
+    {
+        var UpdateStateFSM = ($('#SYS_UPDATEFSM_STATE').html()) * 1;
+        $('#UpdateStatus_').html(SysUpdateState[UpdateStateFSM]);
+        
+        if(UpdateStateFSM == 9 && !restart_running)
+        	{
+        	   restart_running = true;
+        	   setInterval(function(){window.location.reload(false);}, 55000); //55 seconds
+        	}
+    }
+    
+    function TriggerUpdate()
+    {
+    	modalUpdateObj.handleCheckBoxUpdate('SYS_UPDATE', 'USER_REQ_UPDATE', 'u8_01');
+    	$("#lUpdateNow").prop('disabled', true);
+    	$("#lUpdateLater").prop('disabled', true);
+    }
+
+    $(document).bind("page.loaded", function() {
+        obj_init();
+    });
+    
+    function ModalUpdateClose() {
+        $("#modalWindow").empty();
+        $('#modalWindow').modal('hide');
+        modalUpdateObj.stopPageRefresh();
+        $('#updateDeclined').html('1');
+    }
+</script>
+
+<div class="pagecontent hidden">
+    <div class="row offset1">
+        <p id="lUpdateFWUpdate"></p>
+        <p id="lUpdateRequest"></p>
+        
+		<table>
+		    <tr>
+		        <td><strong id="lUpdateStatus"></strong></td><td><span id="UpdateStatus_"></span></td>
+		    </tr>
+		</table>
+
+        <div style="margin-bottom: 20px; margin-top: 20px;">
+          <div class="btn-group">
+              <button class="btn" onclick="TriggerUpdate();" id="lUpdateNow"></button>
+              <button class="btn" onclick="ModalUpdateClose();" id="lUpdateLater"></button>
+          </div>
+        </div>
+    </div>
+</div>
+
+<div class="pageinfo row">
+    <div class="span6 offset2 text-center"><strong id="lLoadPage" style="margin-top: 50px;"></strong></div>
+</div>
+
+<div class="hide">
+    <p id="SYS_UPDATEFSM_STATE"></p>
+</div>

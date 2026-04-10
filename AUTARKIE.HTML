@@ -1,0 +1,241 @@
+
+<script type="text/javascript">
+    var date = false;
+    
+    function getYearTotalAutarkie()
+    {
+        var inityear = $("#STATISTICSTAT_YEAR_START").html() * 1;
+        var year_now = $("#RTCWEB_TIME_YEAR").html() * 1;
+        var ind = (year_now - inityear) + 1;      
+        console.log("year total house " + $("#STATISTICSTAT_YEAR_E_HOUSE_ARR" + ind).html() * 1);
+        console.log("year total grid " + $("#STATISTICSTAT_YEAR_E_GRID_IMP_ARR" + ind).html() * 1);
+        if ($("#STATISTICSTAT_YEAR_E_HOUSE_ARR" + ind).html() * 1 != 0)
+        {
+            return (1 - ($("#STATISTICSTAT_YEAR_E_GRID_IMP_ARR" + ind).html() / $("#STATISTICSTAT_YEAR_E_HOUSE_ARR" + ind).html())) * 100;
+        }
+        else if($("#STATISTICSTAT_YEAR_E_GRID_IMP_ARR" + ind).html()*1 == $("#STATISTICSTAT_YEAR_E_HOUSE_ARR" + ind).html()*1)
+        {
+            return 100;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+    function getTotalAutarkie()
+    {
+        var house_total = 0;
+        var grid_import_total = 0;
+        for (i = 0; i < 31; i++)
+        {
+            house_total += $("#STATISTICSTAT_YEAR_E_HOUSE_ARR" + i).html() * 1;
+            grid_import_total += $("#STATISTICSTAT_YEAR_E_GRID_IMP_ARR" + i).html() * 1;   
+        }
+        
+        console.log("total house " + house_total);
+        console.log("total grid " +  grid_import_total);
+        
+        if (house_total != 0) {
+            return  (1 - (grid_import_total / house_total)) * 100;
+        } 
+        else if (grid_import_total == house_total)
+        {
+            return 100;
+        }
+        else
+        {
+            return 0;
+        }
+
+        var ind = (year_now - inityear) + 1;
+        $("#STATISTICSTAT_YEAR_E_HOUSE_ARR" + ind).html() * 1;
+        
+        if ($("#STATISTICSTAT_YEAR_E_HOUSE_ARR" + ind).html() * 1 != 0)
+        {
+            return (1 - ($("#STATISTICSTAT_YEAR_E_GRID_IMP_ARR" + ind).html() / $("#STATISTICSTAT_YEAR_E_HOUSE_ARR" + ind).html())) * 100;
+        }
+        else if ($("#STATISTICSTAT_YEAR_E_HOUSE_ARR" + ind).html() * 1 == $("#STATISTICSTAT_YEAR_E_GRID_IMP_ARR" + ind).html() * 1)
+        {
+            return 0;
+        }
+        else
+        {
+            return 100;
+        }
+
+    }
+    
+    // Fetch date
+    function updateDataCB()
+    {
+        date = ($("#RTCWEB_TIME_YEAR").html() * 1) + "-" + $("#RTCWEB_TIME_MONTH").html() + "-" + $("#RTCWEB_TIME_DAY").html();
+    }
+    
+    function SingleUpdateCB()
+    {
+        var powersaving = roundValue(getPowerSaving(), 1);
+        $('#PowerSaving').text(powersaving + " kWh");
+        $('#CO2Savings').text(roundValue((powersaving * 0.555), 3) + " kg");
+    }
+
+    function obj_init() {
+        pageObj = new senecPage(SingleUpdateCB);
+        pageObj.add_json_object("STATISTIC");
+        pageObj.singlePageRefresh();
+        pageObj.reInitJSONObject();
+        // Update date
+        updateDataCB();
+    }
+    
+    // Summe Hausverbrauch - Netzbezug der letzten 30 Jahre
+    function getPowerSaving()
+    {
+        var house_total = 0;
+        var grid_import_total = 0;
+        var result = 0;
+        for (i = 0; i < 31; i++)
+        {
+            house_total += $("#STATISTICSTAT_YEAR_E_HOUSE_ARR" + i).html() * 1;
+            grid_import_total += $("#STATISTICSTAT_YEAR_E_GRID_IMP_ARR" + i).html() * 1;
+        }
+        result = house_total - grid_import_total;
+        console.log("house_total result "+house_total);
+        console.log("grid_import_total result "+grid_import_total);
+        console.log("power save result "+result);
+        if (result < 0)
+        {
+            result = 0;
+        }
+        return result;
+    }
+
+    $(document).bind("page.loaded", function() {
+        $('#hCategoryName').empty();
+        $('#hCategoryName').text(lng["lAutarkyHeader"]);
+        $('#hCategoryHeader').removeClass('hidden').show();
+        updateLanguage();
+        obj_init();
+        $("#chartdiv").html(lng.lChartsWait);
+        //Die letzten 31 Tage
+        var statMonth = getStatisticFileAsArray(date, 31);
+        // letzte 24h / Woche / Monat [0-2]
+        var autarkiedata = processAutarkieData(statMonth);
+
+        autarkiedata[3] = [lng.YEAR, Math.round(getYearTotalAutarkie())],
+        autarkiedata[4] = [lng.OVERALL, Math.round(getTotalAutarkie())],
+        
+                //-----create autarkie plot--------------//
+        AutarkieChart_init(autarkiedata, "chartdiv");
+        $('#autarky24h').text(Math.min(Math.max(autarkiedata[0][1], 0), 100) + " %");
+        $('#currentWeekDataAutarky').text(Math.min(Math.max(autarkiedata[1][1], 0), 100) + " %");
+        $('#currentMonthDataAutarky').text(Math.min(Math.max(autarkiedata[2][1], 0), 100) + " %");
+        $('#currentYearDataAutarky').text(Math.min(Math.max(autarkiedata[3][1], 0), 100) + " %");
+        $('#OverallDataAutarky').text(Math.min(Math.max(autarkiedata[4][1], 0), 100) + " %");
+    });
+
+    $(document).bind("page.unload", function() {
+        $('#hCategoryHeader').addClass('hidden').hide();
+        pageObj.stopPageRefresh();
+    });
+</script>
+
+
+<div class="row">
+    <div class="span10" >
+        <div id="chartdiv"></div>
+    </div>
+</div>
+
+<div class="row" style="height: 20px;">
+    <div class="span1 text-center" style="margin-left: 60px"><p id="autarky24h">***</p></div>
+    <div class="span1 text-center" style="margin-left: 65px"><p id="currentWeekDataAutarky">***</p></div>
+    <div class="span1 text-center" style="margin-left: 57px"><p id="currentMonthDataAutarky">***</p></div>
+    <div class="span1 text-center" style="margin-left: 57px" ><p id="currentYearDataAutarky">***</p></div>
+    <div class="span1 text-center" style="margin-left: 60px"><p id="OverallDataAutarky">***</p></div>
+</div>
+
+<div class="row " style="height:4px; margin-bottom: 30px;">
+    <div class="span8 offset1" style="height: 4px;"><hr style="height: 3px;background-color:var(--sub-color);"></div>
+</div>
+
+<div class="row">
+    <div class="span3 offsetmin labels"><p id="lAutarchyPowerSaving"></p></div>
+    <div class="span1 labels"><p id="PowerSaving">****</p></div>
+</div>
+
+<div class="row">
+    <div class="span3 offsetmin labels"><p id="lAutarchyCO2Saving"></p></div>
+    <div class="span1 labels"><p id="CO2Savings">****</p></div>
+</div>
+
+<div class="hide">
+    <p id="STATISTICSTAT_YEAR_START"></p>
+    <!-----------------arrays------------------>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR0"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR1"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR2"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR3"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR4"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR5"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR6"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR7"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR8"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR9"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR10"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR11"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR12"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR13"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR14"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR15"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR16"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR17"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR18"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR19"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR20"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR21"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR22"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR23"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR24"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR25"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR26"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR27"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR28"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR29"></p>
+    <p id="STATISTICSTAT_YEAR_E_HOUSE_ARR30"></p>
+
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR0"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR1"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR2"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR3"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR4"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR5"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR6"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR7"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR8"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR9"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR10"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR11"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR12"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR13"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR14"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR15"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR16"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR17"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR18"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR19"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR20"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR21"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR22"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR23"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR24"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR25"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR26"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR27"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR28"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR29"></p>
+    <p id="STATISTICSTAT_YEAR_E_GRID_IMP_ARR30"></p>
+</div>
+
+
+

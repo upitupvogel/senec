@@ -1,0 +1,70 @@
+<script type="text/javascript">
+
+    var pageObj;
+    var CheckLoginTimer;
+
+    function obj_init() {
+      pageObj = new senecPage(updateLogin);
+      pageObj.add_json_object("LOG");
+
+      pageObj.add_property_to_object("LOG", "USER_LEVEL", "");
+
+      pageObj.startPageRefresh(1000);
+      
+      $('.pageinfo').addClass('hidden').hide();
+      $('.pagecontent').removeClass('hidden').show();
+    }
+
+    function updateLogin()
+    {
+        var userLevel = htmlAsNumber('#LOGUSER_LEVEL');
+        showUserLevel(userLevel);
+
+        if (isLoggedIn())
+        {
+        	clearTimeout(CheckLoginTimer);
+        	$('#LoginStatus').text(lng.CHECK_INTERNET_RESULT_OK);
+            navigate(get_navigate());
+        }
+    }
+
+    $(document).bind("page.loaded", function() {
+        $("a").unbind();
+        $("a").click(function() {
+            navigate(this.id);
+        });
+        updateLanguage();
+        obj_init();
+    });
+    
+    $( "#ipassword" ).keypress(function( event ) {
+    	  if ( event.which == 13)
+    		  send_login();
+    });
+
+    $(document).bind("page.unload", function() {
+        pageObj.stopPageRefresh();
+        $(document).unbind("button.click");
+    });
+</script>
+
+<div class="pagecontent hidden">
+    <div class="row span4 offset4">
+        <p id="lLoginHint"></p>
+        <p id="lLoginUser"></p>
+        <input type="text" id="iusername" class="input-medium">
+        <p id="lLoginPassword"></p>
+        <input type="password" id="ipassword" class="input-medium">
+        <div>
+            <button class="btn" onclick="send_login();" id="lLoginSignIn"></button>
+        </div>
+        <div style="margin: 20px 0px 105px 0px;">
+            <p id="LoginStatus"></p>
+        </div>
+
+    </div>
+</div>
+
+<div class="pageinfo row">
+    <div class="span6 offset2 text-center"><strong id="lLoadPage" style="margin-top: 50px;"></strong></div>
+</div>

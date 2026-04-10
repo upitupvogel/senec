@@ -1,0 +1,197 @@
+<script type="text/javascript">
+/** Prevent JSHint warning about supposingly unused functions. */
+/* exported check_config */
+    var pageObj;
+
+    function singleUpdateCB() {
+        // fill Peak Shaving controls
+        if ($("#WIZARDPS_ENABLE").val() == 1) {
+            $("#inputWizardPSEnabled").attr("checked", true);
+        } else {
+            $("#inputWizardPSEnabled").attr("checked", false);
+        }
+
+        $("#inputWizardPSReservoir").val($("#WIZARDPS_RESERVOIR").val());
+        $("#inputWizardPSReservoir_num").val($("#WIZARDPS_RESERVOIR").val());
+        $("#inputWizardPSHour").val($("#WIZARDPS_HOUR").val());
+        $("#inputWizardPSMinute").val($("#WIZARDPS_MINUTE").val());
+
+        $('.pageinfo').addClass('hidden').hide();
+        $('.pagecontent').removeClass('hidden').show();
+        
+        if ($("#ENERGYZERO_EXPORT").html()*1 == 1)
+        {
+            alert(lng.lAlertZeroExportActive);
+            $("#inputWizardPSEnabled").prop('disabled', true);
+        }
+    }
+
+    function obj_init() {
+        pageObj = new senecPage(singleUpdateCB);
+        pageObj.add_json_object("WIZARD");
+        pageObj.add_json_object("ENERGY");
+        pageObj.add_property_to_object("WIZARD", "PS_ENABLE", "");
+        pageObj.add_property_to_object("WIZARD", "PS_HOUR", "");
+        pageObj.add_property_to_object("WIZARD", "PS_RESERVOIR", "");
+        pageObj.add_property_to_object("WIZARD", "PS_MINUTE", "");
+        pageObj.add_property_to_object("ENERGY", "ZERO_EXPORT", "");
+        pageObj.singlePageRefresh();
+    }
+
+    $(document).bind("page.loaded", function() {
+        updateLanguage();
+        obj_init();
+    });
+
+    $(document).bind("page.unload", function() {
+        pageObj.stopPageRefresh();
+    });
+
+    function check_config() {
+        state = 1;
+        errorMessage = 0;
+
+        if (($("#inputWizardPSReservoir").val() > 100) ||
+            ($("#inputWizardPSReservoir").val() < 0)) {
+            errorMessage = lng.lPSerrorPercentage;
+            state = 0;
+        }
+
+        if (($("#inputWizardPSMinute").val() > 59) ||
+            ($("#inputWizardPSMinute").val() < 0) ||
+            ($("#inputWizardPSHour").val() > 23) ||
+            ($("#inputWizardPSHour").val() < 0)) {
+            console.log("minute");
+            errorMessage = lng.lPSerrorTime;
+            state = 0;
+        }
+
+        if (state == 0)
+            alert(errorMessage);
+        else
+            save_config();
+    }
+
+    function save_config() {
+        pageObj.reInitJSONObject();
+        pageObj.add_json_object("WIZARD");
+
+        if ($('#inputWizardPSEnabled').prop('checked') == true) {
+            pageObj.add_property_to_object("WIZARD", "PS_ENABLE", "u8_01");
+        } else {
+            pageObj.add_property_to_object("WIZARD", "PS_ENABLE", "u8_00");
+        }
+
+        pageObj.add_property_to_object("WIZARD", "PS_RESERVOIR", pageObj
+                .castVarValue('u8', $('#inputWizardPSReservoir').val()));
+        pageObj.add_property_to_object("WIZARD", "PS_HOUR", pageObj
+                .castVarValue('u8', $('#inputWizardPSHour').val()));
+        pageObj.add_property_to_object("WIZARD", "PS_MINUTE", pageObj
+                .castVarValue('u8', $('#inputWizardPSMinute').val()));
+        /* Set flag to trigger update of settings file. */
+        pageObj.handleButtonClick("WIZARD", "CONFIG_MODIFIED_BY_USER");
+
+        pageObj.singlePageRefresh();
+    }
+</script>
+<div class="pagecontent hidden">
+<div class="row">
+    <div class="span10 labels_title">
+        <div class="row">
+            <p class="text-left" id="lPSHeader"></p>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="span3">
+        <div class="row">
+            <div class="span3 ">
+                <p id="lPSSettings" style="font-weight: 700; font-family: arial; font-size: 11px; margin-top: 5px; margin-bottom: 5px; margin-left: 2px;"></p>
+            </div>
+        </div>
+    </div>
+    <div class="span7" style="background: var(--sub-color);">
+        <div class="row"
+            style="margin-top: 4px; color: white; margin-left: 5px;">
+            <label class="checkbox">
+                <input type="checkbox" id="inputWizardPSEnabled" class="wizardautorisiert">
+                <span id="lPSActivate"></span>   
+            </label>    
+               
+        </div>
+        <div class="row">
+            <input type="range" id="inputWizardPSReservoir" value="50" min="0"
+                max="100" step="1"
+                oninput="inputWizardPSReservoir_num.value=this.value;">
+            <div style="color: white;">
+            <span id="lPSReservoirMsg1"></span>
+                <output id="inputWizardPSReservoir_num">50</output>
+            <span id="lPSReservoirMsg2"></span>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="span10 labels_title">
+        <div class="row">
+            <div class="span1 offset3">
+                <p class="text-center" id="lTimeHour"></p>
+            </div>
+            <div class="span1 offset1">
+                <p class="text-center" id="lTimeMinute"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="span3">
+        <div class="row">
+            <div class="span3 ">
+                <p id="lPSUntilTime" style="font-weight: 700; font-family: arial; font-size: 11px; margin-top: 5px; margin-bottom: 5px; margin-left: 2px;"></p>
+            </div>
+        </div>
+    </div>
+    <div class="span7" style="background: var(--sub-color);">
+        <div class="row" style="margin-top: 4px;">
+            <div class="span1">
+                <p>
+                    <input type="text" class="span1" id="inputWizardPSHour" value="12"
+                        style="margin-left: 4px; height: 11px; font-size: 11px; line-height: 11px;">
+                </p>
+            </div>
+            <div class="span1 offset1">
+                <p>
+                    <input type="text" class="span1" id="inputWizardPSMinute"
+                        value="30"
+                        style="height: 11px; font-size: 11px; line-height: 11px;">
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="span2">
+                <p>
+                    <button class="btn btn-mini" type="button"
+                        style="margin-left: 4px;" onclick="check_config();" id="Save"></button>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<div class="pageinfo row">
+    <div class="span6 offset2 text-center">
+        <strong id="lLoadPage" style="margin-top: 50px;"></strong>
+    </div>
+</div>
+
+
+<div class="hidden">
+    <p id="WIZARDPS_RESERVOIR"></p>
+    <p id="WIZARDPS_ENABLE"></p>
+    <p id="WIZARDPS_HOUR"></p>
+    <p id="WIZARDPS_MINUTE"></p>
+    <p id="ENERGYZERO_EXPORT"></p>
+</div>
+

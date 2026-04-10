@@ -1,0 +1,466 @@
+<style>
+  table {
+    border-collapse: collapse;
+    margin: 0 auto;
+    text-align: left;
+}
+
+th,
+td {
+    border-top: solid 0px #323232;
+    border-bottom: solid 1px #323232;
+    border-right: solid 5px #fff;
+    border-left: solid 5px #fff;
+    font-size: 12px;
+    padding: 2px 5px;
+}
+
+th {
+    text-align: center;
+    margin-top: 50px; 
+    padding: 2px 10px;
+    color: #FFF;
+    background: #00a1e0;
+    border-top: solid 0px #323232;
+    border-bottom: solid 0px #323232;
+    border-right: solid 0px #fff;
+    border-left: solid 0px #fff;
+}
+tbody::before
+{
+  content: '';
+  display: block;
+  height: 15px;
+
+}
+
+@keyframes blink {50% { color: transparent }}
+.loader__dot { animation: 1s blink infinite }
+.loader__dot:nth-child(2) { animation-delay: 250ms }
+.loader__dot:nth-child(3) { animation-delay: 500ms }
+
+</style>
+<script src="./js/jquery-3.2.1.min.js" type="text/javascript"></script>
+<script src="js/html2canvas.min.js"></script>
+<script src="js/jspdf.min.js"></script>
+<script type="text/javascript">
+/** Prevent JSHint warning about supposingly unused functions. */
+/* exported startSelftest, genPdf */
+  var pageObj;
+  var timerRunning;
+    $(document).bind("page.loaded", function() {
+        updateLanguage();
+        obj_init();
+
+    });
+
+  var enableStartButton = function()
+  {
+    timerRunning = false;
+    if(htmlAsNumber("#BAT1SELFTEST_OVERALL_STATE") != 1)
+    {
+      $('#startButton').removeAttr("disabled");
+    }
+  };
+
+  $("#startButton").click(function() {
+      $(this).attr("disabled", true);
+      timerRunning=true ;
+      setTimeout(function() { enableStartButton();}, 10000);
+  });
+
+  stateStrings = {
+        0: "Undefined",
+        1: "Running <span class=\"loader__dot\">.</span><span class=\"loader__dot\">.</span><span class=\"loader__dot\">.</span>",
+        2: "Successful",
+        3: "Failed",
+        4: "Never Runned",
+        5: "Not Started",
+    };
+
+function updateCB()
+{
+    for (c = 0; c < 8 ; ++c) 
+  {
+    if($('#BAT1SELFTEST_STEP'+c).html() == "")
+    {
+      $('#table'+c).hide();
+    }
+    else
+    {
+      $('#table'+c).show();
+    }
+  }
+
+  $('#resultLabel').html("State: " + stateStrings[htmlAsNumber("#BAT1SELFTEST_OVERALL_STATE")]);
+  $('#serialInverter').html("Serial Inverter: " + $('#BAT1SERIAL').html());
+  $("#serialMCU").html("Serial MCU: S" + $("#FACTORYDEVICE_ID").html());
+
+  if(!timerRunning && htmlAsNumber("#BAT1SELFTEST_OVERALL_STATE")!= 1)
+  {
+    enableStartButton();
+  }
+}
+
+function singleUpdateCB()
+{
+
+  for (c = 0; c < 8 ; ++c) 
+  {
+    console.log($('#BAT1SELFTEST_STEP'+c).html());
+    if($('#BAT1SELFTEST_STEP'+c).html() == "")
+    {
+      $('#table'+c).hide();
+    }
+    else
+    {
+      $('#table'+c).show();
+    }
+  }
+
+  $('#resultLabel').html("State: " + stateStrings[htmlAsNumber("#BAT1SELFTEST_OVERALL_STATE")]);
+  if(htmlAsNumber("#BAT1SELFTEST_OVERALL_STATE") == 1)
+  {
+
+  }
+
+  $('#serialInverter').html("Serial Inverter: " + $('#BAT1SERIAL').html());
+  $("#serialMCU").html("Serial MCU: S" + $("#FACTORYDEVICE_ID").html());
+
+}
+
+function obj_init() 
+{
+    pageObj = new senecPage(updateCB);
+
+    pageObj.add_json_object("BAT1");
+    pageObj.add_property_to_object("BAT1", "TRIG_ITALY_SELF","");
+    pageObj.add_property_to_object("BAT1", "SELFTEST_STEP","");
+    pageObj.add_property_to_object("BAT1", "SELFTEST_LIMIT","");
+    pageObj.add_property_to_object("BAT1", "SELFTEST_ACT","");
+    pageObj.add_property_to_object("BAT1", "SELFTEST_OFF","");
+    pageObj.add_property_to_object("BAT1", "SELFTEST_TIME","");
+    pageObj.add_property_to_object("BAT1", "SELFTEST_OVERALL_STATE","");
+    pageObj.add_property_to_object("BAT1", "SELFTEST_STATE","");
+    pageObj.add_property_to_object("BAT1", "SERIAL","");
+    
+    pageObj.singlePageRefresh();
+    singleUpdateCB();
+    pageObj.startPageRefresh(1000);
+}
+
+function startSelftest()
+{
+  pageObj.handleButtonClick("BAT1", "TRIG_ITALY_SELF");
+}
+
+$('#download').click(function() 
+{
+  var doc = new jsPDF('p', 'px', "a4");
+  var width = doc.internal.pageSize.getWidth();
+  var height = doc.internal.pageSize.getHeight();
+
+  html2canvas(document.getElementById("pdfContent"), {
+    dpi: 1200, // Set to 300 DPI
+    scale: 4, // Adjusts your resolution
+    }).then(function(canvas) {
+      var img = canvas.toDataURL("image/jpeg");
+
+      var logo = new Image();
+      logo.src = "./img/Header_Logo.gif";
+      doc.addImage(logo, 'gif', 0.1*width, 0.05*height, 0,0);
+      doc.addImage(img, 'JPEG', 0, 0.15*height, width, 0);
+      doc.save('autotest_result_S' + $("#FACTORYDEVICE_ID").html() + '.pdf');
+    });
+  });
+
+</script>
+
+<div class="row">
+    <div class="span10 text-center">
+      <button style="margin-top:10px; margin-bottom:10px;" id="startButton" onclick="startSelftest();">Start Selftest</button>
+      <button style="margin-top:10px; margin-bottom:10px;" id="download">Download Results</button>
+      <div id=pdfContent>
+        <p id="serialInverter">Serial Inverter: </p>
+        <p id="serialMCU">Serial MCU: </p>
+      <div style="margin-top:10px;" class="loader" id="resultLabel"></div>
+      <div id="results" align="center"  style="margin-top:10px; display: flex; justify-content: center;">
+        <div style="margin:10px;">
+          <table class="span4">
+            <tbody id="table0">
+                <tr>
+                  <th colspan="3" id="BAT1SELFTEST_STEP0"></th>
+                </tr>
+                <tr>
+                  <td>Limit</td>
+                  <td id="BAT1SELFTEST_LIMIT0"></td>
+                  <td>V</td>
+                </tr>
+                <tr>
+                  <td>Act</td>
+                  <td id = "BAT1SELFTEST_ACT0"></td>
+                  <td>V</td>
+                </tr>
+                <tr>
+                  <td>Off</td>
+                  <td id="BAT1SELFTEST_OFF0"></td>
+                  <td>V</td>
+                </tr>
+                <tr>
+                  <td>Time</td>
+                  <td id="BAT1SELFTEST_TIME0"></td>
+                  <td>ms</td>
+                </tr>
+              </tbody>
+              <tbody id="table1">
+                <tr>
+                  <th colspan="3" id="BAT1SELFTEST_STEP1"></th>
+                </tr>
+                <tr>
+                  <td>Limit</td>
+                  <td id="BAT1SELFTEST_LIMIT1"></td>
+                  <td>V</td>
+                </tr>
+                <tr>
+                  <td>Act</td>
+                  <td id = "BAT1SELFTEST_ACT1"></td>
+                  <td>V</td>
+                </tr>
+                <tr>
+                  <td>Off</td>
+                  <td id="BAT1SELFTEST_OFF1"></td>
+                  <td>V</td>
+                </tr>
+                <tr>
+                  <td>Time</td>
+                  <td id="BAT1SELFTEST_TIME1"></td>
+                  <td>ms</td>
+                </tr>
+              </tbody>
+              <tbody id="table2">
+                <tr>
+                  <th colspan="3" id="BAT1SELFTEST_STEP2"></th>
+                </tr>
+                <tr>
+                  <td>Limit</td>
+                  <td id="BAT1SELFTEST_LIMIT2"></td>
+                  <td>Hz</td>
+                </tr>
+                <tr>
+                  <td>Act</td>
+                  <td id = "BAT1SELFTEST_ACT2"></td>
+                  <td>Hz</td>
+                </tr>
+                <tr>
+                  <td>Off</td>
+                  <td id="BAT1SELFTEST_OFF2"></td>
+                  <td>Hz</td>
+                </tr>
+                <tr>
+                  <td>Time</td>
+                  <td id="BAT1SELFTEST_TIME2"></td>
+                  <td>ms</td>
+                </tr>
+              </tbody>
+              <tbody id="table3">
+                <tr>
+                  <th colspan="3" id="BAT1SELFTEST_STEP3"></th>
+                </tr>
+                <tr>
+                  <td>Limit</td>
+                  <td id="BAT1SELFTEST_LIMIT3"></td>
+                  <td>Hz</td>
+                </tr>
+                <tr>
+                  <td>Act</td>
+                  <td id = "BAT1SELFTEST_ACT3"></td>
+                  <td>Hz</td>
+                </tr>
+                <tr>
+                  <td>Off</td>
+                  <td id="BAT1SELFTEST_OFF3"></td>
+                  <td>Hz</td>
+                </tr><tr>
+                  <td>Time</td>
+                  <td id="BAT1SELFTEST_TIME3"></td>
+                  <td>ms</td>
+                </tr>
+              </tbody>
+          </table>
+
+        </div><div style="margin:10px;">
+          <table class="span4">
+              <tbody id="table4">
+                <tr>
+                  <th colspan="3" id="BAT1SELFTEST_STEP4"></th>
+                </tr>
+                <tr>
+                  <td>Limit</td>
+                  <td id="BAT1SELFTEST_LIMIT4"></td>
+                  <td>V</td>
+                </tr>
+                <tr>
+                  <td>Act</td>
+                  <td id = "BAT1SELFTEST_ACT4"></td>
+                  <td>V</td>
+                </tr>
+                <tr>
+                  <td>Off</td>
+                  <td id="BAT1SELFTEST_OFF4"></td>
+                  <td>V</td>
+                </tr>
+                <tr>
+                  <td>Time</td>
+                  <td id="BAT1SELFTEST_TIME4"></td>
+                  <td>ms</td>
+                </tr>
+              </tbody>
+              <tbody id="table5">
+                <tr>
+                  <th colspan="3" id="BAT1SELFTEST_STEP5"></th>
+                </tr>
+                <tr>
+                  <td>Limit</td>
+                  <td id="BAT1SELFTEST_LIMIT5"></td>
+                  <td>Hz</td>
+                </tr>
+                <tr>
+                  <td>Act</td>
+                  <td id = "BAT1SELFTEST_ACT5"></td>
+                  <td>Hz</td>
+                </tr>
+                <tr>
+                  <td>Off</td>
+                  <td id="BAT1SELFTEST_OFF5"></td>
+                  <td>Hz</td>
+                </tr>
+                <tr>
+                  <td>Time</td>
+                  <td id="BAT1SELFTEST_TIME5"></td>
+                  <td>ms</td>
+                </tr>
+              </tbody>
+              <tbody id="table6">
+                <tr>
+                  <th colspan="3" id="BAT1SELFTEST_STEP6"></th>
+                </tr>
+                <tr>
+                  <td>Limit</td>
+                  <td id="BAT1SELFTEST_LIMIT6"></td>
+                  <td>Hz</td>
+                </tr>
+                <tr>
+                  <td>Act</td>
+                  <td id = "BAT1SELFTEST_ACT6"></td>
+                  <td>Hz</td>
+                </tr>
+                <tr>
+                  <td>Off</td>
+                  <td id="BAT1SELFTEST_OFF6"></td>
+                  <td>Hz</td>
+                </tr>
+                <tr>
+                  <td>Time</td>
+                  <td id="BAT1SELFTEST_TIME6"></td>
+                  <td>ms</td>
+                </tr>
+              </tbody>
+              <tbody id="table7">
+                <tr>
+                  <th colspan="3" id="BAT1SELFTEST_STEP7"></th>
+                </tr>
+                <tr>
+                  <td>Limit</td>
+                  <td id="BAT1SELFTEST_LIMIT7"></td>
+                  <td>V</td>
+                </tr>
+                <tr>
+                  <td>Act</td>
+                  <td id = "BAT1SELFTEST_ACT7"></td>
+                  <td>V</td>
+                </tr>
+                <tr>
+                  <td>Off</td>
+                  <td id="BAT1SELFTEST_OFF7"></td>
+                  <td>V</td>
+                </tr>
+                <tr>
+                  <td>Time</td>
+                  <td id="BAT1SELFTEST_TIME7"></td>
+                  <td>ms</td>
+                </tr>
+              </tbody>
+            </tbody>
+          </table>
+        </div>
+        <div style="margin:10px;">
+          <table>      
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="hide" id ="hiddenObjects">
+    <p id="BAT1TRIG_ITALY_SELF"></p>
+
+    <p id="BAT1SELFTEST_STEP0"></p>
+    <p id="BAT1SELFTEST_STEP1"></p>
+    <p id="BAT1SELFTEST_STEP2"></p>
+    <p id="BAT1SELFTEST_STEP3"></p>
+    <p id="BAT1SELFTEST_STEP4"></p>
+    <p id="BAT1SELFTEST_STEP5"></p>
+    <p id="BAT1SELFTEST_STEP6"></p>
+    <p id="BAT1SELFTEST_STEP7"></p>
+
+    <p id="BAT1SELFTEST_LIMIT0"></p>
+    <p id="BAT1SELFTEST_LIMIT1"></p>
+    <p id="BAT1SELFTEST_LIMIT2"></p>
+    <p id="BAT1SELFTEST_LIMIT3"></p>
+    <p id="BAT1SELFTEST_LIMIT4"></p>
+    <p id="BAT1SELFTEST_LIMIT5"></p>
+    <p id="BAT1SELFTEST_LIMIT6"></p>
+    <p id="BAT1SELFTEST_LIMIT7"></p>
+
+    <p id="BAT1SELFTEST_ACT0"></p>
+    <p id="BAT1SELFTEST_ACT1"></p>
+    <p id="BAT1SELFTEST_ACT2"></p>
+    <p id="BAT1SELFTEST_ACT3"></p>
+    <p id="BAT1SELFTEST_ACT4"></p>
+    <p id="BAT1SELFTEST_ACT5"></p>
+    <p id="BAT1SELFTEST_ACT6"></p>
+    <p id="BAT1SELFTEST_ACT7"></p>
+
+    <p id="BAT1SELFTEST_OFF0"></p>    
+    <p id="BAT1SELFTEST_OFF1"></p>    
+    <p id="BAT1SELFTEST_OFF2"></p>    
+    <p id="BAT1SELFTEST_OFF3"></p>    
+    <p id="BAT1SELFTEST_OFF4"></p>    
+    <p id="BAT1SELFTEST_OFF5"></p>    
+    <p id="BAT1SELFTEST_OFF6"></p>    
+    <p id="BAT1SELFTEST_OFF7"></p>    
+
+    <p id="BAT1SELFTEST_TIME0"></p>    
+    <p id="BAT1SELFTEST_TIME1"></p>    
+    <p id="BAT1SELFTEST_TIME2"></p>    
+    <p id="BAT1SELFTEST_TIME3"></p>    
+    <p id="BAT1SELFTEST_TIME4"></p>    
+    <p id="BAT1SELFTEST_TIME5"></p>    
+    <p id="BAT1SELFTEST_TIME6"></p>    
+    <p id="BAT1SELFTEST_TIME7"></p>    
+
+    <p id="BAT1SELFTEST_STATE0"></p>    
+    <p id="BAT1SELFTEST_STATE1"></p>    
+    <p id="BAT1SELFTEST_STATE2"></p>    
+    <p id="BAT1SELFTEST_STATE3"></p>    
+    <p id="BAT1SELFTEST_STATE4"></p>    
+    <p id="BAT1SELFTEST_STATE5"></p>    
+    <p id="BAT1SELFTEST_STATE6"></p>    
+    <p id="BAT1SELFTEST_STATE7"></p>  
+
+    <p id="BAT1SELFTEST_OVERALL_STATE"></p>        
+    <p id="BAT1SERIAL"></p>        
+
+
+</div>

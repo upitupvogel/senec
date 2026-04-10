@@ -1,0 +1,452 @@
+<script type="text/javascript">
+/** Prevent JSHint warning about supposingly unused functions. */
+/* exported resetAlreadySwitchedFlags, setParamSockets */
+    var pageObj;
+    var numSockets;
+
+
+    function toggleAutoFields(index)
+    {
+        if ($("#inputSocketEnable_"+index).prop('checked'))
+        {
+            $("#automaticFields_"+index).show(500);
+        }
+        else
+        {
+            $("#automaticFields_"+index).hide(500);
+        }
+        toggleOnTimeField(index);
+    }
+
+    function toggleAllFields(index)
+    {
+        if ($("#inputSocketForceOn_"+index).prop('checked'))
+        {
+            $("#allFields_"+index).hide(500);
+        }
+        else
+        {
+            $("#allFields_"+index).show(500);
+        }
+    }
+
+    function toggleTimeField(index)
+    {
+        if($("#inputSocketEnableTime_"+index).prop('checked'))
+        {
+            $("#bottomTimeField_"+index).show(500);
+            $("#switchTimeFields_"+index).show(500);
+        }
+        else
+        {
+            $("#bottomTimeField_"+index).hide(500);
+            $("#switchTimeFields_"+index).hide(500);
+        }
+        toggleOnTimeField(index);
+    }
+    
+    function toggleOnTimeField(index)
+    {
+        if($("#inputSocketEnableTime_"+index).prop('checked') ||
+        		$("#inputSocketEnable_"+index).prop('checked'))
+        {
+            $("#onTimeField_"+index).show(500);
+        }
+        else
+        {
+            $("#onTimeField_"+index).hide(500);
+        }
+    }
+
+    function toggleResetButton()
+    {
+        if($("#LOGUSER_LEVEL").html()*1 >= 7)
+        {
+            $("#resetSwitched").show(500);
+        }
+        else
+        {
+            $("#resetSwitched").hide(500);   
+        }
+    }
+
+    function resetAlreadySwitchedFlags()
+     {
+        pageObj.handleCheckBoxUpdate("SOCKETS", "RESET_SWITCHED", "u8_01");
+     }
+
+    function createSocket(index)
+    {
+        console.log(index);
+        /*jshint multistr: true */
+        $('#sockets').append("\
+            <div class=\"span3\" style=\"background: var(--sub-color);\" >\
+            <div><p style=\"margin-left: 4px; font-weight:700;font-family:arial;font-size:11px;color:white;height: 11px;\" id=\"lSocketsPermanentOn\">"+lng["lSocketsPermanentOn"]+"</p><p><input id=\"inputSocketForceOn_"+index+"\"type=\"checkbox\" style=\"margin-left: 4px;height: 11px;\" onClick=\"toggleAllFields("+index+");\"></p></div> \
+            <div id=\"allFields_"+index+"\">\
+            \
+            <div style=\"height: 2px;background-color:var(--main-color);\"></div> \
+            <div id=\"automaticCheckbox_"+index+"\">\
+            <div><p style=\"margin-left: 4px;font-weight:700;font-family:arial;font-size:11px;color:white;height: 11px;\" id=\"lSocketsActivateAuto\">"+lng["lSocketsActivateAuto"]+"</p><p><input id=\"inputSocketEnable_"+index+"\" type=\"checkbox\" style=\"margin-left: 4px; ;height: 11px;\" onClick=\"toggleAutoFields("+index+");\"></p></div> \
+            </div>\
+            <div id=\"automaticFields_"+index+"\">\
+            \
+            <div><p style=\"margin-left: 4px;font-weight:700;font-family:arial;font-size:11px;color:white;height: 11px;\">"+lng["lSocketsPowerOn"]+"</p><p><input type=\"text\" class=\"input-small\" id=\"SocketPowerOn_"+index+"\" style=\"margin-left: 4px;font-size: 11px;line-height: 11px;height: 11px;margin-bottom:0px;\"></p></div>\
+            \
+             <div><p style=\"margin-left: 4px;font-weight:700;font-family:arial;font-size:11px;color:white;height: 11px;\">"+lng["lSocketsPowerOff"]+"</p><p><input type=\"text\" class=\"input-small\" id=\"SocketPowerOff_"+index+"\" style=\"margin-left: 4px;font-size: 11px;line-height: 11px;height: 11px;margin-bottom:0px;\"></p></div>\
+            \
+            <div><p style=\"margin-left: 4px;font-weight:700;font-family:arial;font-size:11px;color:white;height: 11px;\">"+lng["lSocketsExcessDuration"]+"</p><p><input type=\"text\" class=\"input-small\" id=\"SocketMinTime_"+index+"\" style=\"margin-left: 4px;height: 11px;font-size: 11px;line-height:11px;height: 11px;margin-bottom:0px;\"></p></div>\
+            \
+            </div>\
+            <div><p style=\"margin-left: 4px;font-weight:700;font-family:arial;font-size:11px;color:white;height: 11px;\">"+lng["lSocketsActivateTime"]+"</p><p><input id=\"inputSocketEnableTime_"+index+"\" type=\"checkbox\" style=\"margin-left: 4px;height: 11px;margin-bottom:0px;\"></p></div>\
+            <div id=\"switchTimeFields_"+index+"\">\
+            <div><p style=\"margin-left: 4px;font-weight:700;font-family:arial;font-size:11px; color:white;height: 11px;\">"+lng["lSocketsTime"]+"</p><p><input type=\"text\" id=\"SocketOnHour_"+index+"\" style=\"margin-left: 4px; height: 11px; width: 33px;font-size: 11px;line-height: 11px; float:left\">\<input type=\"text\" id=\"SocketOnMin_"+index+"\"  style=\"margin-left: 4px; height: 11px; width: 33px;font-size: 11px;line-height: 11px;margin-bottom:0px\"></p></div>\
+            </div>\
+            <div id=\"onTimeField_"+index+"\">\
+            <div><p style=\"margin-left: 4px;font-weight:700;font-family:arial;font-size:11px; color:white;margin-bottom:0px;\">"+lng["lSocketsDuration"]+"</p><p><input type=\"text\" class=\"input-small\" id=\"SocketOnTime_"+index+"\" style=\"margin-left: 4px; height: 11px;font-size: 11px;line-height: 11px;margin-bottom:0px;\"></p></div>\
+            </div>\
+            </div>\
+            \
+            <div><p><button class=\"btn btn-mini\" type=\"button\" style=\"margin-left: 4px;\" onclick=\"setParamSockets("+index+");\" id=\"lSocketsSave_"+index+"\"></button></p></div>\
+            </div>\
+            </div>");
+        
+        $('#lSocketsSave_'+index).text(lng["lSocketsSave"]);
+
+        $('#bottomHeader').append("<div class=\"span3\" ><p id=\"lSocketsSocketBottom_"+index+"\"></p></div>");
+        $('#lSocketsSocketBottom_'+index).text(lng["lSocketsSocketBottom"]+" "+(index+1));
+        $('#lSocketsState').text(lng["lSocketsState"]+" "+index);
+
+        $('#bottomData').append("\
+            <div class=\"span3\" style=\"background: var(--sub-color);\" >\
+            <div><p style=\"margin-left: 4px;font-weight:700;font-family:arial;font-size:11px; color:white;margin-bottom:0px;\">"+lng["lSocketsState"]+"</p>\
+                    <div class=\"row\">  <div style=\"width: 205px;\" class=\"span3 labels_value\"><p style=\"margin-left: -1px;font-weight:700;font-family:arial;font-size:11px; color:white;margin-bottom:0px;\" id=\"SocketState_"+index+"\">***</p></div></div>\
+                \
+                <div><p style=\"margin-left: 4px;font-weight:700;font-family:arial;font-size:11px; color:white;margin-bottom:0px;\">"+lng["lSocketsAlreadySwitched"]+"</p>\
+                    <div class=\"row\">  <div style=\"width: 205px;\" class=\"span3 labels_value\"><p style=\"margin-left: -1px;font-weight:700;font-family:arial;font-size:11px; color:white;margin-bottom:0px;\" id=\"SocketsSwitched_"+index+"\">***</p></div></div>\
+                \
+                <div id=\"bottomTimeField_"+index+"\">\
+                <div><p style=\"margin-left: 4px;font-weight:700;font-family:arial;font-size:11px; color:white;margin-bottom:0px;\">"+lng["lSocketsRemainTime"]+"</p>\
+                    <div class=\"row\">  <div style=\"width: 205px;\" class=\"span3 labels_value\"><p style=\"margin-left: -1px;font-weight:700;font-family:arial;font-size:11px; color:white;margin-bottom:0px;\" id=\"SOCKETSTIME_REM"+index+"\">***</p></div></div>\
+                </div>\
+            </div>");
+
+        $('#socketTop').append("<div class=\"span3\"><p>"+lng["lSocketsSocketTop"]+" "+(index+1)+"</p></div>");
+    }
+
+    function updateCB()
+    {
+        toggleResetButton();
+
+        for (c = 0; c < numSockets ; c++) 
+        {
+            if (htmlAsNumber("#SOCKETSPOWER_ON"+c) == 1)
+            {
+                $('#SocketState_'+c).text(lng["lSocketsPowerStateOn"]);
+            }
+            else
+            {
+                $('#SocketState_'+c).text(lng["lSocketsPowerStateOff"]);
+            }
+            
+            if (htmlAsNumber("#SOCKETSALREADY_SWITCHED"+c) == 1)
+            {
+                $('#SocketsSwitched_'+c).text(lng["YES"]);
+            }
+            else
+            {
+                $('#SocketsSwitched_'+c).text(lng["NO"]);
+            }
+
+
+            if ($("#inputSocketForceOn_"+c).prop('checked'))
+            {
+                $("#inputSocketEnable_"+c).attr("disabled", true);
+            }
+            else
+            {
+                $("#inputSocketEnable_"+c).attr("disabled", false);
+            }
+
+            toggleTimeField(c);
+        }
+    }
+
+    function singleUpdateCB()
+    {
+        numSockets = htmlAsNumber("#SOCKETSNUMBER_OF_SOCKETS");
+        toggleResetButton();
+        //console.log(numSockets);
+        for (c = 0; c < numSockets ; ++c) 
+        {
+        	//Append html
+            createSocket(c);
+        	//Insert values from settings
+        	 //Automatic settings
+            $("#SocketPowerOn_"+c).val($("#SOCKETSUPPER_LIMIT"+c).html());
+            $("#SocketPowerOff_"+c).val($("#SOCKETSLOWER_LIMIT"+c).html());
+            $("#SocketMinTime_"+c).val($("#SOCKETSTIME_LIMIT"+c).html());
+             //Switch time
+            $("#SocketOnTime_"+c).val($("#SOCKETSPOWER_ON_TIME"+c).html());
+            $("#SocketOnHour_"+c).val($("#SOCKETSSWITCH_ON_HOUR"+c).html());
+            $("#SocketOnMin_"+c).val($("#SOCKETSSWITCH_ON_MINUTE"+c).html());
+             // Automatic on
+            if (htmlAsNumber("#SOCKETSENABLE"+c) >= 1)
+            {
+                $("#inputSocketEnable_"+c).attr("checked", true);
+            }
+            else
+            {
+                $("#inputSocketEnable_"+c).attr("checked", false);
+            }
+             // Switch time
+            if (htmlAsNumber("#SOCKETSUSE_TIME"+c) >= 1)
+            {
+                $("#inputSocketEnableTime_"+c).attr("checked", true);
+            }
+            else
+            {
+                $("#inputSocketEnableTime_"+c).attr("checked", false);                
+            }
+
+            // Permanent on -> Disable automatic
+            if (htmlAsNumber("#SOCKETSFORCE_ON"+c) >= 1)
+            {
+                $("#inputSocketForceOn_"+c).attr("checked", true);
+                $("#inputSocketEnable_"+c).attr("checked", false);
+                $("#inputSocketEnableTime_"+c).attr("checked", false);
+            }
+            else
+            {
+                $("#inputSocketForceOn_"+c).attr("checked", false);
+            }
+            
+            if (htmlAsNumber("#ENERGYZERO_EXPORT") == 1)
+            {
+                $("#inputSocketEnable_"+c).attr("checked", false);
+                $("#automaticCheckbox_"+c).hide(500);
+                $("#automaticFields_"+c).hide(500);
+            }
+            
+            //console.log("Davor " + c)
+            toggleAllFields(c);
+            toggleAutoFields(c);
+            toggleTimeField(c);
+            toggleOnTimeField(c);
+            //console.log("Danach " + c)
+        }
+        // Warn user
+        if (htmlAsNumber("#ENERGYZERO_EXPORT") == 1)
+        {
+            alert(lng.lAlertZeroExportSockets);
+        }
+    }
+
+    function obj_init() 
+    {
+        pageObj = new senecPage(updateCB);
+
+        pageObj.add_json_object("ENERGY");
+        pageObj.add_property_to_object("ENERGY", "ZERO_EXPORT", "");
+
+        pageObj.add_json_object("SOCKETS");
+        pageObj.add_property_to_object("SOCKETS", "ENABLE","");
+        pageObj.add_property_to_object("SOCKETS", "USE_TIME","");
+        pageObj.add_property_to_object("SOCKETS", "FORCE_ON","");
+        pageObj.add_property_to_object("SOCKETS", "TIME_REM","");
+        pageObj.add_property_to_object("SOCKETS", "POWER_ON","");
+        pageObj.add_property_to_object("SOCKETS", "UPPER_LIMIT","");
+        pageObj.add_property_to_object("SOCKETS", "LOWER_LIMIT","");
+        pageObj.add_property_to_object("SOCKETS", "TIME_LIMIT","");
+        pageObj.add_property_to_object("SOCKETS", "POWER_ON_TIME","");
+        pageObj.add_property_to_object("SOCKETS", "PRIORITY","");
+        pageObj.add_property_to_object("SOCKETS", "SWITCH_ON_HOUR","");
+        pageObj.add_property_to_object("SOCKETS", "SWITCH_ON_MINUTE","");
+        pageObj.add_property_to_object("SOCKETS", "NUMBER_OF_SOCKETS","");
+        pageObj.add_property_to_object("SOCKETS", "ALREADY_SWITCHED","");
+        pageObj.singlePageRefresh();
+        singleUpdateCB();
+        pageObj.startPageRefresh(200);
+    }
+
+    $(document).bind("page.loaded", function() {
+        $("a").unbind();
+        $("a").click(function() {
+            navigate(this.id);
+        });
+        updateLanguage();
+        obj_init();
+    });
+
+    $(document).bind("page.unload", function() {
+        pageObj.stopPageRefresh();
+    });
+
+    function validateValues(index)
+    {
+        var hasNoError = true;
+
+        if($("#inputSocketEnable_"+index).prop('checked'))
+        {
+	        if(!isValidDecimal($("#SocketPowerOn_"+index).val()) ||
+	            (parseInt($("#SocketPowerOn_"+index).val()) <= 0 ) ||
+	            (parseInt($("#SocketPowerOn_"+index).val()) < parseInt($("#SocketPowerOff_"+index).val())))
+	        {
+	            $("#SocketPowerOn_"+index).css('color', 'var(--error-color)');
+	            $("#SocketPowerOn_"+index).addClass("errorField");
+	            hasNoError = false;
+	        }
+	
+	        if(!isValidDecimal($("#SocketPowerOff_"+index).val()) ||
+	            (parseInt($("#SocketPowerOff_"+index).val()) <= 0 ) ||
+	            (parseInt($("#SocketPowerOn_"+index).val()) < parseInt($("#SocketPowerOff_"+index).val())))
+	        {
+	            $("#SocketPowerOff_"+index).css('color', 'var(--error-color)');
+	            $("#SocketPowerOff_"+index).addClass("errorField");
+	            hasNoError = false;
+	        }
+	
+	        if(!isValidDecimal($("#SocketMinTime_"+index).val()))
+	        {
+	            $("#SocketMinTime_"+index).css('color', 'var(--error-color)');
+	            $("#SocketMinTime_"+index).addClass("errorField");
+	            hasNoError = false;
+	        }
+	        
+           if(!isValidDecimal($("#SocketOnTime_"+index).val()))
+            {
+                $("#SocketOnTime_"+index).css('color', 'var(--error-color)');
+                $("#SocketOnTime_"+index).addClass("errorField");
+                hasNoError = false;
+            }
+        }
+
+        if($("#inputSocketEnableTime_"+index).prop('checked'))
+        {
+	        if(!isValidDecimal($("#SocketOnTime_"+index).val()))
+	        {
+	            $("#SocketOnTime_"+index).css('color', 'var(--error-color)');
+	            $("#SocketOnTime_"+index).addClass("errorField");
+	            hasNoError = false;
+	        }
+	
+	         if(!isValidDecimal($("#SocketOnHour_"+index).val()) ||
+	            parseInt($("#SocketOnHour_"+index).val()) < 0 ||
+	            parseInt($("#SocketOnHour_"+index).val()) >= 24)
+	        {
+	            $("#SocketOnHour_"+index).css('color', 'var(--error-color)');
+	            $("#SocketOnHour_"+index).addClass("errorField");
+	            hasNoError = false;
+	        }
+	
+	         if(!isValidDecimal($("#SocketOnMin_"+index).val()) ||
+	            parseInt($("#SocketOnMin_"+index).val()) < 0 ||
+	            parseInt($("#SocketOnMin_"+index).val()) >= 60)
+	        {
+	            $("#SocketOnMin_"+index).css('color', 'var(--error-color)');
+	            $("#SocketOnMin_"+index).addClass("errorField");
+	            hasNoError = false;
+	        }
+        }
+
+        if(hasNoError)
+        {
+            $("#SocketPowerOn_"+index).css('color', 'black');
+            $("#SocketPowerOn_"+index).removeClass("errorField");
+            $("#SocketPowerOff_"+index).css('color', 'black');
+            $("#SocketPowerOff_"+index).removeClass("errorField");
+            $("#SocketMinTime_"+index).css('color', 'black');
+            $("#SocketMinTime_"+index).removeClass("errorField");
+            $("#SocketOnTime_"+index).css('color', 'black');
+            $("#SocketOnTime_"+index).removeClass("errorField");
+            $("#SocketOnHour_"+index).css('color', 'black');
+            $("#SocketOnHour_"+index).removeClass("errorField");
+            $("#SocketOnMin_"+index).css('color', 'black');
+            $("#SocketOnMin_"+index).removeClass("errorField");
+        }
+
+        return hasNoError;
+    }
+
+
+    function setParamSockets(index)
+    {
+        if(validateValues(index))
+        {
+            if($("#inputSocketEnable_"+index).prop('checked'))
+            {
+	            pageObj.handleTextAreaUpdateArray("SOCKETS", "UPPER_LIMIT", pageObj.castVarValue('u1',$("#SocketPowerOn_"+index).val()),index,numSockets);
+	            pageObj.handleTextAreaUpdateArray("SOCKETS", "LOWER_LIMIT", pageObj.castVarValue('u1',$("#SocketPowerOff_"+index).val()),index,numSockets);
+	            pageObj.handleTextAreaUpdateArray("SOCKETS", "TIME_LIMIT", pageObj.castVarValue('u1',$("#SocketMinTime_"+index).val()),index,numSockets);
+	            pageObj.handleTextAreaUpdateArray("SOCKETS", "POWER_ON_TIME", pageObj.castVarValue('u1',$("#SocketOnTime_"+index).val()),index,numSockets);
+            }
+            pageObj.handleCheckBoxUpdateArray("SOCKETS", "ENABLE", $("#inputSocketEnable_"+index).prop('checked') ? "u8_01" : "u8_00",index,numSockets);
+            if($("#inputSocketEnableTime_"+index).prop('checked'))
+            {
+	            pageObj.handleTextAreaUpdateArray("SOCKETS", "SWITCH_ON_HOUR", pageObj.castVarValue('u8',$("#SocketOnHour_"+index).val()),index,numSockets);
+	            pageObj.handleTextAreaUpdateArray("SOCKETS", "SWITCH_ON_MINUTE", pageObj.castVarValue('u8',$("#SocketOnMin_"+index).val()),index,numSockets);
+	            pageObj.handleTextAreaUpdateArray("SOCKETS", "POWER_ON_TIME", pageObj.castVarValue('u1',$("#SocketOnTime_"+index).val()),index,numSockets);
+            }
+            pageObj.handleCheckBoxUpdateArray("SOCKETS", "USE_TIME", $("#inputSocketEnableTime_"+index).prop('checked') ? "u8_01" : "u8_00",index,numSockets);
+        }
+            pageObj.handleCheckBoxUpdateArray("SOCKETS","FORCE_ON",$('#inputSocketForceOn_'+index).prop('checked') ? "u8_01" : "u8_00" , index, numSockets);
+            /* Set flag to trigger update of settings file. */
+            IndexPageObj.handleButtonClick("WIZARD", "CONFIG_MODIFIED_BY_USER");
+    }
+
+</script>
+
+<div class="row" style="margin-bottom: 40px;">
+        <div class="row">
+            <div class="labels_title" id="socketTop" >
+            <div class="span3 " ></div>              
+            </div>
+        </div>
+        
+        <div id="sockets" class="row">
+            <div class="span3 " ></div>              
+        </div>
+
+        <div class="row">
+            <div class="labels_title" id="bottomHeader">
+                <div class="span3 " ></div>
+            </div>
+        </div>
+
+        <div class="row" id="bottomData">
+            <div class="span3 " ></div>              
+
+        </div>
+
+         <div><p><button class="btn btn-mini" type="button" style="margin-left: 4px;" onclick="resetAlreadySwitchedFlags()" id="resetSwitched">Reset</button></p></div>
+</div>
+
+<div class="hide" id ="hiddenObjects">
+    <p id="SOCKETSNUMBER_OF_SOCKETS"></p>
+    <p id="SOCKETSENABLE0"></p>
+    <p id="SOCKETSUSE_TIME0"></p>
+    <p id="SOCKETSFORCE_ON0"></p>
+    <p id="SOCKETSTIME_REM0"></p>
+    <p id="SOCKETSPOWER_ON0"></p>
+    <p id="SOCKETSUPPER_LIMIT0"></p>
+    <p id="SOCKETSLOWER_LIMIT0"></p>
+    <p id="SOCKETSTIME_LIMIT0"></p>
+    <p id="SOCKETSPOWER_ON_TIME0"></p>
+    <p id="SOCKETSPRIORITY0"></p>
+    <p id="SOCKETSSWITCH_ON_HOUR0"></p>
+    <p id="SOCKETSSWITCH_ON_MINUTE0"></p>
+    <p id="SOCKETSALREADY_SWITCHED0"></p>
+    <p id="SOCKETSENABLE1"></p>
+    <p id="SOCKETSUSE_TIME1"></p>
+    <p id="SOCKETSFORCE_ON1"></p>
+    <p id="SOCKETSTIME_REM1"></p>
+    <p id="SOCKETSPOWER_ON1"></p>
+    <p id="SOCKETSUPPER_LIMIT1"></p>
+    <p id="SOCKETSLOWER_LIMIT1"></p>
+    <p id="SOCKETSTIME_LIMIT1"></p>
+    <p id="SOCKETSPOWER_ON_TIME1"></p>
+    <p id="SOCKETSPRIORITY1"></p>
+    <p id="SOCKETSSWITCH_ON_HOUR1"></p>
+    <p id="SOCKETSSWITCH_ON_MINUTE1"></p>
+    <p id="SOCKETSALREADY_SWITCHED1"></p>
+    <p id="ENERGYZERO_EXPORT"></p>
+</div>

@@ -1,0 +1,332 @@
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" id="btnWizardAU_close" onclick="confwizardClose();">×</button>
+    <h3 id="lAUHeader"></h3>
+</div>
+
+<div class="modal-body">
+	<div id="lblWizardAUCheckResult"  class="wizard-check-result"> </div>
+	<table class="grid_parameter_assistant">
+        <tr>
+            <td>
+                <label for="inputWizardAULocalGridCode" id="lAuLocalGridCodes"></label>
+            </td>
+            <td>
+            <select id="inputWizardAULocalGridCode" class="select" onchange="confwizardAUUpdate(UpdateMode.REFRESH)">
+                <optgroup label="Standard">
+                    <option value="4">AS/NZS 4777.2:2015 (default)</option>
+                    <option value="0">Manual</option>
+                </optgroup>
+                <optgroup label="Victoria">
+                    <option value="5">AusNet Services</option>
+                    <option value="6">CitiPower</option>
+                    <option value="7">Jemena</option>
+                    <option value="8">Powercor Australia</option>
+                    <option value="9">United Energy</option>
+                </optgroup>
+                <optgroup label="Western Australia">
+                    <option value="2">Horizon Power: Onslow Power Project</option>
+                    <option value="3">Horizon Power: Smart Sun Pilot Broome</option>
+                    <option value="1">Western Power</option>
+                </optgroup>
+
+            </select>
+            </td>
+        </tr>
+	   <tr class="manual_parameters">
+	        <td>
+	            <label for="checkboxWizardAUresponsemode_0" id="lAUVoltWattCharge"></label>
+	        </td>
+	        <td>
+	            <input class="has-tooltip" type="checkbox" id="checkboxWizardAUresponsemode_0" style="margin-left:3px;" onchange="VoltWattChargeUpdate()">
+	        </td>
+	    </tr>
+	    <tr class="manual_parameters" id="AUVoltWattChargeValues">
+            <td>
+                <label id="lAUVoltWattChargeValues"></label>
+            </td>
+            <td>
+                <table>
+                    <tr>
+                        <td>
+                            <label style="width:50px;" for="GRIDCONFIGAU_VWC_VOLTAGE0">V&#8321;</label>
+                        </td>
+                        <td>
+                            <input style="width:50px; margin-right: 10px;" class="has-tooltip" type="text" id="GRIDCONFIGAU_VWC_VOLTAGE0" value="Test" disabled>
+                        </td>
+                        <td>
+                            <label style="width:50px;" for="GRIDCONFIGAU_VWC_VOLTAGE1">V&#8322;</label>
+                        </td>
+                        <td>
+                            <input style="width:50px;" class="has-tooltip" type="text" id="GRIDCONFIGAU_VWC_VOLTAGE1" value="Test">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label style="width:50px;" for="GRIDCONFIGAU_VWC_VOLTAGE2">V&#8323;</label>
+                        </td>
+                        <td>
+                            <input style="width:50px;" class="has-tooltip" type="text" id="GRIDCONFIGAU_VWC_VOLTAGE2" value="Test" disabled>
+                        </td>
+                        <td>
+                            <label style="width:50px;" for="GRIDCONFIGAU_VWC_VOLTAGE3">V&#8324;</label>
+                        </td>
+                        <td>
+                            <input style="width:50px;" class="has-tooltip" type="text" id="GRIDCONFIGAU_VWC_VOLTAGE3" value="Test" disabled>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+	    <tr class="manual_parameters">
+	        <td>
+	            <label for="checkboxWizardAUresponsemode_1" id="lAUVoltWattDischarge"></label>
+	        </td>
+	        <td>
+	            <input class="has-tooltip" type="checkbox" id="checkboxWizardAUresponsemode_1" style="margin-left:3px;" onchange="VoltWattDischargeUpdate()">
+	        </td>
+	    </tr>
+        <tr class="manual_parameters" id="AUVoltWattDischargeValues">
+            <td>
+                <label id="lAUVoltWattDischargeValues"></label>
+            </td>
+            <td>
+	            <table>
+		            <tr>
+			            <td>
+			                <label style="width:50px;" for="GRIDCONFIGAU_VWD_VOLTAGE0">V&#8321;</label>
+			            </td>
+			            <td>
+			                <input style="width:50px; margin-right: 10px;" class="has-tooltip" type="text" id="GRIDCONFIGAU_VWD_VOLTAGE0" value="Test" disabled>
+			            </td>
+			            <td>
+                            <label style="width:50px;" for="GRIDCONFIGAU_VWD_VOLTAGE1">V&#8322;</label>
+                        </td>
+			            <td>
+			                <input style="width:50px;" class="has-tooltip" type="text" id="GRIDCONFIGAU_VWD_VOLTAGE1" value="Test" disabled>
+			            </td>
+		            </tr>
+		            <tr>
+                        <td>
+                            <label style="width:50px;" for="GRIDCONFIGAU_VWD_VOLTAGE2">V&#8323;</label>
+                        </td>
+                        <td>
+                            <input style="width:50px;" class="has-tooltip" type="text" id="GRIDCONFIGAU_VWD_VOLTAGE2" value="Test">
+                        </td>
+                        <td>
+                            <label style="width:50px;" for="GRIDCONFIGAU_VWD_VOLTAGE3">V&#8324;</label>
+                        </td>
+                        <td>
+                            <input style="width:50px;" class="has-tooltip" type="text" id="GRIDCONFIGAU_VWD_VOLTAGE3" value="Test">
+                        </td>
+                    </tr>
+	            </table>
+            </td>
+        </tr>
+	    <tr class="manual_parameters" id="AUFreqIncMode">
+	        <td>
+	            <label for="checkboxWizardAUresponsemode_2" id="lAUFreqIncMode"></label>
+	        </td>
+	        <td>
+	            <input class="has-tooltip" type="checkbox" id="checkboxWizardAUresponsemode_2" style="margin-left:3px;">
+	        </td>
+	    </tr>
+	    <tr class="manual_parameters" id="AUFreqDecMode">
+	        <td>
+	            <label for="checkboxWizardAUresponsemode_3" id="lAUFreqDecMode"></label>
+	        </td>
+	        <td>
+	            <input class="has-tooltip" type="checkbox" id="checkboxWizardAUresponsemode_3" style="margin-left:3px;">
+	        </td>
+	    </tr>
+	    <tr class="manual_parameters">
+	        <td>
+	            <label for="checkboxWizardAUresponsemode_4" id="lAUVoltVarMode"></label>
+	        </td>
+	        <td>
+	            <input class="has-tooltip" type="checkbox" id="checkboxWizardAUresponsemode_4" style="margin-left:3px;" onchange="VoltVarUpdate()">
+	        </td>
+	    </tr>
+	    <tr class="manual_parameters" id="AUVoltVarModeValues">
+            <td>
+                <label id="lAUVoltVarModeValues"></label>
+            </td>
+            <td>
+                <table>
+                    <tr>
+                        <td>
+                            <label style="width:50px;" for="GRIDCONFIGAU_VVAR_VOLTAGE0">V&#8321;</label>
+                        </td>
+                        <td>
+                            <input style="width:50px; margin-right: 10px;" class="has-tooltip" type="text" id="GRIDCONFIGAU_VVAR_VOLTAGE0" value="Test">
+                        </td>
+                        <td>
+                            <label style="width:50px;" for="GRIDCONFIGAU_VVAR_VOLTAGE1">V&#8322;</label>
+                        </td>
+                        <td>
+                            <input style="width:50px;" class="has-tooltip" type="text" id="GRIDCONFIGAU_VVAR_VOLTAGE1" value="Test">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label style="width:50px;" for="GRIDCONFIGAU_VVAR_VOLTAGE2">V&#8323;</label>
+                        </td>
+                        <td>
+                            <input style="width:50px;" class="has-tooltip" type="text" id="GRIDCONFIGAU_VVAR_VOLTAGE2" value="Test">
+                        </td>
+                        <td>
+                            <label style="width:50px;" for="GRIDCONFIGAU_VVAR_VOLTAGE3">V&#8324;</label>
+                        </td>
+                        <td>
+                            <input style="width:50px;" class="has-tooltip" type="text" id="GRIDCONFIGAU_VVAR_VOLTAGE3" value="Test">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label style="width:50px;" for="GRIDCONFIGAU_VVAR_PERCENTAGE0"><sup>VAr</sup>&frasl;<sub>VA</sub>&#8321;</label>
+                        </td>
+                        <td>
+                            <input style="width:20px;" class="has-tooltip" type="text" id="GRIDCONFIGAU_VVAR_PERCENTAGE0" value="Test"> %
+                        </td>
+                        <td>
+                            <label style="width:50px;" for="GRIDCONFIGAU_VVAR_PERCENTAGE1"><sup>VAr</sup>&frasl;<sub>VA</sub>&#8322;</label>
+                        </td>
+                        <td>
+                            <input style="width:20px;" class="has-tooltip" type="text" id="GRIDCONFIGAU_VVAR_PERCENTAGE1" value="Test" disabled> %
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label style="width:50px;" for="GRIDCONFIGAU_VVAR_PERCENTAGE2"><sup>VAr</sup>&frasl;<sub>VA</sub>&#8323;</label>
+                        </td>
+                        <td>
+                            <input style="width:20px;" class="has-tooltip" type="text" id="GRIDCONFIGAU_VVAR_PERCENTAGE2" value="Test" disabled> %
+                        </td>
+                        <td>
+                            <label style="width:50px;" for="GRIDCONFIGAU_VVAR_PERCENTAGE3"><sup>VAr</sup>&frasl;<sub>VA</sub>&#8324;</label>
+                        </td>
+                        <td>
+                            <input style="width:20px;" class="has-tooltip" type="text" id="GRIDCONFIGAU_VVAR_PERCENTAGE3" value="Test"> %
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr class="manual_parameters">
+            <td>
+                <h6 id="lAUPowerRateLimits"></h6>
+            </td>
+        </tr>
+        <tr class="manual_parameters" id="AUSoftRampUp">
+            <td>
+                <label for="checkboxWizardAUSoftRampUp" id="lAUSoftRampUp"></label>
+            </td>
+            <td>
+                <input class="has-tooltip" type="checkbox" id="checkboxWizardAUSoftRampUp" onchange="RampUpdate()" style="margin-left:3px;">
+            </td>
+        </tr>
+	    <tr class="manual_parameters" id="AURampChangesInEnergy">
+	        <td>
+	            <label for="checkboxWizardAURampChangesInSource" id="lAURampChangesInEnergy"></label>
+	        </td>
+	        <td>
+	            <input class="has-tooltip" type="checkbox" id="checkboxWizardAURampChangesInSource" onchange="RampUpdate()" style="margin-left:3px;">
+	        </td>
+	    </tr>
+	    <tr id="gradientInc" class="manual_parameters">
+	        <td>
+	            <label for="GRIDCONFIGAU_P_RAMP_CH" id="lAUGradientInc"></label>
+	        </td>
+	        <td>
+	            <input class="has-tooltip" title="1.0..100.00" type="text" id="GRIDCONFIGAU_P_RAMP_CH" value="Test">
+	        </td>
+	    </tr>
+	    <tr id="gradientDec"  class="manual_parameters">
+	        <td>
+	            <label for="GRIDCONFIGAU_P_RAMP_DI" id="lAUGradientDec"></label>
+	        </td>
+	        <td>
+	            <input class="has-tooltip" title="1.0..100.00" type="text" id="GRIDCONFIGAU_P_RAMP_DI" value="Test">
+	        </td>
+	    </tr>
+	    <tr id="CosPhiMode"  class="CosPhi manual_parameters">
+	        <td>
+	            <label for="inputWizardAUTargetType" id="lAUTargetType"></label>
+	        </td>
+	        <td>
+	        <select id="inputWizardAUTargetType" class="select" onchange="TargetTypeUpdate()">
+	            <option value="0">Default = 1</option>
+	            <option value="1">Fixed factor</option>
+	            <option value="2">Ramp</option>
+	        </select>
+	        </td>
+	    </tr>
+	    <tr class="CosPhi CosPhiFix manual_parameters">
+	        <td>
+	            <label for="GRIDCONFIGAU_FIXED_FAC" id="lAUFixedFac"></label>
+	        </td>
+	        <td>
+	            <input class="has-tooltip" title="-0.80..-0.99 | 1..0.80" type="text" id="GRIDCONFIGAU_FIXED_FAC" value="Test">
+	        </td>
+	    </tr>
+	    <tr class="CosPhi CosPhiRamp manual_parameters">
+	        <td>
+	            <label for="GRIDCONFIGPWRCFG_COS_POINT1" id="lCosPhi1"></label>
+	        </td>
+	        <td>
+	            <input class="has-tooltip" title="-0.80..-0.99 | 1..0.80" type="text" id="GRIDCONFIGPWRCFG_COS_POINT1" value="Test">
+	        </td>
+	    </tr>
+	    <tr class="CosPhi CosPhiRamp manual_parameters">
+	        <td>
+	            <label for="GRIDCONFIGPWRCFG_COS_POINT_2A" id="lCosPhi2a"></label>
+	        </td>
+	        <td>
+	            <input class="has-tooltip" title="-0.80..-0.99 | 1..0.80" type="text" id="GRIDCONFIGPWRCFG_COS_POINT_2A" value="Test">
+	        </td>
+	    </tr>
+	    <tr class="CosPhi CosPhiRamp manual_parameters">
+	        <td>
+	            <label for="GRIDCONFIGPWRCFG_COS_POINT_2B" id="lCosPhi2b"></label>
+	        </td>
+	        <td>
+	            <input class="has-tooltip" title="0-100%" type="text" id="GRIDCONFIGPWRCFG_COS_POINT_2B" value="Test">
+	        </td>
+	    </tr>
+	    <tr class="CosPhi CosPhiRamp manual_parameters">
+	        <td>
+	            <label for="GRIDCONFIGPWRCFG_COS_POINT3" id="lCosPhi3"></label>
+	        </td>
+	        <td>
+	            <input class="has-tooltip" title="-0.80..-0.99 | 1..0.80" type="text" id="GRIDCONFIGPWRCFG_COS_POINT3" value="Test">
+	        </td>
+	    </tr>
+	</table>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-wizard" onclick="confwizardAUNextPage()" id="Save"></button>
+</div>
+
+
+<div class="hidden">
+    <p id="GRIDCONFIGAU_TARGET_TY"></p>
+    <p id="GRIDCONFIGAU_GRID_CODE"></p>
+    <p id="GRIDCONFIGAU_RESP_MODE"></p>
+    <p id="GRIDCONFIGAU_SOFT_RAMP_EN"></p>
+    <p id="GRIDCONFIGAU_VRR_MIN0"></p>
+    <p id="GRIDCONFIGAU_VRR_MIN1"></p>
+    <p id="GRIDCONFIGAU_VRR_MIN2"></p>
+    <p id="GRIDCONFIGAU_VRR_MIN3"></p>
+    <p id="GRIDCONFIGAU_VRR_MAX0"></p>
+    <p id="GRIDCONFIGAU_VRR_MAX1"></p>
+    <p id="GRIDCONFIGAU_VRR_MAX2"></p>
+    <p id="GRIDCONFIGAU_VRR_MAX3"></p>
+    <p id="GRIDCONFIGAU_VVAR_P_MIN0"></p>
+    <p id="GRIDCONFIGAU_VVAR_P_MIN1"></p>
+    <p id="GRIDCONFIGAU_VVAR_P_MIN2"></p>
+    <p id="GRIDCONFIGAU_VVAR_P_MIN3"></p>
+    <p id="GRIDCONFIGAU_VVAR_P_MAX0"></p>
+    <p id="GRIDCONFIGAU_VVAR_P_MAX1"></p>
+    <p id="GRIDCONFIGAU_VVAR_P_MAX2"></p>
+    <p id="GRIDCONFIGAU_VVAR_P_MAX3"></p>
+</div>
+

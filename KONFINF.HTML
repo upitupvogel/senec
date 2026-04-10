@@ -1,0 +1,1659 @@
+<script type="text/javascript">
+/** Prevent JSHint warning about supposingly unused functions. */
+/* exported open_current_log, openLogViewer, update_slider, update_slideEmergCapa, triggerSettingsWrite, show_license_info, hide_license_info */
+
+    var pageObj;
+    var debugObj;
+
+    var wait_for_mac_address = true;
+
+    function open_current_log()
+    {
+        window.open("/log/" + (htmlAsNumber("#RTCWEB_TIME_YEAR")) +
+        "/" + $("#RTCWEB_TIME_MONTH").html() + "/" +
+        $("#RTCWEB_TIME_DAY").html() +".log");
+    }
+
+    function openLogViewer()
+    {
+        window.open('log.html');
+    }
+
+    function singleUpdateCB() {
+        // Check Lithium variable
+        if (htmlAsNumber('#isLithium') == 1)
+        {
+            $('.pb_only').hide();
+            $('.li_only').show();
+        }
+        else
+        {
+            $('.pb_only').show();
+            $('.li_only').hide();
+        }
+
+        // Check if italy
+        if(htmlAsNumber("#FACTORYCOUNTRY") != 1)
+       	{
+        	$('.italy_only').hide();
+       	}
+
+        // Check if Xtender
+        if (htmlAsNumber('#BAT1OBJ1ENABLED') && (htmlAsNumber("#BAT1TYPE") == 0))
+        {
+            $('.ExcludeXtender').hide();
+        }
+
+        $("#GuiSystemType").html(system_type_name[htmlAsNumber("#FACTORYSYS_TYPE")]);
+        $("#GuiDataCountry").html(Country_enum[htmlAsNumber("#FACTORYCOUNTRY")]);
+
+
+        // Check if Steca
+        if ((htmlAsNumber('#BAT1OBJ1ENABLED')) && (htmlAsNumber("#BAT1TYPE") <= 3))
+        {
+            $('.StecaOnly').hide();
+        }
+
+        var numberOfMpps = 0;
+
+        if(htmlAsNumber("#FACTORYSYS_TYPE") == 17 ||
+            htmlAsNumber("#FACTORYSYS_TYPE") == 19)
+        {
+            numberOfMpps = 2;
+        }
+        else if (htmlAsNumber("#FACTORYSYS_TYPE") == 18)
+        {
+            numberOfMpps = 3;
+        }
+
+        // reset mpp representation
+        $('#mppLabel').empty();
+        $('#mppValue').empty();
+
+        for (mpp = 0; mpp < numberOfMpps; mpp++)
+        {
+            var index = "lMpp"+mpp+"Generation";
+            console.log(index);
+            $('#mppLabel').append("\<div class=\"labels StecaOnly\"><p style=\"margin-left: -5px;\">"+lng["lMpp"+mpp+"Generation"]+" (W):</p></div>");
+
+            $('#mppValue').append("\<div class=\"labels_value StecaOnly\"><p id=\"PV1MPP_INT"+mpp+"\"></p>***</div>");
+        }
+        if ((htmlAsNumber('#BAT1OBJ1ENABLED')) && (htmlAsNumber("#BAT1TYPE") == 4))
+        {
+            $('.ExcludeSteca').hide();
+        }
+
+
+        // Check MCU Type
+        if (htmlAsNumber('#MCU_Type') == 2)
+        {
+            $('.V2_only').show();
+        }
+        else
+        {
+            $('.V2_only').hide();
+        }
+
+        // NPU Image version is only supported from register version 3
+        if (htmlAsNumber('#SYS_UPDATENPU_VER') <= 2)
+        {
+            $('.ExcludeNPU').hide();
+        }
+
+        $("#GuiBattType").html(batt_type_name[htmlAsNumber("#BAT1TYPE")]);
+
+        if (htmlAsNumber('#BAT1OBJ1ENABLED') && htmlAsNumber("#BAT1TYPE") >= 1) {
+            $('.senecbatt1_en').show();
+        } else {
+            $('.senecbatt1_en').hide();
+        }
+
+        // Only SenecBatt has BattOBJ2/3 enabled
+        if (htmlAsNumber('#BAT1OBJ2ENABLED') && htmlAsNumber("#BAT1TYPE") >= 1 &&
+            htmlAsNumber("#BAT1TYPE") <= 3) {
+            $('.senecbatt2_en').show();
+        } else {
+            $('.senecbatt2_en').hide();
+        }
+
+        if (htmlAsNumber('#BAT1OBJ3ENABLED') && htmlAsNumber("#BAT1TYPE") >= 1 &&
+            htmlAsNumber("#BAT1TYPE") <= 3) {
+            $('.senecbatt3_en').show();
+        } else {
+            $('.senecbatt3_en').hide();
+        }
+
+        // Show each inverter current on pb systems
+        if (htmlAsNumber('#isLithium') == 0 &&
+       		htmlAsNumber('#BAT1OBJ2ENABLED') &&
+       		htmlAsNumber("#BAT1TYPE") >= 1 && // Check inverter type
+       		htmlAsNumber("#BAT1TYPE") <= 3)
+        {
+            $('.senecbatt_curr_each').show();
+        } else {
+            $('.senecbatt_curr_each').hide();
+        }
+
+        // Update Labels
+        $("#Label_Enfluri1").html(enfluri_name[htmlAsNumber("#WIZARDSETUP_PM_GRID_ADR")]);
+        $("#Label_Enfluri2").html(enfluri_name[htmlAsNumber("#WIZARDSETUP_PM_HOUSE_ADR")]);
+
+        if(htmlAsNumber('#BAT1NSP_FW') == null || htmlAsNumber('#BAT1NSP2_FW') == null) {
+            $("#GUI_DATA_NSP1_SW_VERSION").html(htmlAsNumber('#BAT1NSP_FW'));
+        } else {
+            $("#GUI_DATA_NSP1_SW_VERSION").html(htmlAsNumber('#BAT1NSP_FW'));
+            $("#GUI_DATA_NSP2_SW_VERSION").html(" / " + htmlAsNumber('#BAT1NSP2_FW'));
+        }
+
+
+
+         // Show only if any pu is activated
+        for (c = 0; c < 6; c++) {
+            // Check if activated
+            if(htmlAsNumber('#PWR_UNITTYPE' + c)){
+                $('.pu_enabled').removeClass("hidden").show();
+            }
+        }
+
+        // Update Feature List
+        if (htmlAsNumber("#BAT1TYPE") == 0){
+        	// Xtender is always unlocked
+            $("#GuiData_Feature_Island").html(feature_state[1]);
+        }
+        else
+        {
+            $("#GuiData_Feature_Island").html(feature_state[htmlAsNumber("#FEATURESISLAND")]);
+        }
+
+        if(parseInt($("#FEATURESISLAND").html()) == 1)
+        {
+            $(".island_mode").removeClass('hidden').show();
+            if((parseInt($("#FEATURESISLAND_PRO").html()) == 1) && isSuperUser())
+            {
+                $(".emerg_capacity").removeClass('hidden').show();
+            }
+            else
+            {
+                $(".emerg_capacity").addClass('hidden').hide();
+            }
+        }
+
+        $("#GuiData_Feature_Island_Pro").html(feature_state[htmlAsNumber("#FEATURESISLAND_PRO")]);
+        $("#GuiData_Feature_Sockets").html(feature_state[htmlAsNumber("#FEATURESSOCKETS")]);
+        $("#GuiData_Feature_HeatBox").html(feature_state[htmlAsNumber("#FEATURESHEAT")]);
+        $("#GuiData_Feature_PeakShaving").html(feature_state[htmlAsNumber("#FEATURESPEAKSHAVING")]);
+        $("#GuiData_Feature_EcoGrid").html(feature_state[htmlAsNumber("#FEATURESECOGRIDREADY")]);
+        $("#GuiData_Feature_Cloud").html(feature_state[htmlAsNumber("#FEATURESCLOUDREADY")]);
+        $("#GuiData_Feature_Car").html(feature_state[htmlAsNumber("#FEATURESCAR")]);
+        $("#GuiData_Feature_SHKW").html(feature_state[htmlAsNumber("#FEATURESSHKW")]);
+        $("#GuiData_Feature_SGready").html(feature_state[htmlAsNumber("#FEATURESSGREADY")]);
+
+        // hide features in foreign countries
+        if (htmlAsNumber("#FACTORYCOUNTRY") != 0)
+        {
+            $('.germany_only').hide();
+        }
+
+        $("#GuiDataDeviceID").html("S" + $("#FACTORYDEVICE_ID").html());
+
+        // Check if Master
+        if(($("#WIZARDMASTER_SLAVE_MODE").html() * 1) == 1)
+       	{
+        	$('.casc_only').show();
+       	}
+        else
+        {
+            $('.casc_only').hide();
+        }
+    }
+
+    function infoUpdateCB() {
+        $("#GuiDataDelayedState").html(
+                system_state_name[htmlAsNumber("#ENERGYSTAT_STATE_DECODE")]);
+
+        $("#systemState").text(system_state_name[parseInt($("#ENERGYSTAT_STATE").html())]);
+
+        // Only update MAC address once so it is easy to copy and paste.
+        var mac_address_byte_zero = ($("#WIZARDMAC_ADDRESS_BYTES0").html() || '').trim();
+        var mac_address_byte_one = ($("#WIZARDMAC_ADDRESS_BYTES1").html() || '').trim();
+        var mac_address_byte_two = ($("#WIZARDMAC_ADDRESS_BYTES2").html() || '').trim();
+        var mac_address_byte_three = ($("#WIZARDMAC_ADDRESS_BYTES3").html() || '').trim();
+        var mac_address_byte_four = ($("#WIZARDMAC_ADDRESS_BYTES4").html() || '').trim();
+        var mac_address_byte_five = ($("#WIZARDMAC_ADDRESS_BYTES5").html() || '').trim();
+
+        if (wait_for_mac_address && mac_address_byte_zero.length > 0 &&
+            mac_address_byte_one.length > 0 &&
+            mac_address_byte_two.length > 0 &&
+            mac_address_byte_three.length > 0 &&
+            mac_address_byte_four.length > 0 &&
+            mac_address_byte_five.length > 0) {
+            wait_for_mac_address = false;
+
+            $("#GuiDataMacAddress").html(
+                parseInt(mac_address_byte_zero).toString(16).toUpperCase() +
+                "-" + parseInt(mac_address_byte_one).toString(16).toUpperCase() +
+                "-" + parseInt(mac_address_byte_two).toString(16).toUpperCase() +
+                "-" + parseInt(mac_address_byte_three).toString(16).toUpperCase() +
+                "-" + parseInt(mac_address_byte_four).toString(16).toUpperCase() +
+                "-" + parseInt(mac_address_byte_five).toString(16).toUpperCase());
+        }
+
+        var BATINV1_TEMP1 = htmlAsNumber('#BAT1OBJ1TEMP1');
+        var BATINV1_TEMP2 = htmlAsNumber('#BAT1OBJ1TEMP2');
+        var BATINV1_TEMP3 = htmlAsNumber('#BAT1OBJ1TEMP3');
+        var BATINV1_TEMP4 = htmlAsNumber('#BAT1OBJ1TEMP4');
+        var BATINV1_TEMP5 = htmlAsNumber('#BAT1OBJ1TEMP5');
+
+        var BATINV2_TEMP1 = htmlAsNumber('#BAT1OBJ2TEMP1');
+        var BATINV2_TEMP2 = htmlAsNumber('#BAT1OBJ2TEMP2');
+        var BATINV2_TEMP3 = htmlAsNumber('#BAT1OBJ2TEMP3');
+        var BATINV2_TEMP4 = htmlAsNumber('#BAT1OBJ1TEMP4');
+        var BATINV2_TEMP5 = htmlAsNumber('#BAT1OBJ1TEMP5');
+
+        var BATINV3_TEMP1 = htmlAsNumber('#BAT1OBJ3TEMP1');
+        var BATINV3_TEMP2 = htmlAsNumber('#BAT1OBJ3TEMP2');
+        var BATINV3_TEMP3 = htmlAsNumber('#BAT1OBJ3TEMP3');
+        var BATINV3_TEMP4 = htmlAsNumber('#BAT1OBJ1TEMP4');
+        var BATINV3_TEMP5 = htmlAsNumber('#BAT1OBJ1TEMP5');
+
+        var BATINV1_CURRENT = htmlAsNumber('#BAT1OBJ1I_DC').toFixed(1);
+        var BATINV2_CURRENT = htmlAsNumber('#BAT1OBJ2I_DC').toFixed(1);
+        var BATINV3_CURRENT = htmlAsNumber('#BAT1OBJ3I_DC').toFixed(1);
+
+        var XtenderVersionX = $('#BAT1OBJ1SW_VERSION').html() >> 24;
+        var XtenderVersionY = ($('#BAT1OBJ1SW_VERSION').html() >> 8) & 0xFF;
+        var XtenderVersionZ = $('#BAT1OBJ1SW_VERSION').html() & 0xFF;
+
+        $("#GUI_BAT_DATA_CURRENT").html(
+            htmlAsNumber('#ENERGYGUI_BAT_DATA_CURRENT').toFixed(1));
+
+        var StecaMajorVersionHMI = $('#BAT1OBJ1SW_VERSION').html() >> 24;
+        var StecaMinorVersionHMI = ($('#BAT1OBJ1SW_VERSION').html() >> 16) & 0xFF;
+        var StecaTrialVersionHMI = ($('#BAT1OBJ1SW_VERSION').html()) & 0xFFFF;
+
+        var StecaMajorVersionPU = $('#BAT1OBJ1SW_VERSION2').html() >> 24;
+        var StecaMinorVersionPU = ($('#BAT1OBJ1SW_VERSION2').html() >> 16) & 0xFF;
+        var StecaTrialVersionPU = ($('#BAT1OBJ1SW_VERSION2').html()) & 0xFFFF;
+
+        var StecaMajorVersionBDC = $('#BAT1OBJ1SW_VERSION3').html() >> 24;
+        var StecaMinorVersionBDC = ($('#BAT1OBJ1SW_VERSION3').html() >> 16) & 0xFF;
+        var StecaTrialVersionBDC = ($('#BAT1OBJ1SW_VERSION3').html()) & 0xFFFF;
+
+
+
+        if (htmlAsNumber("#BAT1TYPE") == 4)
+        { // Steca has 2 Sensors
+            $("#GUI_DATA_BATINV1_TEMP").html(BATINV1_TEMP1 + "|" + BATINV1_TEMP2);
+            $("#GUI_DATA_BATINV2_TEMP").html(BATINV2_TEMP1 + "|" + BATINV2_TEMP2);
+            $("#GUI_DATA_BATINV3_TEMP").html(BATINV3_TEMP1 + "|" + BATINV3_TEMP2);
+        }
+        else if (htmlAsNumber("#FACTORYCOUNTRY") == 2)
+        { // Australia has 5 Sensors for Inverter V2
+        	 $("#GUI_DATA_BATINV1_TEMP").html(BATINV1_TEMP1 + "|" + BATINV1_TEMP2 + "|"+ BATINV1_TEMP3 + "|"+ BATINV1_TEMP4 + "|"+ BATINV1_TEMP5);
+             $("#GUI_DATA_BATINV2_TEMP").html(BATINV2_TEMP1 + "|" + BATINV2_TEMP2 + "|"+ BATINV2_TEMP3 + "|"+ BATINV2_TEMP4 + "|"+ BATINV2_TEMP5);
+             $("#GUI_DATA_BATINV3_TEMP").html(BATINV3_TEMP1 + "|" + BATINV3_TEMP2 + "|"+ BATINV3_TEMP3 + "|"+ BATINV3_TEMP4 + "|"+ BATINV3_TEMP5);
+        }
+        else
+        {
+            $("#GUI_DATA_BATINV1_TEMP").html(BATINV1_TEMP1 + "|" + BATINV1_TEMP2 + "|"+ BATINV1_TEMP3);
+            $("#GUI_DATA_BATINV2_TEMP").html(BATINV2_TEMP1 + "|" + BATINV2_TEMP2 + "|"+ BATINV2_TEMP3);
+            $("#GUI_DATA_BATINV3_TEMP").html(BATINV3_TEMP1 + "|" + BATINV3_TEMP2 + "|"+ BATINV3_TEMP3);
+        }
+
+        $("#GUI_DATA_2BATINV_CURRENT").html(BATINV1_CURRENT + "&nbsp;/&nbsp;" + BATINV2_CURRENT);
+        $("#GUI_DATA_3BATINV_CURRENT").html(BATINV1_CURRENT + "&nbsp;/&nbsp;" + BATINV2_CURRENT + "&nbsp;/&nbsp;" + BATINV3_CURRENT);
+
+        if (htmlAsNumber("#BAT1TYPE") == 0)
+        {// Xtender Version
+            $("#GUI_DATA_BAT_SW_VERSION").html(XtenderVersionX + "." + XtenderVersionY + "." + XtenderVersionZ);
+        }
+        else if(($("#BAT1TYPE").html() * 1) == 4) //Steca
+        {
+        	$("#GUI_DATA_BAT_SW_VERSION").html(StecaMajorVersionHMI + "." + StecaMinorVersionHMI + "." + StecaTrialVersionHMI);
+        	$("#GUI_DATA_BAT_SW_VERSION2").html(StecaMajorVersionPU + "." + StecaMinorVersionPU + "." + StecaTrialVersionPU);
+            $("#GUI_DATA_BAT_SW_VERSION3").html(StecaMajorVersionBDC + "." + StecaMinorVersionBDC + "." + StecaTrialVersionBDC);
+        }
+        else {// SenecBatt Version
+        	$("#GUI_DATA_BAT_SW_VERSION").html(htmlAsNumber('#BAT1OBJ1SW_VERSION'));
+        }
+
+        $("#GuiData_netskew_state").html(NoneAvailable_lang[(htmlAsNumber("#ENERGYSTAT_LIMITED_NET_SKEW"))]);
+        $("#GuiData_no_stdby_state").html(OnOff_lang[htmlAsNumber("#ENERGYSTAT_LIMITED_NO_STAND_BY")]);
+        $("#GuiData_batteryphase").html(BatteryPhase[htmlAsNumber("#BAT1OBJ1INV_CYCLE")]);
+
+        if (isLoggedIn())
+        {
+            $('.autorisiert').show();
+        } else {
+            $('.autorisiert').hide();
+        }
+
+        if (isSuperUser()) {
+            $('.superuser_only').show();
+            // Check if Steca
+            if ((htmlAsNumber('#BAT1OBJ1ENABLED')) && (htmlAsNumber("#BAT1TYPE") > 3))
+            {
+                $('.StecaDebug').show();
+            }
+            else
+            {
+                $('.StecaDebug').hide();
+            }
+        } else {
+            $('.superuser_only').hide();
+            $('.StecaDebug').hide();
+
+        }
+
+        if (htmlAsNumber('#ENERGYGUI_SCHARGE_REMAIN') != 0) {
+            $('.specialcharge_hide').show();
+        } else {
+            $('.specialcharge_hide').hide();
+        }
+
+        if (htmlAsNumber('#ENERGYOFFPEAK_RUNNING') != 0) {
+            $('.offpeak_hide').show();
+        } else {
+            $('.offpeak_hide').hide();
+        }
+
+        if (htmlAsNumber('#ENERGYGUI_CHARGING_INFO') == 1) {
+            $('.charge_only').show();
+        } else {
+            $('.charge_only').hide();
+        }
+
+        // Check if Australia
+        if(htmlAsNumber("#FACTORYCOUNTRY") != 2)
+        {
+            $('.australia_only').hide();
+        }
+
+        // Check if Steca
+        if ((htmlAsNumber('#BAT1OBJ1ENABLED')) && (htmlAsNumber("#BAT1TYPE") <= 3))
+        {
+            $('.StecaOnly').hide();
+        }
+        else
+        {
+        	$('.StecaOnly').show();
+        }
+
+        if ((htmlAsNumber('#BAT1OBJ1ENABLED')) && (htmlAsNumber("#BAT1TYPE") == 4))
+        {
+            $('.ExcludeSteca').hide();
+        }
+        else
+        {
+        	$('.ExcludeSteca').show();
+        }
+
+        var pu_consumption = 0;
+         // Get PWR_UNIT name and calculate total pwr
+        for (c = 0; c < 6; c++)
+        {
+        	pu_consumption += +(parseFloat($('#PWR_UNITPOWER_L1' + c).html()) + parseFloat($('#PWR_UNITPOWER_L2' + c).html()) + parseFloat($('#PWR_UNITPOWER_L3' + c).html())).toFixed(0);
+        }
+        $("#GuiData_PU_Consumption").html(pu_consumption);
+
+        for (c = 0; c < 3; c++)
+        {
+        	var has_error = false;
+	        var cei_status_string = "--";
+	        for (d = 0; d < 11; d++)
+	        {
+	            if (htmlAsNumber("#BAT1CEI_LIMIT" + c) & (1<<d))
+	            {
+	            	if(has_error)
+            		{
+	                    cei_status_string +=" | ";
+	            		cei_status_string += CEI_Status[d];
+            		}
+	            	else
+            		{
+	            		cei_status_string = CEI_Status[d];
+           		    }
+	                has_error = true;
+	            }
+	        }
+	        $("#GuiCEIStatus" + c).html(cei_status_string);
+        }
+
+        //Island Mode Container
+        if (parseInt($("#BAT1TYPE").html()) == 0){
+            // Xtender is always unlocked
+            $("#GuiData_IslandModePackage").html(feature_state[1]); // Unlocked
+        }
+        else
+        {
+            $("#GuiData_IslandModePackage").html(feature_state[parseInt($("#FEATURESISLAND").html())]); // 0: Locked - 1: Unlocked
+        }
+        $("#GuiData_IslandModeStatus").html(condition_state[parseInt($("#BAT1ISLAND_ENABLE").html())]); // 0: Disabled - 1: Enabled
+        // These MCU fsm states are error states, where emergency power is not available
+        var arrayErrorStates = [0,1,20,39,59,66,72,73,74];
+        if(jQuery.inArray(htmlAsNumber("#ENERGYSTAT_STATE"),arrayErrorStates) != -1)
+            $("#GuiData_IslandModeBattery").html(battery_state["ERROR"]);
+        else
+        	$("#GuiData_IslandModeBattery").html(battery_state["OK"]);
+
+        $('.pageinfo').addClass('hidden').hide();
+        $('.pagecontent').removeClass('hidden').show();
+
+        // emergency spare capacity
+        $('#inputEmergCapacity').val($("#BAT1SPARE_CAPACITY").html());
+        $('#inputEmergCapacity_num').val($("#BAT1SPARE_CAPACITY").html());
+    }
+
+    function UpdateDebug() {
+    	// Display only connected modules
+        if( typeof UpdateDebug.module_count == 'undefined' ) {
+        	UpdateDebug.module_count = 99;
+        }
+        if( UpdateDebug.module_count != htmlAsNumber("#BMSNR_INSTALLED"))
+   		{
+            var num_show = htmlAsNumber("#BMSNR_INSTALLED");
+            for (c = 0; c < num_show; c++)
+            {
+            	  $('.module_' + c).show(500);
+            }
+            for (c = 3; c >= num_show; c--)
+            {
+                  $('.module_' + c).hide(500);
+            }
+
+            UpdateDebug.module_count = htmlAsNumber("#BMSNR_INSTALLED");
+   		}
+
+        // Variable used for bms and cascade status
+        var has_status = false;
+    	// Update BMS Module Status
+        for (c = 0; c < 4; c++)
+        {
+            has_status = false;
+	        var status_string ="| ";
+
+	        // If Panasonic -> Decode serial to Hex format
+            if(htmlAsNumber('#FACTORYSYS_TYPE') < 15)
+            {
+				      // Set Status
+	            for (d = 4; d < 16; d++)
+	            {
+	                if (htmlAsNumber("#BMSBATTERY_STATUS" + c) & (1<<d))
+	                {
+	                    status_string += bms_status_enum[d];
+	                    status_string +=" | ";
+	                    has_status = true;
+	                }
+	            }
+	            if (has_status)
+	            {
+	                $("#GuiData_BMS_Status" + c).html(status_string);
+      				}
+      				else
+      				{
+	                $("#GuiData_BMS_Status" + c).html("None");
+	            }
+	            $("#GuiData_BMS_SN" + c).html(pageObj.dec2hexZp($("#BMSSN" + c).val()));
+	        }
+          else if(htmlAsNumber('#FACTORYSYS_TYPE') == 19)
+          {
+              // Samsung
+              $("#GuiData_BMS_SN" + c).html($("#BMSSERIAL" + c).html());
+  		        $("#GuiData_BMS_Status" + c).html($("#BMSSTATUS" + c).html());
+          }
+	        else
+	        {
+	        	// BMZ
+		        $("#GuiData_BMS_SN" + c).html($("#BMSSN" + c).val());
+		        $("#GuiData_BMS_Status" + c).html($("#BMSSTATUS" + c).html());
+	        }
+        }
+
+    	// Update Slave State
+    	// Check if Master
+        if(($("#WIZARDMASTER_SLAVE_MODE").html() * 1) == 1)
+       	{
+            for (c = 0; c < 6; c++)
+            {
+                has_status = false;
+                var slaveStatusString = "| ";
+                for (d = 0; d <= 6; d++)
+                {
+                    if (($("#CASCSTATE" + c).html() * 1) & (1<<d))
+                    {
+                        slaveStatusString += casc_enum[d];
+                    	slaveStatusString +=" | ";
+                        has_status = true;
+                    }
+                }
+                if (has_status)
+                {
+                    $("#guiSlaveState" + c).html(slaveStatusString);
+                }
+                else
+                {
+                    $("#guiSlaveState" + c).html("None");
+                }
+
+            }
+       	}
+
+
+        var bdc = [htmlAsNumber("#STECABDC_STATE0"), htmlAsNumber("#STECABDC_STATE1"), htmlAsNumber("#STECABDC_STATE2")];
+        var eventString = "";
+        for(var i = 0; i < 3; ++i)
+        {
+            for(var h = 0; h < 32; ++h)
+            {
+                if(bdc[i] & (1<<h))
+                {
+                    eventString += bdcStateBits[i*32+h] + " | ";
+                }
+            }
+        }
+
+        if(htmlAsNumber("#STECARELAYS") == 0 )
+        {
+            $("#dc1State").html("Open");
+            $("#dc2State").html("Open");
+            $("#ac1State").html("Open");
+            $("#ac2State").html("Open");
+            $("#oco1State").html("Not Active");
+            $("#oco2State").html("Not Active");
+            $("#oco3State").html("Not Active");
+        }
+        else
+        {
+        	if(htmlAsNumber("#STECARELAYS") & (1<<0))
+        	{
+            	$("#dc1State").html("Closed");
+        	}
+        	else
+        	{
+            	$("#dc1State").html("Open");
+        	}
+        	if(htmlAsNumber("#STECARELAYS") & (1<<1))
+        	{
+            	$("#dc2State").html("Closed");
+        	}
+        	else
+        	{
+            	$("#dc2State").html("Open");
+        	}
+        	if(htmlAsNumber("#STECARELAYS") & (1<<2))
+        	{
+            	$("#ac1State").html("Closed");
+        	}
+        	else
+        	{
+            	$("#ac1State").html("Open");
+        	}
+        	if(htmlAsNumber("#STECARELAYS") & (1<<3))
+        	{
+            	$("#ac2State").html("Closed");
+        	}
+        	else
+        	{
+            	$("#ac2State").html("Open");
+        	}
+        	if(htmlAsNumber("#STECARELAYS") & (1<<4))
+        	{
+            	$("#oco1State").html("Active");
+        	}
+        	else
+        	{
+            	$("#oco1State").html("Not Active");
+        	}
+        	if(htmlAsNumber("#STECARELAYS") & (1<<5))
+        	{
+            	$("#oco2State").html("Active");
+        	}
+        	else
+        	{
+            	$("#oco2State").html("Not Active");
+        	}
+        	if(htmlAsNumber("#STECARELAYS") & (1<<6))
+        	{
+            	$("#oco3State").html("Active");
+        	}
+        	else
+        	{
+            	$("#oco3State").html("Not Active");
+        	}
+        }
+
+
+        if(htmlAsNumber("#STECABAT") == 1)
+        {
+        	$("#batteryString").html("Enabled");
+        }
+        else
+        {
+        	$("#batteryString").html("Disabled");
+        }
+
+        if(htmlAsNumber("#STECAPV") == 1)
+        {
+        	$("#pvString").html("Enabled");
+        }
+        else
+        {
+        	$("#pvString").html("Disabled");
+        }
+
+        if(htmlAsNumber("#STECAISLAND") == 1)
+        {
+            $("#islandModeString").html("Enabled");
+        }
+        else
+        {
+            $("#islandModeString").html("Disabled");
+        }
+
+        $("#bdcStateString").html(eventString);
+        $("#stateString").html(startupState[htmlAsNumber("#STECASTARTUP")]);
+        $("#additionalStateString").html(htmlAsNumber("#STECASTARTUP_ADD"));
+
+        $("#errorStateString").html($("#STECAERRORTEXT"));
+
+
+    }
+
+    function obj_init() {
+        pageObj = new senecPage(singleUpdateCB);
+
+        pageObj.add_json_object("BAT1OBJ1");
+        pageObj.add_json_object("BAT1OBJ2");
+        pageObj.add_json_object("BAT1OBJ3");
+        pageObj.add_json_object("BAT1");
+        pageObj.add_json_object("WIZARD");
+        pageObj.add_json_object("PWR_UNIT");
+        pageObj.add_json_object("SYS_UPDATE");
+
+        pageObj.add_property_to_object("BAT1OBJ1", "ENABLED", "");
+        pageObj.add_property_to_object("BAT1OBJ2", "ENABLED", "");
+        pageObj.add_property_to_object("BAT1OBJ3", "ENABLED", "");
+        pageObj.add_property_to_object("BAT1", "TYPE", "");
+        pageObj.add_property_to_object("BAT1", "ISLAND_ENABLE", "");
+        pageObj.add_property_to_object("BAT1", "NSP_FW", "");
+        pageObj.add_property_to_object("BAT1", "NSP2_FW", "");
+        pageObj.add_property_to_object("WIZARD", "APPLICATION_VERSION", "");
+        pageObj.add_property_to_object("WIZARD", "FIRMWARE_VERSION", "");
+        pageObj.add_property_to_object("WIZARD", "INTERFACE_VERSION", "");
+        pageObj.add_property_to_object("WIZARD", "SETUP_PM_GRID_ADR", "");
+        pageObj.add_property_to_object("WIZARD", "SETUP_PM_HOUSE_ADR", "");
+        pageObj.add_property_to_object("WIZARD", "MASTER_SLAVE_MODE", "");
+        pageObj.add_property_to_object("PWR_UNIT", "TYPE", "");
+        pageObj.add_property_to_object("SYS_UPDATE", "NPU_VER", "");
+
+        pageObj.singlePageRefresh();
+        pageObj.reInitJSONObject();
+
+        pageObj = new senecPage(infoUpdateCB);
+
+        pageObj.add_json_object("PM1OBJ1");
+        pageObj.add_json_object("PM1OBJ2");
+        pageObj.add_json_object("ENERGY");
+        pageObj.add_json_object("SYS_UPDATE");
+        pageObj.add_json_object("PV1");
+        pageObj.add_json_object("WIZARD");
+        pageObj.add_json_object("BAT1OBJ1");
+        pageObj.add_json_object("BAT1OBJ2");
+        pageObj.add_json_object("BAT1OBJ3");
+        pageObj.add_json_object("PWR_UNIT");
+        pageObj.add_json_object("BAT1");
+        pageObj.add_json_object("BMS");
+
+        pageObj.add_property_to_object("PM1OBJ1", "FREQ", "");
+        pageObj.add_property_to_object("PM1OBJ1", "U_AC", "");
+        pageObj.add_property_to_object("PM1OBJ1", "I_AC", "");
+        pageObj.add_property_to_object("PM1OBJ1", "P_AC", "");
+        pageObj.add_property_to_object("PM1OBJ1", "P_TOTAL", "");
+        pageObj.add_property_to_object("PM1OBJ2", "FREQ", "");
+        pageObj.add_property_to_object("PM1OBJ2", "U_AC", "");
+        pageObj.add_property_to_object("PM1OBJ2", "I_AC", "");
+        pageObj.add_property_to_object("PM1OBJ2", "P_AC", "");
+        pageObj.add_property_to_object("PM1OBJ2", "P_TOTAL", "");
+        pageObj.add_property_to_object("ENERGY", "STAT_STATE", "");
+        pageObj.add_property_to_object("ENERGY", "STAT_STATE_DECODE", "");
+        pageObj.add_property_to_object("ENERGY", "STAT_HOURS_OF_OPERATION", "");
+        pageObj.add_property_to_object("ENERGY", "STAT_DAYS_SINCE_MAINT", "");
+        pageObj.add_property_to_object("ENERGY", "GUI_BAT_DATA_POWER", "");
+        pageObj.add_property_to_object("ENERGY", "GUI_BAT_DATA_VOLTAGE", "");
+        pageObj.add_property_to_object("ENERGY", "GUI_BAT_DATA_CURRENT", "");
+        pageObj.add_property_to_object("ENERGY", "GUI_BAT_DATA_FUEL_CHARGE", "");
+        pageObj.add_property_to_object("ENERGY", "GUI_BAT_DATA_OA_CHARGING", "");
+        pageObj.add_property_to_object("ENERGY", "STAT_SULFAT_CHRG_COUNTER", "");
+        pageObj.add_property_to_object("ENERGY", "GUI_HOUSE_POW", "");
+        pageObj.add_property_to_object("ENERGY", "GUI_INVERTER_POWER", "");
+        pageObj.add_property_to_object("ENERGY", "STAT_LIMITED_NET_SKEW", "");
+        pageObj.add_property_to_object("ENERGY", "STAT_LIMITED_NO_STAND_BY", "");
+        pageObj.add_property_to_object("ENERGY", "GUI_CAP_TEST_DIS_COUNT", "");
+        pageObj.add_property_to_object("ENERGY", "GUI_SCHARGE_REMAIN", "");
+        pageObj.add_property_to_object("ENERGY", "GUI_SCHARGE_ELAPSED", "");
+        pageObj.add_property_to_object("ENERGY", "GUI_CHARGING_INFO", "");
+        pageObj.add_property_to_object("ENERGY", "OFFPEAK_DURATION", "");
+        pageObj.add_property_to_object("ENERGY", "OFFPEAK_RUNNING", "");
+        pageObj.add_property_to_object("ENERGY", "OFFPEAK_CURRENT", "");
+        pageObj.add_property_to_object("ENERGY", "OFFPEAK_TARGET", "");
+        pageObj.add_property_to_object("SYS_UPDATE", "NPU_VER", "");
+        pageObj.add_property_to_object("SYS_UPDATE", "NPU_IMAGE_VERSION", "");
+        pageObj.add_property_to_object("PV1", "POWER_RATIO", "");
+        pageObj.add_property_to_object("WIZARD", "MAC_ADDRESS_BYTES", "");
+        pageObj.add_property_to_object("BMS", "NR_INSTALLED", "");
+        pageObj.add_property_to_object("BAT1OBJ1", "SPECIAL_TIMEOUT", "");
+        pageObj.add_property_to_object("BAT1OBJ1", "INV_CYCLE", "");
+        pageObj.add_property_to_object("BAT1OBJ1", "TEMP1", "");
+        pageObj.add_property_to_object("BAT1OBJ2", "TEMP1", "");
+        pageObj.add_property_to_object("BAT1OBJ3", "TEMP1", "");
+        pageObj.add_property_to_object("BAT1OBJ1", "TEMP2", "");
+        pageObj.add_property_to_object("BAT1OBJ2", "TEMP2", "");
+        pageObj.add_property_to_object("BAT1OBJ3", "TEMP2", "");
+        pageObj.add_property_to_object("BAT1OBJ1", "TEMP3", "");
+        pageObj.add_property_to_object("BAT1OBJ2", "TEMP3", "");
+        pageObj.add_property_to_object("BAT1OBJ3", "TEMP3", "");
+        pageObj.add_property_to_object("BAT1OBJ1", "TEMP4", "");
+        pageObj.add_property_to_object("BAT1OBJ2", "TEMP4", "");
+        pageObj.add_property_to_object("BAT1OBJ3", "TEMP4", "");
+        pageObj.add_property_to_object("BAT1OBJ1", "TEMP5", "");
+        pageObj.add_property_to_object("BAT1OBJ2", "TEMP5", "");
+        pageObj.add_property_to_object("BAT1OBJ3", "TEMP5", "");
+        pageObj.add_property_to_object("BAT1OBJ1", "S", "");
+        pageObj.add_property_to_object("BAT1OBJ2", "S", "");
+        pageObj.add_property_to_object("BAT1OBJ3", "S", "");
+        pageObj.add_property_to_object("BAT1OBJ1", "P", "");
+        pageObj.add_property_to_object("BAT1OBJ2", "P", "");
+        pageObj.add_property_to_object("BAT1OBJ3", "P", "");
+        pageObj.add_property_to_object("BAT1OBJ1", "Q", "");
+        pageObj.add_property_to_object("BAT1OBJ2", "Q", "");
+        pageObj.add_property_to_object("BAT1OBJ3", "Q", "");
+        pageObj.add_property_to_object("BAT1OBJ1", "SW_VERSION", "");
+        pageObj.add_property_to_object("BAT1OBJ1", "SW_VERSION2", "");
+        pageObj.add_property_to_object("BAT1OBJ1", "SW_VERSION3", "");
+        pageObj.add_property_to_object("BAT1OBJ1", "I_DC", "");
+        pageObj.add_property_to_object("BAT1OBJ2", "I_DC", "");
+        pageObj.add_property_to_object("BAT1OBJ3", "I_DC", "");
+        pageObj.add_property_to_object("PWR_UNIT", "POWER_L1", "");
+        pageObj.add_property_to_object("PWR_UNIT", "POWER_L2", "");
+        pageObj.add_property_to_object("PWR_UNIT", "POWER_L3", "");
+        pageObj.add_property_to_object("BAT1", "CEI_LIMIT", "");
+        pageObj.add_property_to_object("BAT1", "SPARE_CAPACITY", "");
+
+        pageObj.singlePageRefresh();
+        pageObj.startPageRefresh(1000);
+
+        debugObj = new senecPage(UpdateDebug);
+
+        debugObj.add_json_object("DEBUG");
+        debugObj.add_json_object("ENERGY");
+        debugObj.add_json_object("BMS");
+        debugObj.add_json_object("STECA");
+        debugObj.add_json_object("CASC");
+        debugObj.add_json_object("PV1");
+        debugObj.add_property_to_object("ENERGY", "GRID_POWER_OFFSET", "");
+        debugObj.add_property_to_object("BMS", "BATTERY_STATUS", "");
+        debugObj.add_property_to_object("BMS", "FW", "");
+        debugObj.add_property_to_object("BMS", "SOC", "");
+        debugObj.add_property_to_object("BMS", "SN", "");
+        debugObj.add_property_to_object("BMS", "SERIAL", "");
+        debugObj.add_property_to_object("BMS", "STATUS", "");
+
+        debugObj.singlePageRefresh();
+
+        // Set current offset value
+        $("#inputEnfluriOffset").val($("#ENERGYGRID_POWER_OFFSET").val());
+        $("#inputEnfluriOffset_num").val($("#ENERGYGRID_POWER_OFFSET").val());
+
+        if (isSuperUser()) {
+            debugObj.startPageRefresh(500);
+        }
+    }
+
+    $(document).bind("page.loaded", function() {
+        $('#hCategoryName').empty();
+        $('#hCategoryName').text(lng["lInformation"]);
+        $('#hCategoryHeader').removeClass('hidden').show();
+        updateLanguage();
+        obj_init();
+    });
+
+    $(document).bind("page.unload", function() {
+        $('#hCategoryHeader').addClass('hidden').hide();
+        pageObj.stopPageRefresh();
+        debugObj.stopPageRefresh();
+    });
+
+    function update_slider() {
+
+    	var offset_val = parseInt($('#inputEnfluriOffset').val());
+    	if (offset_val > 0)// Lade
+        {
+    		debugObj.handleTextAreaUpdate("ENERGY", "GRID_POWER_OFFSET", "fl_" + (pageObj.float2hex(offset_val)));
+    		debugObj.handleButtonClick("ENERGY", "TEST_CHARGE_CHRG_START");
+        }
+    	else if (offset_val < 0)// Entlade
+        {
+    		debugObj.handleTextAreaUpdate("ENERGY", "GRID_POWER_OFFSET", "fl_" + (pageObj.float2hex(offset_val)));
+    		debugObj.handleButtonClick("ENERGY", "TEST_CHARGE_DIS_START");
+        }
+        else if (offset_val == 0) // Reset Offset
+        {
+        	debugObj.handleButtonClick("ENERGY", "TEST_CHARGE_CHRG_STOP");
+        	debugObj.handleButtonClick("ENERGY", "TEST_CHARGE_DIS_STOP");
+        }
+        else
+        {
+            alert(lng.lSetupTestPowerError);
+        }
+    }
+
+    // Save settings permanently
+    function triggerSettingsWrite()
+    {
+        pageObj.handleButtonClick("WIZARD", "CONFIG_WRITE");
+    }
+
+    // Send changed spare capacity to device
+    function update_slideEmergCapa()
+    {
+        pageObj.handleTextAreaUpdate("BAT1", "SPARE_CAPACITY", "u8_" + pageObj.dec2hex($('#inputEmergCapacity').val()));
+    }
+
+    function show_license_info()
+    {
+        $('.license_info').removeClass("hidden").show();
+        $('.license_hide_button').removeClass("hidden").show();
+        $('.license_show_button').addClass("hidden").hide();
+    }
+
+    function hide_license_info()
+    {
+        $('.license_info').addClass("hidden").hide();
+        $('.license_show_button').removeClass("hidden").show();
+        $('.license_hide_button').addClass("hidden").hide();
+    }
+</script>
+
+<div class="pagecontent hidden" style="margin-bottom: 50px;">
+    <div class="row">
+        <div class="span10">
+            <div class="row">
+                <div class="labels_title"><p id="lSystem"></p></div>
+            </div>
+
+            <div class="row">
+                <div class="span2">
+                    <div class="labels"><p id="lType"></p></div>
+                    <div class="labels superuser_only"><p id="lNextState"></p></div>
+                    <div class="labels"><p id="lMCUID"></p></div>
+                    <div class="labels"><p id="lMACADDRESS"></p></div>
+                    <div class="V2_only labels"><p id="lCountryVar"></p></div>
+                    <div class="labels"><p id="lOperatingHours"></p></div>
+                    <div class="pb_only">
+                        <div class="labels"><p id="lLastMaintenance"></p></div>
+                    </div>
+                    <div class="superuser_only">
+                        <div class="labels">
+                            <p>
+                                <button id="idSetButton" class="btn btn-mini" type="button" style="margin-left: 4px;" onclick='open_current_log()'>Log</button>
+                                <button id="idSetButton" class="btn btn-mini" type="button" style="margin-left: 4px;" onclick='openLogViewer()'>LogViewer</button>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="span3" style="background:var(--sub-color);">
+                    <div class="labels_value_state"><p id="GuiSystemType"></p></div>
+                    <div class="labels_value_state superuser_only"><p id="GuiDataDelayedState"></p></div>
+                    <div class="labels_value_state"><p id="GuiDataDeviceID"></p></div>
+                    <div class="labels_value_state"><p id="GuiDataMacAddress"></p></div>
+                    <div class="V2_only labels_value"><p id="GuiDataCountry"></p></div>
+                    <div class="labels_value"><p id="ENERGYSTAT_HOURS_OF_OPERATION"></p></div>
+                    <div class="pb_only">
+                        <div class="labels_value"><p id="ENERGYSTAT_DAYS_SINCE_MAINT"></p></div>
+                    </div>
+                </div>
+
+                <div class="span3">
+                    <div class="labels"><p id="lRevMCU"></p></div>
+                    <div class="labels"><p id="lRevMCUBL"></p></div>
+                    <div class="V2_only labels"><p id="lRevNPU"></p></div>
+                    <div class="V2_only labels ExcludeNPU"><p id="lRevNPUImage"></p></div>
+                    <div class="labels"><p id="lRevGUI"></p></div>
+                    <div class="ExcludeSteca labels"><p id="lRevINV"></p></div>
+					<div class="StecaOnly labels"><p id="lRevHMI"></p></div>
+					<div class="StecaOnly labels"><p id="lRevPU"></p></div>
+                    <div class="StecaOnly labels"><p id="lRevBDC"></p></div>
+                    <div class="ExcludeSteca ExcludeXtender labels"><p id="lRevNSP"></p></div>
+                </div>
+
+                <div class="span2" style="background:var(--sub-color);">
+                    <div class="labels_value"><p id="WIZARDAPPLICATION_VERSION"></p></div>
+                    <div class="labels_value"><p id="WIZARDFIRMWARE_VERSION"></p></div>
+                    <div class="V2_only labels_value"><p id="SYS_UPDATENPU_VER"></p></div>
+                    <div class="V2_only labels_value ExcludeNPU"><p id="SYS_UPDATENPU_IMAGE_VERSION"></p></div>
+                    <div class="labels_value"><p id="WIZARDINTERFACE_VERSION"></p></div>
+                    <div class="labels_value"><p id="GUI_DATA_BAT_SW_VERSION"></p></div>
+                    <div class="StecaOnly labels_value"><p id="GUI_DATA_BAT_SW_VERSION2"></p></div>
+                    <div class="StecaOnly labels_value"><p id="GUI_DATA_BAT_SW_VERSION3"></p></div>
+                    <div class="ExcludeSteca ExcludeXtender labels_value"><span id="GUI_DATA_NSP1_SW_VERSION"></span><span id="GUI_DATA_NSP2_SW_VERSION"></span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="span10 labels_title">
+            <div class="span1 offset3"><p id="Label_Enfluri1"></p></div><div class="span1 offset3"><p id="Label_Enfluri2"></p></div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="span10">
+            <div class="span3">
+                <div class="labels"><p id="lFrequency"></p></div>
+                <div class="labels"><p id="lVoltage"></p></div>
+                <div class="labels"><p id="lCurrent"></p></div>
+                <div class="labels"><p id="lPower"></p></div>
+                <div class="labels"><p id="lTotalPower"></p></div>
+             </div>
+
+            <div class="span7" style="background:var(--sub-color);">
+                <div class="row">
+                    <div class="span1 labels_value offset1"><p id="PM1OBJ1FREQ"></p></div>
+                    <div class="span1 labels_value offset3"><p id="PM1OBJ2FREQ"></p></div>
+                </div>
+
+                <div class="row">
+                    <div style="width: 65px;" class="span1 labels_value"><p id="PM1OBJ1U_AC0"></p></div>
+                    <div style="width: 65px;" class="span1 labels_value"><p id="PM1OBJ1U_AC1"></p></div>
+                    <div style="width: 65px;" class="span1 labels_value"><p id="PM1OBJ1U_AC2"></p></div>
+                    <div class="span1 offset1 labels_value"><p id="PM1OBJ2U_AC0"></p></div>
+                    <div style="width: 65px;" class="span1 labels_value"><p id="PM1OBJ2U_AC1"></p></div>
+                    <div style="width: 60px;" class="span1 labels_value"><p id="PM1OBJ2U_AC2"></p></div>
+                </div>
+
+                <div class="row">
+                    <div style="width: 65px;" class="span1 labels_value"><p id="PM1OBJ1I_AC0"></p></div>
+                    <div style="width: 65px;" class="span1 labels_value"><p id="PM1OBJ1I_AC1"></p></div>
+                    <div style="width: 65px;" class="span1 labels_value"><p id="PM1OBJ1I_AC2"></p></div>
+                    <div class="span1 offset1 labels_value"><p id="PM1OBJ2I_AC0"></p></div>
+                    <div style="width: 65px;" class="span1 labels_value"><p id="PM1OBJ2I_AC1"></p></div>
+                    <div style="width: 60px;" class="span1 labels_value"><p id="PM1OBJ2I_AC2"></p></div>
+                </div>
+
+                <div class="row">
+                    <div style="width: 65px;" class="span1 labels_value"><p id="PM1OBJ1P_AC0"></p></div>
+                    <div style="width: 65px;" class="span1 labels_value"><p id="PM1OBJ1P_AC1"></p></div>
+                    <div style="width: 65px;" class="span1 labels_value"><p id="PM1OBJ1P_AC2"></p></div>
+                    <div class="span1 offset1 labels_value"><p id="PM1OBJ2P_AC0"></p></div>
+                    <div style="width: 65px;" class="span1 labels_value"><p id="PM1OBJ2P_AC1"></p></div>
+                    <div style="width: 60px;" class="span1 labels_value"><p id="PM1OBJ2P_AC2"></p></div>
+                </div>
+
+                <div class="row">
+                    <div class="span1 offset1 labels_value"><p id="PM1OBJ1P_TOTAL"></p></div>
+                    <div class="span1 offset3 labels_value"><p id="PM1OBJ2P_TOTAL"></p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="superuser_only">
+	    <div class="italy_only row">
+	        <div class="span10">
+	            <div class="row">
+	                <div class="labels_title"><p id="lCEIStatus"></p></div>
+	            </div>
+
+	            <div class="row">
+	                <div class="span1">
+	                    <div class="labels"><p>1:</p></div>
+	                    <div class="labels"><p>2:</p></div>
+	                    <div class="labels"><p>3:</p></div>
+	                </div>
+
+	                <div class="span9" style="background:var(--sub-color);">
+	                    <div class="labels_value_state"><p id="GuiCEIStatus0"></p></div>
+	                    <div class="labels_value_state"><p id="GuiCEIStatus1"></p></div>
+	                    <div class="labels_value_state"><p id="GuiCEIStatus2"></p></div>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+    </div>
+
+	<div class="row">
+	    <div class="span5 labels_title"><p id="lAccu"></p></div>
+	    <div class="span5 labels_title"><p id="lPowerValues"></p></div>
+	</div>
+
+	<div class="row">
+	    <div class="span10">
+	        <div class="span3">
+	            <div class="labels"><p id="lBatteryPower"></p></div>
+	            <div class="labels"><p id="lBatteryVoltage"></p></div>
+	            <div class="labels"><p id="lBatteryCurrent"></p></div>
+	            <div class="senecbatt_curr_each">
+	                <div class="labels"><p id="lBatteryCurrentEach"></p></div>
+	            </div>
+	            <div class="superuser_only">
+	                <div class="labels"><p id="lFuelGauge"></p></div>
+                    <div class="labels australia_only"><p id="lAcApparentPower"></p></div>
+                    <div class="labels australia_only"><p id="lAcActivePower"></p></div>
+                    <div class="labels australia_only"><p id="lAcReactivePower"></p></div>
+	            </div>
+	                <div class="labels"><p id="lTotalCharge"></p></div>
+	            <div class="pb_only">
+	                <div class="labels"><p id="lNoDesulfatCharge"></p></div>
+	            </div>
+	            <div class="labels"><p id="lBattInverterType"></p></div>
+	            <div class="senecbatt1_en">
+	                <div class="labels"><p id="lInv1Temp"></p></div>
+	            </div>
+	            <div class="senecbatt2_en">
+	                <div class="labels"><p id="lInv2Temp"></p></div>
+	            </div>
+	            <div class="senecbatt3_en">
+	                <div class="labels"><p id="lInv3Temp"></p></div>
+	            </div>
+	            <div class="li_only">
+	                <div class="labels"><p id="lNoLiModule"></p></div>
+	            </div>
+	            <div class="pb_only">
+	                <div class="charge_only">
+	                    <div class="labels"><p id="lInverterPhase"></p></div>
+	                </div>
+	            </div>
+                <div class="specialcharge_hide">
+                    <div class="senecbatt1_en">
+                        <div class="pb_only">
+                            <div class="labels"><p id="lTimeRemainEqual"></p></div>
+                        </div>
+                    </div>
+                    <div class="pb_only">
+                        <div class="labels"><p id="lTimeRemainCharge"></p></div>
+                    </div>
+                    <div class="labels"><p id="lDurationCharge"></p></div>
+                </div>
+                <div class="offpeak_hide">
+                    <div class="labels"><p id="lOffPeak_Duration"></p></div>
+                </div>
+            </div>
+
+        <div class="span2" style="background:var(--sub-color);">
+            <div class="labels_value"><p id="ENERGYGUI_BAT_DATA_POWER"></p></div>
+            <div class="labels_value"><p id="ENERGYGUI_BAT_DATA_VOLTAGE"></p></div>
+            <div class="labels_value"><p id="GUI_BAT_DATA_CURRENT"></p></div>
+            <div class="senecbatt_curr_each">
+                <div class="labels_value"><p id="GUI_DATA_3BATINV_CURRENT"></p></div>
+            </div>
+            <div class="superuser_only">
+                <div class="labels_value"><p id="ENERGYGUI_BAT_DATA_FUEL_CHARGE"></p></div>
+                <div class="labels_value australia_only"><p id="BAT1OBJ1S"></p></div>
+                <div class="labels_value australia_only"><p id="BAT1OBJ1P"></p></div>
+                <div class="labels_value australia_only"><p id="BAT1OBJ1Q"></p></div>
+            </div>
+            <div class="labels_value"><p id="ENERGYGUI_BAT_DATA_OA_CHARGING"></p></div>
+            <div class="pb_only">
+                <div class="labels_value"><p id="ENERGYSTAT_SULFAT_CHRG_COUNTER"></p></div>
+            </div>
+            <div class="labels_value"><p id="GuiBattType"></p></div>
+            <div class="senecbatt1_en">
+                <div class="labels_value"><p id="GUI_DATA_BATINV1_TEMP"></p></div>
+            </div>
+            <div class="senecbatt2_en">
+                <div class="labels_value"><p id="GUI_DATA_BATINV2_TEMP"></p></div>
+            </div>
+            <div class="senecbatt3_en">
+                <div class="labels_value"><p id="GUI_DATA_BATINV3_TEMP"></p></div>
+            </div>
+            <div class="li_only">
+                <div class="labels_value"><p id="BMSNR_INSTALLED"></p></div>
+            </div>
+            <div class="pb_only">
+                <div class="charge_only">
+                    <div class="labels_value"><p id="GuiData_batteryphase"></p></div>
+                </div>
+            </div>
+            <div class="specialcharge_hide">
+                <div class="senecbatt1_en">
+                    <div class="pb_only">
+                        <div class="labels_value"><p id="BAT1OBJ1SPECIAL_TIMEOUT"></p></div>
+                    </div>
+                </div>
+                <div class="pb_only">
+                        <div class="labels_value"><p id="ENERGYGUI_SCHARGE_REMAIN"></p></div>
+                </div>
+                    <div class="labels_value"><p id="ENERGYGUI_SCHARGE_ELAPSED"></p></div>
+            </div>
+            <div class="offpeak_hide">
+                <div class="labels_value"><p id="ENERGYOFFPEAK_DURATION"></p></div>
+            </div>
+        </div>
+
+            <div style="width: 275px;" class="span4 labels">
+                <div class="labels"><p style="margin-left: -5px;" id="lHomeconsumption"></p></div>
+                <div class="labels"><p style="margin-left: -5px;" id="lPVGeneration"></p></div>
+                <div class="labels"><p style="margin-left: -5px;" id="lPVLimit"></p></div>
+                <div id="mppLabel"></div>
+                <div class="labels pu_enabled hidden"><p style="margin-left: -5px;" id="lPUConTotal"></p></div>
+                <div class="labels"><p style="margin-left: -5px;" id="lUnbalancedLoadLimit"></p></div>
+                <div class="pb_only labels"><p style="margin-left: -5px;" id="lVoltageLimit"></p></div>
+                <div class="autorisiert">
+                    <div class="labels"><p style="margin-left: -5px;" id="lCapacityTestValue"></p></div>
+                </div>
+                <div class="germany_only labels"><p style="margin-left: -5px;">SPANNUNGSSTEIGERUNGSSCHUTZ (%): </p></div>
+            </div>
+
+            <div class="span1" style="background:var(--sub-color);">
+                <div class="labels_value"><p id="ENERGYGUI_HOUSE_POW"></p></div>
+                <div class="labels_value"><p id="ENERGYGUI_INVERTER_POWER"></p></div>
+                <div class="labels_value"><p id="PV1POWER_RATIO"></p></div>
+                <div id="mppValue"></div>
+                <div class="labels_value pu_enabled hidden"><p id="GuiData_PU_Consumption"></p></div>
+                <div class="labels_value"><p id="GuiData_netskew_state"></p></div>
+                <div class="pb_only labels_value"><p id="GuiData_no_stdby_state"></p></div>
+                <div class="autorisiert">
+                    <div class="labels_value"><p id="ENERGYGUI_CAP_TEST_DIS_COUNT"></p></div>
+                </div>
+                <div class="germany_only labels_value"><p>110</p></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FEATURE Info -->
+    <div class="row autorisiert">
+        <div class="span5 labels_title"><p id="lFeaturePackage"></p></div>
+        <div class="span5 labels_title island_mode hidden"><p id="lIslandMode"></p></div>
+    </div>
+
+    <div class="row autorisiert">
+        <div class="span10">
+            <div class="span3">
+                <div class="labels"><p id="lFeatureIsland"></p></div>
+                <div class="labels"><p id="lFeatureIslandPro"></p></div>
+                <div class="labels germany_only"><p id="lFeatureSockets"></p></div>
+                <div class="labels"><p id="lFeatureHeatBox"></p></div>
+                <div class="labels"><p id="lFeaturePeakShaving"></p></div>
+                <div class="labels germany_only"><p id="lFeatureEcoGrid"></p></div>
+                <div class="labels germany_only"><p id="lFeatureCloud"></p></div>
+                <div class="labels"><p id="lFeatureCar"></p></div>
+                <div class="labels germany_only"><p id="lFeatureSHKW"></p></div>
+                <div class="labels"><p id="lFeatureSGready"></p></div>
+            </div>
+
+            <div class="span2" style="background:var(--sub-color);">
+                <div class="labels_value"><p id="GuiData_Feature_Island"></p></div>
+                <div class="labels_value"><p id="GuiData_Feature_Island_Pro"></p></div>
+                <div class="labels_value germany_only"><p id="GuiData_Feature_Sockets"></p></div>
+                <div class="labels_value"><p id="GuiData_Feature_HeatBox"></p></div>
+                <div class="labels_value"><p id="GuiData_Feature_PeakShaving"></p></div>
+                <div class="labels_value germany_only"><p id="GuiData_Feature_EcoGrid"></p></div>
+                <div class="labels_value germany_only"><p id="GuiData_Feature_Cloud"></p></div>
+                <div class="labels_value"><p id="GuiData_Feature_Car"></p></div>
+                <div class="labels_value germany_only"><p id="GuiData_Feature_SHKW"></p></div>
+                <div class="labels_value"><p id="GuiData_Feature_SGready"></p></div>
+            </div>
+
+            <div class="span3 island_mode hidden">
+                <div class="labels"><p id="lIslandModePackage"></p></div>
+                <div class="labels"><p id="lIslandModeStatus"></p></div>
+                <div class="labels"><p id="lIslandModeBattery"></p></div>
+            </div>
+
+            <div class="span2 island_mode hidden" style="background:var(--sub-color);">
+                <div class="labels_value"><p id="GuiData_IslandModePackage"></p></div>
+                <div class="labels_value"><p id="GuiData_IslandModeStatus"></p></div>
+                <div class="labels_value"><p id="GuiData_IslandModeBattery"></p></div>
+            </div>
+
+            <div class="row emerg_capacity hidden">
+                <input type="range" id="inputEmergCapacity" value="0" min="0" max="100" step="10"
+                 oninput="inputEmergCapacity_num.value = this.value; update_slideEmergCapa();">
+                <span id="lEmergModeCapacity">Capacity</span>
+                    <output id="inputEmergCapacity_num">0</output>
+                <span>&percnt;</span>
+                <button class="btn btn-mini" title="Speichern" onclick="triggerSettingsWrite()" id="settingsWrite"><span id="Save">Speichern</span></button>
+            </div>
+        </div>
+    </div>
+
+<!-- Super User DEBUG INFO -->
+    <div class="row superuser_only">
+        <div class="span5 labels_title"><p>ENERGY-MGT</p></div>
+        <div class="span5 labels_title"><p>ECOGRID</p></div>
+    </div>
+
+    <div class="row superuser_only">
+        <div class="span10">
+            <div class="span3">
+                <div class="labels"><p>PID-BATT-CHARGE-TARGET (I DC)</p></div>
+                <div class="labels"><p>PID-PU-TARGET (W)</p></div>
+                <div class="labels"><p>PID-BATT-DISCHARGE-TARGET (I AC)</p></div>
+                <div class="labels"><p>OFFPEAK-MIN-CURRENT (I DC):</p></div>
+                <div class="labels"><p>OFFPEAK-TARGET SOC (%):</p></div>
+            </div>
+
+	        <div class="span2" style="background:var(--sub-color);">
+	            <div class="labels_value"><p id="DEBUGCHARGE_TARGET"></p></div>
+	            <div class="labels_value"><p id="DEBUGPU_AVAIL"></p></div>
+	            <div class="labels_value"><p id="DEBUGFEED_TARGET"></p></div>
+                <div class="labels_value"><p id="ENERGYOFFPEAK_CURRENT"></p></div>
+                <div class="labels_value"><p id="ENERGYOFFPEAK_TARGET"></p></div>
+	        </div>
+
+	        <div style="width: 275px;" class="span4 labels">
+	            <div class="labels"><p style="margin-left: -5px;">POT-Leistung Ladung (W)</p></div>
+	            <div class="labels"><p style="margin-left: -5px;">POT-Leistung Entladung (W)</p></div>
+	            <div class="labels"><p style="margin-left: -5px;">POT-Kapazität Ladung (Wh)</p></div>
+                <div class="labels"><p style="margin-left: -5px;">POT-Kapazität Entladung (Wh)</p></div>
+	        </div>
+
+	        <div class="span1" style="background:var(--sub-color);">
+	            <div class="labels_value"><p id="DEBUGEG_POT_CHARGE_POW"></p></div>
+	            <div class="labels_value"><p id="DEBUGEG_POT_BOOST_POW"></p></div>
+	            <div class="labels_value"><p id="DEBUGEG_POT_CHARGE_CAP"></p></div>
+	            <div class="labels_value"><p id="DEBUGEG_POT_BOOST_CAP"></p></div>
+	        </div>
+
+        </div>
+
+        <div class="row">
+            <input type="range" id="inputEnfluriOffset" value="0" min="-10000"
+                max="10000" step="500"
+                oninput="inputEnfluriOffset_num.value=this.value; update_slider();">
+            <span>Enfluri Offset</span>
+                <output id="inputEnfluriOffset_num">0</output>
+            <span>W</span>
+        </div>
+    </div>
+
+    <div class="row superuser_only">
+        <div class="casc_only row">
+            <div class="span1 labels_title"><p>SLAVE</p></div>
+            <div class="span2 labels_title"><p>REQUEST</p></div>
+            <div class="span1 labels_title"><p>BATT</p></div>
+			<div class="span1 labels_title"><p>SOC</p></div>
+			<div class="span5 labels_title"><p>STATE</p></div>
+        </div>
+    </div>
+
+    <div class="row superuser_only">
+        <div class="casc_only">
+            <div class="span10">
+                <div class="span1">
+                    <div class="labels"><p>Slave 1</p></div>
+                    <div class="labels"><p>Slave 2</p></div>
+                    <div class="labels"><p>Slave 3</p></div>
+                    <div class="labels"><p>Slave 4</p></div>
+                    <div class="labels"><p>Slave 5</p></div>
+                    <div class="labels"><p>Slave 6</p></div>
+                </div>
+
+                <div class="span2" style="background:var(--sub-color);">
+                    <div class="labels_value"><p id="CASCTARGET0"></p></div>
+                    <div class="labels_value"><p id="CASCTARGET1"></p></div>
+                    <div class="labels_value"><p id="CASCTARGET2"></p></div>
+                    <div class="labels_value"><p id="CASCTARGET3"></p></div>
+                    <div class="labels_value"><p id="CASCTARGET4"></p></div>
+                    <div class="labels_value"><p id="CASCTARGET5"></p></div>
+                </div>
+                <div class="span1" style="background:var(--sub-color);">
+                    <div class="labels_value"><p id="CASCPOWER0"></p></div>
+                    <div class="labels_value"><p id="CASCPOWER1"></p></div>
+                    <div class="labels_value"><p id="CASCPOWER2"></p></div>
+                    <div class="labels_value"><p id="CASCPOWER3"></p></div>
+                    <div class="labels_value"><p id="CASCPOWER4"></p></div>
+                    <div class="labels_value"><p id="CASCPOWER5"></p></div>
+                </div>
+                <div class="span1" style="background:var(--sub-color);">
+                    <div class="labels_value"><p id="CASCSOC0"></p></div>
+                    <div class="labels_value"><p id="CASCSOC1"></p></div>
+                    <div class="labels_value"><p id="CASCSOC2"></p></div>
+                    <div class="labels_value"><p id="CASCSOC3"></p></div>
+                    <div class="labels_value"><p id="CASCSOC4"></p></div>
+                    <div class="labels_value"><p id="CASCSOC5"></p></div>
+                </div>
+                <div class="span5" style="background:var(--sub-color);">
+                    <div class="labels_value"><p id="guiSlaveState0"></p></div>
+                    <div class="labels_value"><p id="guiSlaveState1"></p></div>
+                    <div class="labels_value"><p id="guiSlaveState2"></p></div>
+                    <div class="labels_value"><p id="guiSlaveState3"></p></div>
+                    <div class="labels_value"><p id="guiSlaveState4"></p></div>
+                    <div class="labels_value"><p id="guiSlaveState5"></p></div>
+                </div>
+            </div>
+		</div>
+    </div>
+
+<!-- Super User BMS INFO -->
+    <div class="superuser_only">
+        <div class="li_only row">
+	        <div style="width: 75px;" class="span1 labels_title"><p>BMS</p></div>
+	        <div style="width: 200px;" class="span1 labels_title"><p>SN</p></div>
+	        <div class="span1 labels_title"><p>VERSION</p></div>
+	        <div class="span1 labels_title"><p>SOC</p></div>
+	        <div style="width: 280px;" class="span6 labels_title"><p>STATUS</p></div>
+        </div>
+    </div>
+
+    <div class="row superuser_only">
+        <div class="li_only">
+	        <div class="span10">
+	            <div class="span1">
+	                <div class="labels module_0"><p>Modul 1</p></div>
+	                <div class="labels module_1"><p>Modul 2</p></div>
+	                <div class="labels module_2"><p>Modul 3</p></div>
+	                <div class="labels module_3"><p>Modul 4</p></div>
+	            </div>
+
+                <div style="width: 200px" class="span1" style="background:var(--sub-color);">
+                    <div class="labels_value module_0"><p id="GuiData_BMS_SN0"></p></div>
+                    <div class="labels_value module_1"><p id="GuiData_BMS_SN1"></p></div>
+                    <div class="labels_value module_2"><p id="GuiData_BMS_SN2"></p></div>
+                    <div class="labels_value module_3"><p id="GuiData_BMS_SN3"></p></div>
+                </div>
+	            <div class="span1" style="background:var(--sub-color);">
+                        <div class="labels_value module_0"><p id="BMSFW0"></p></div>
+                        <div class="labels_value module_1"><p id="BMSFW1"></p></div>
+                        <div class="labels_value module_2"><p id="BMSFW2"></p></div>
+                        <div class="labels_value module_3"><p id="BMSFW3"></p></div>
+	            </div>
+	            <div class="span1" style="background:var(--sub-color);">
+                    <div class="labels_value module_0"><p id="BMSSOC0"></p></div>
+                    <div class="labels_value module_1"><p id="BMSSOC1"></p></div>
+                    <div class="labels_value module_2"><p id="BMSSOC2"></p></div>
+                    <div class="labels_value module_3"><p id="BMSSOC3"></p></div>
+                </div>
+
+	            <div style="width: 290px" class="span6" style="background:var(--sub-color);">
+	                <div class="labels_value module_0"><p id="GuiData_BMS_Status0"></p></div>
+	                <div class="labels_value module_1"><p id="GuiData_BMS_Status1"></p></div>
+	                <div class="labels_value module_2"><p id="GuiData_BMS_Status2"></p></div>
+	                <div class="labels_value module_3"><p id="GuiData_BMS_Status3"></p></div>
+	            </div>
+	        </div>
+        </div>
+    </div>
+
+
+	<div class="superuser_only">
+        <div class="StecaDebug">
+		<div class=" row">
+			<div class="span5 labels_title"><p>State</p></div>
+			<div class="span5 labels_title"><p>Additional Info</p></div>
+		</div>
+		<div class="span5" style="background:var(--sub-color);">
+			<div class="labels_value"><p style="background:var(--sub-color);color:white;" id="stateString"></p></div>
+		</div>
+		<div class="span5" style="background:var(--sub-color);">
+			<div class="labels_value"><p style="background:var(--sub-color);color:white;" id="additionalStateString"></p></div>
+		</div>
+	    </div>
+	</div>
+
+    <div class="superuser_only">
+        <div class="StecaDebug">
+        <div class=" row">
+            <div class="span5 labels_title"><p>Error State</p></div>
+        </div>
+        <div class="span5" style="background:var(--sub-color);">
+            <div class="labels_value"><p style="background:var(--sub-color);color:white;" id="errorStateString"></p></div>
+        </div>
+        </div>
+    </div>
+
+	<div class="superuser_only span10">
+        <div class="StecaDebug">
+		<div class="row">
+			<div class="span1 labels_title"><p>Relays</p></div>
+			<div class="span4 labels_title"><p>State</p></div>
+			<div class="span1 labels_title"><p>OCO</p></div>
+			<div class="span4 labels_title"><p>State</p></div>
+		</div>
+		<div class="span10">
+			<div class="span1">
+	            <div class="labels ac1"><p>AC 1</p></div>
+	            <div class="labels ac2"><p>AC 2</p></div>
+	            <div class="labels dc1"><p>DC 1</p></div>
+	            <div class="labels dc2"><p>DC 2</p></div>
+            </div>
+            <div class="span4" style="background:var(--sub-color);">
+                <div class="labels_value ac1"><p id="ac1State">***</p></div>
+                <div class="labels_value ac2"><p id="ac2State">***</p></div>
+                <div class="labels_value dc1"><p id="dc1State">***</p></div>
+                <div class="labels_value dc2"><p id="dc2State">***</p></div>
+            </div>
+            <div class="span1" >
+	            <div class="labels oco1"><p>OCO 1</p></div>
+	            <div class="labels oco2"><p>OCO 2</p></div>
+	            <div class="labels oco3"><p>OCO 3</p></div>
+            </div>
+             <div class="span4" style="background:var(--sub-color);">
+                <div class="labels_value oco1"><p id="oco1State">***</p></div>
+                <div class="labels_value oco2"><p id="oco2State">***</p></div>
+                <div class="labels_value oco3"><p id="oco3State">***</p></div>
+            </div>
+		</div>
+        </div>
+	</div>
+
+	<div class="superuser_only">
+        <div class="StecaDebug">
+		<div class=" row">
+			<div class="span4 labels_title"><p>Battery</p></div>
+			<div class="span3 labels_title"><p>PV</p></div>
+			<div class="span3 labels_title"><p>Islandmode</p></div>
+		</div>
+		<div class="span4" style="background:var(--sub-color);">
+			<div style="padding-left: 0;" class="labels_value"><p style="background:var(--sub-color);color:white;" id="batteryString">***</p></div>
+		</div>
+		<div class="span3" style="background:var(--sub-color);">
+			<div style="padding-left: 0;" class="labels_value"><p style="background:var(--sub-color);color:white;" id="pvString">***</p></div>
+		</div>
+		<div class="span3" style="background:var(--sub-color);">
+			<div style="padding-left: 0;" class="labels_value"><p style="background:var(--sub-color);color:white;" id="islandModeString">***</p></div>
+		</div>
+        </div>
+	</div>
+
+
+    <div class="superuser_only">
+        <div class="StecaDebug">
+		<div class="row">
+			<div class="span10 labels_title"><p>BDC Event Flags</p></div>
+		</div>
+		<div style="background:var(--sub-color);">
+			<div style="padding-left: 0;" class="labels_value"><pre style="background:var(--sub-color);color:white;" id="bdcStateString"></pre></div>
+		</div>
+		</div>
+		</div>
+    </div>
+
+    <!-- third party license info -->
+    <div class="row">
+        <div class="span3 labels_title"><p id="lLicense"></p></div>
+        <div class="span7 labels_title license_show_button" align="right">
+            <p><small>
+                    <a id="idShowButton" style="color: white; margin-right: 4px; cursor: pointer;" onclick='show_license_info()'>
+                    </a>
+                </small>
+            </p>
+        </div>
+        <div class="span7 labels_title hidden license_hide_button" align="right">
+            <p><small>
+                    <a id="idHideButton" style="color: white; margin-right: 4px; cursor: pointer;" onclick='hide_license_info()'>
+                    </a>
+                </small>
+            </p>
+        </div>
+    </div>
+
+    <div class="hidden license_info">
+        <p>
+            Bootstrap.js<br>
+            Copyright 2012 Twitter, Inc.<br>
+            <a href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache License 2.0</a>
+        </p>
+        <p>
+            jQuery v3.2.1<br>
+            Copyright (c) JS Foundation and other contributors<br>
+            <a href="http://www.jquery.org/license">MIT License</a><br>
+        </p>
+        <p>
+            Chart.js v2.8.0<br>
+            Copyright (c) Chart.js Contributors<br>
+            <a href="https://github.com/chartjs/Chart.js/blob/master/LICENSE.md">MIT License</a><br>
+        </p>
+        <p>
+            jsPDF v2.1.1<br>
+            Copyright (c) jsPDF Contributors<br>
+            <a href="https://github.com/MrRio/jsPDF/blob/master/MIT-LICENSE.txt">MIT License</a><br>
+        </p>
+        <p>
+            html2canvas 1.0.0-rc.5 <br>
+            Copyright (c) 2019 Niklas von Hertzen<br>
+            <a href="http://html2canvas.hertzen.com/">MIT License</a><br>
+        </p>
+
+    </div>
+
+
+<div class="pageinfo row">
+    <div class="span6 offset2 text-center"><strong id="lLoadPage" style="margin-top: 50px;"></strong></div>
+</div>
+
+<div class="hidden">
+    <p id="ENERGYSTAT_STATE_DECODE"></p>
+    <p id="ENERGYSTAT_LIMITED_NET_SKEW"></p>
+    <p id="ENERGYSTAT_LIMITED_NO_STAND_BY"></p>
+    <p id="ENERGYGUI_BAT_DATA_CURRENT"></p>
+    <p id="ENERGYGUI_CHARGING_INFO"></p>
+    <p id="ENERGYOFFPEAK_RUNNING"></p>
+    <p id="ENERGYOFFPEAK_TARGET"></p>
+
+    <p id="WIZARDMAC_ADDRESS_BYTES0"></p>
+    <p id="WIZARDMAC_ADDRESS_BYTES1"></p>
+    <p id="WIZARDMAC_ADDRESS_BYTES2"></p>
+    <p id="WIZARDMAC_ADDRESS_BYTES3"></p>
+    <p id="WIZARDMAC_ADDRESS_BYTES4"></p>
+    <p id="WIZARDMAC_ADDRESS_BYTES5"></p>
+    <p id="WIZARDSETUP_PM_HOUSE_ADR"></p>
+    <p id="WIZARDSETUP_PM_GRID_ADR"></p>
+
+    <p id="BAT1OBJ1TEMP1"></p>
+    <p id="BAT1OBJ1TEMP2"></p>
+    <p id="BAT1OBJ1TEMP3"></p>
+    <p id="BAT1OBJ1TEMP4"></p>
+    <p id="BAT1OBJ1TEMP5"></p>
+    <p id="BAT1OBJ2TEMP1"></p>
+    <p id="BAT1OBJ2TEMP2"></p>
+    <p id="BAT1OBJ2TEMP3"></p>
+    <p id="BAT1OBJ2TEMP4"></p>
+    <p id="BAT1OBJ2TEMP5"></p>
+    <p id="BAT1OBJ3TEMP1"></p>
+    <p id="BAT1OBJ3TEMP2"></p>
+    <p id="BAT1OBJ3TEMP3"></p>
+    <p id="BAT1OBJ3TEMP4"></p>
+    <p id="BAT1OBJ3TEMP5"></p>
+    <p id="BAT1OBJ1S"></p>
+    <p id="BAT1OBJ2S"></p>
+    <p id="BAT1OBJ3S"></p>
+    <p id="BAT1OBJ1P"></p>
+    <p id="BAT1OBJ2P"></p>
+    <p id="BAT1OBJ3P"></p>
+    <p id="BAT1OBJ1Q"></p>
+    <p id="BAT1OBJ2Q"></p>
+    <p id="BAT1OBJ3Q"></p>
+    <p id="BAT1OBJ1I_DC"></p>
+    <p id="BAT1OBJ2I_DC"></p>
+    <p id="BAT1OBJ3I_DC"></p>
+    <p id="BAT1OBJ1ENABLED"></p>
+    <p id="BAT1OBJ2ENABLED"></p>
+    <p id="BAT1OBJ3ENABLED"></p>
+
+    <p id="BAT1OBJ1INV_CYCLE"></p>
+    <p id="BAT1OBJ1SW_VERSION"></p>
+    <p id="BAT1OBJ1SW_VERSION2"></p>
+    <p id="BAT1OBJ1SW_VERSION3"></p>
+
+    <p id="BAT1TYPE"></p>
+    <p id="BAT1NSP_FW"></p>
+    <p id="BAT1NSP1_FW"></p>
+    <p id="BAT1NSP2_FW"></p>
+    <p id="BAT1ISLAND_ENABLE"></p>
+    <p id="BAT1SPARE_CAPACITY"></p>
+
+    <p id="PWR_UNITTYPE0"></p>
+    <p id="PWR_UNITTYPE1"></p>
+    <p id="PWR_UNITTYPE2"></p>
+    <p id="PWR_UNITTYPE3"></p>
+    <p id="PWR_UNITTYPE4"></p>
+    <p id="PWR_UNITTYPE5"></p>
+
+    <p id="PWR_UNITPOWER_L10"></p>
+    <p id="PWR_UNITPOWER_L20"></p>
+    <p id="PWR_UNITPOWER_L30"></p>
+    <p id="PWR_UNITPOWER_L11"></p>
+    <p id="PWR_UNITPOWER_L21"></p>
+    <p id="PWR_UNITPOWER_L31"></p>
+    <p id="PWR_UNITPOWER_L12"></p>
+    <p id="PWR_UNITPOWER_L22"></p>
+    <p id="PWR_UNITPOWER_L32"></p>
+    <p id="PWR_UNITPOWER_L13"></p>
+    <p id="PWR_UNITPOWER_L23"></p>
+    <p id="PWR_UNITPOWER_L33"></p>
+    <p id="PWR_UNITPOWER_L14"></p>
+    <p id="PWR_UNITPOWER_L24"></p>
+    <p id="PWR_UNITPOWER_L34"></p>
+    <p id="PWR_UNITPOWER_L15"></p>
+    <p id="PWR_UNITPOWER_L25"></p>
+    <p id="PWR_UNITPOWER_L35"></p>
+    <p id="ENERGYGRID_POWER_OFFSET"></p>
+
+    <p id="BAT1CEI_LIMIT0"></p>
+    <p id="BAT1CEI_LIMIT1"></p>
+    <p id="BAT1CEI_LIMIT2"></p>
+
+    <p id="BMSBATTERY_STATUS0"></p>
+    <p id="BMSBATTERY_STATUS1"></p>
+    <p id="BMSBATTERY_STATUS2"></p>
+    <p id="BMSBATTERY_STATUS3"></p>
+
+    <p id="BMSSTATUS0"></p>
+    <p id="BMSSTATUS1"></p>
+    <p id="BMSSTATUS2"></p>
+    <p id="BMSSTATUS3"></p>
+
+    <p id="BMSSN0"></p>
+    <p id="BMSSN1"></p>
+    <p id="BMSSN2"></p>
+    <p id="BMSSN3"></p>
+
+    <p id="BMSSERIAL0"></p>
+    <p id="BMSSERIAL1"></p>
+    <p id="BMSSERIAL2"></p>
+    <p id="BMSSERIAL3"></p>
+
+    <p id="WIZARDMASTER_SLAVE_MODE"></p>
+
+    <p id="CASCSTATE0"></p>
+    <p id="CASCSTATE1"></p>
+    <p id="CASCSTATE2"></p>
+    <p id="CASCSTATE3"></p>
+    <p id="CASCSTATE4"></p>
+    <p id="CASCSTATE5"></p>
+
+    <p id="STECABDC_STATE0"></p>
+    <p id="STECABDC_STATE1"></p>
+    <p id="STECABDC_STATE2"></p>
+
+    <p id="STECASTARTUP"></p>
+    <p id="STECASTARTUP_ADD"></p>
+    <p id="STECARELAYS"></p>
+    <p id="STECABAT"></p>
+    <p id="STECAPV"></p>
+    <p id="STECAISLAND"></p>
+    <p id="STECAERRORTEXT"></p>
+</div>

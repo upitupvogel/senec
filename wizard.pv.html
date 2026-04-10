@@ -1,0 +1,64 @@
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" id="btnWizardPV_close" onclick="confwizardClose();">×</button>
+    <h3 id="lPvWizardHeader"></h3>
+</div>
+
+<div class="modal-body">
+    <div id="lblWizardPvCheckResult"  class="wizard-check-result"> </div>
+    <table>
+        <tr>
+            <td>
+                <label for="WIZARDINSULATION_RESISTANCE" id="lInsulationResistance"></label>
+            </td>
+            <td>
+                <input class="has-tooltip" title="Isolationswiderstand" type="text" id="WIZARDINSULATION_RESISTANCE" value="***">
+            </td>
+        </tr>     
+        <tr>
+            <td>
+                <label for="selectPv0mode" id="lPv0Label"></label>
+            </td>
+            <td>
+	            <select id="selectPv0mode" class="select" onchange="fillPvSelect(1)">
+	                <!-- Filled by JS -->
+	            </select>
+            </td>
+        </tr>
+        <tr>      
+            <td>
+                <label for="selectPv1mode" id="lPv1Label"></label>
+            </td>
+            <td>
+                <select id="selectPv1mode" class="select">
+                    <!-- Filled by JS -->
+                </select>
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-wizard" onclick="confwizardPvNextPage()" id="Save"></button>
+</div>
+
+
+<div class="hidden">
+    <p id="WIZARDPV_CONFIG0"></p>
+    <p id="WIZARDPV_CONFIG1"></p>
+    <p id="WIZARDPV_CONFIG2"></p>
+    <p id="WIZARDPV_CONFIG3"></p>
+    <p id="STECAPV_CONFIG_POSSIBLE0"></p>
+    <p id="STECAPV_CONFIG_POSSIBLE1"></p>
+    <p id="STECAPV_CONFIG_POSSIBLE2"></p>
+    <p id="STECAPV_CONFIG_POSSIBLE3"></p>
+    <p id="STECAPV_CONFIG_POSSIBLE4"></p>
+    <p id="STECAPV_CONFIG_POSSIBLE5"></p>
+    <p id="STECAPV_CONFIG_POSSIBLE6"></p>
+    <p id="STECAPV_CONFIG_POSSIBLE7"></p>
+    <p id="STECAPV_CONFIG_POSSIBLE8"></p>
+    <p id="STECAPV_CONFIG_POSSIBLE9"></p>
+    <p id="STECAPV_CONFIG_POSSIBLE10"></p>
+    <p id="STECAPV_CONFIG_POSSIBLE11"></p>
+    <p id="STECAPV_INPUTS"></p>
+    
+</div>
+

@@ -1,0 +1,100 @@
+<style>
+.samsung-module0 {
+    position: absolute;
+    top: 265px;
+    left: 190px;
+    text-align: left;
+    width: 185px;
+    height: 100px;
+}
+.samsung-module1 {
+    position: absolute;
+    top: 110px;
+    left: 190px;
+    text-align: left;
+    width: 185px;
+    height: 100px;
+}
+</style>
+
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" id="btnWizardSamsung_close" onclick="confwizardSamsungClose();">×</button>
+    <h3 id="lBatteryHeader"></h3>
+</div>
+
+<div id="pnWizardSamsungModalBody" class="modal-body" style="height:800px;">
+    <!-- Step 1: Prompt user to plugin communication cable to internal CAN -->
+    <div id="SamsungWizardStart"></div>
+
+    <!-- Step 2: Amuse user while scanning for battery modules -->
+    <div id="SamsungWizardScanning"></div>
+
+    <!-- Step 3: Prompt user to confirm detected module count -->
+    <div id="SamsungWizardDetected"></div>
+
+    <!-- Step 3a: No modules detected -->
+    <div id="SamsungWizardDetectedFailed"></div>
+
+    <!-- Step 4: Prompt user to plugin communication cable to external CAN -->
+    <div id="SamsungWizardSwitchCan"></div>
+
+    <!-- Step 5: Amuse user while perfoming equalization and test charging -->
+    <div id="SamsungWizardCharging" style="text-align: center;">
+        <img src="img/samsung_wizard3.png" style="width: 330px;">
+        <div class="samsung-module0" id="SamsungInfo0"></div>
+        <div class="samsung-module1" id="SamsungInfo1"></div>
+        <br><br>
+        <div style="display: flex; align-items: center; justify-content:center;">
+          <div id="tiny-loader"></div>
+          <div id="SamsungWizardChargingInfo"></div>
+        </div>
+    </div>
+
+    <!-- Step 6a: Prompt user to finish wizard -->
+    <div id="SamsungWizardDone"></div>
+
+    <!-- Step 6b: Charging was not successful -->
+    <div id="SamsungWizardFailed"></div>
+</div>
+
+<div class="modal-footer">
+    <button class="btn btn-wizard" onclick="sendSamsungCommand('Start')" id="SamsungStart" style="float: left;"></button>
+    <button class="btn btn-wizard" onclick="sendSamsungCommand('Confirm')" id="SamsungConfirm"></button>
+    <button class="btn btn-wizard" onclick="confwizardSamsungClose()" id="SamsungClose"></button>
+</div>
+
+<div class="hidden">
+    <p id="BMSMODULE_COUNT"></p>
+    <p id="BMSSERIAL0"></p>
+    <p id="BMSSERIAL1"></p>
+    <p id="BMSSERIAL2"></p>
+    <p id="BMSSERIAL3"></p>
+    <p id="BMSSOC0"></p>
+    <p id="BMSSOC1"></p>
+    <p id="BMSSOC2"></p>
+    <p id="BMSSOC3"></p>
+    <p id="BMSVOLTAGE0"></p>
+    <p id="BMSVOLTAGE1"></p>
+    <p id="BMSVOLTAGE2"></p>
+    <p id="BMSVOLTAGE3"></p>
+    <p id="BMSCURRENT0"></p>
+    <p id="BMSCURRENT1"></p>
+    <p id="BMSCURRENT2"></p>
+    <p id="BMSCURRENT3"></p>
+    <p id="BMSWIZARD_DCCONNECT"></p>
+    <p id="BMSWIZARD_STATE"></p>
+    <p id="BMSWIZARD_START"></p>
+    <p id="BMSWIZARD_CONFIRM"></p>
+    <p id="BMSWIZARD_ABORT"></p>
+    <p id="BMSFW0"></p>
+    <p id="BMSFW1"></p>
+    <p id="BMSFW2"></p>
+    <p id="BMSFW3"></p>
+    <p id="BAT1TYPE"></p>
+    <p id="STECAPVSS"></p>
+    <p id="BMSSTATUS0"></p>
+    <p id="BMSSTATUS1"></p>
+    <p id="BMSSTATUS2"></p>
+    <p id="BMSSTATUS3"></p>
+    <p id="BMSERROR"></p>
+</div>

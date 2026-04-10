@@ -1,0 +1,381 @@
+<script type="text/javascript">
+/** Prevent JSHint warning about supposingly unused functions. */
+/* exported GuiDataInitialChargebtnClick, InitialChargeAck, InitChargeRerun */
+
+    //Global Variables
+    var SenecBatt;
+    var SenecBatt_SW_Version;
+    
+    function updateAkkuService()
+    {
+        // Check Lithium variable
+        if (htmlAsNumber('#isLithium') == 1)
+        {
+            $('.pb_only').hide();
+            $('.li_only').show();
+            $("li").has("span:contains('6')").remove();
+        }
+        else
+        {
+            $('.pb_only').show();
+            $('.li_only').hide();
+        }
+        
+        SenecBatt = htmlAsNumber('#BAT1TYPE');
+        SenecBatt_SW_Version = htmlAsNumber('#BAT1OBJ1SW_VERSION');
+    
+        updateAccuService_FSM();
+        
+        $('.pageinfo').addClass('hidden').hide();
+        $('.pagecontent').removeClass('hidden').show();
+    }
+
+    function obj_init() {
+        pageObj = new senecPage(updateAkkuService);
+
+        pageObj.add_json_object("ENERGY");
+        pageObj.add_json_object("BAT1");
+        pageObj.add_json_object("BAT1OBJ1");
+        pageObj.add_property_to_object("ENERGY", "INIT_CHARGE_ACK", "");
+        pageObj.add_property_to_object("ENERGY", "INIT_CHARGE_RUNNING", "");
+        pageObj.add_property_to_object("ENERGY", "INIT_CHARGE_RERUN", "");
+        pageObj.add_property_to_object("ENERGY", "GUI_INIT_CHARGE_START", "");
+        pageObj.add_property_to_object("ENERGY", "GUI_INIT_CHARGE_STOP", "");
+        pageObj.add_property_to_object("ENERGY", "INIT_CHARGE_TIMER", "");
+        pageObj.add_property_to_object("ENERGY", "INIT_CHARGE_STATE", "");
+        pageObj.add_property_to_object("ENERGY", "INIT_CHARGE_DIFF_VOLTAGE", "");
+        pageObj.add_property_to_object("ENERGY", "INIT_CHARGE_MIN_VOLTAGE", "");
+        pageObj.add_property_to_object("ENERGY", "INIT_CHARGE_MAX_VOLTAGE", "");
+        pageObj.add_property_to_object("ENERGY", "INIT_CHARGE_MAX_CURRENT", "");
+        pageObj.add_property_to_object("ENERGY", "INIT_DISCHARGE_MAX_CURRENT", "");
+        pageObj.add_property_to_object("ENERGY", "INIT_CHARGE_WATER_READY", "");
+        pageObj.add_property_to_object("ENERGY", "GUI_BAT_DATA_VOLTAGE", "");
+        pageObj.add_property_to_object("ENERGY", "GUI_BAT_DATA_CURRENT", "");
+        pageObj.add_property_to_object("ENERGY", "GUI_FACTORY_TEST_FAN", "");
+        pageObj.add_property_to_object("ENERGY", "GUI_BAT_DATA_FUEL_CHARGE", "");
+        pageObj.add_property_to_object("BAT1", "TYPE", "");
+        pageObj.add_property_to_object("BAT1OBJ1", "SW_VERSION", "");
+        pageObj.singlePageRefresh();
+        pageObj.startPageRefresh(1000);
+    }
+
+    $(document).bind("page.loaded", function() {
+        $("a").unbind();
+        $("a").click(function() {
+            navigate(this.id);
+        });
+        updateLanguage();
+        obj_init();
+    });
+
+    var InitialCharge;
+
+    function updateAccuService_FSM()
+    {
+        InitialCharge = $('#ENERGYINIT_CHARGE_RUNNING').html()*1;
+
+        if (InitialCharge == 1)
+        {
+            $('#tGuiDataInitialChargebtn').html(lng["lStopInitialCharge"]);
+            $('#iconInitialCharge').css({"border": "1px solid var(--main-color)"});
+
+            $('#InitialChargeState').html(GuiDataInitialChargeState_decode($('#ENERGYINIT_CHARGE_STATE').html()*1));
+            $('#InitialChargeWaterReady').html(htmlAsNumber('#ENERGYINIT_CHARGE_WATER_READY') ? lng["YES"] : lng["NO"]);
+
+            if (($('#ENERGYINIT_CHARGE_STATE').html()*1) < 7 && ($('#ENERGYINIT_CHARGE_STATE').html()*1) > 0)
+            {
+                setStepBar(($('#ENERGYINIT_CHARGE_STATE').html()*1) - 1);
+            }
+            else
+            {
+                initStepBar();
+            }
+        }
+        else
+        {
+            $('#tGuiDataInitialChargebtn').html(lng["lStartInitialCharge"]);
+            $('#iconInitialCharge').css({"border": "0px solid var(--main-color)"});
+
+            $('#InitialChargeState').empty();
+            $('#InitialChargeWaterReady').html(lng.NO);
+
+            if (($('#ENERGYINIT_CHARGE_STATE').html()*1) == 0)
+            {
+                $('#InitialChargeState').html(lng["lInitialChargeNotStarted"]);
+            }
+            else if (($('#ENERGYINIT_CHARGE_STATE').html()*1) == 7)
+            {
+                $('#InitialChargeState').html(lng["lInitialChargeFinished"]);
+            }
+            else
+            {
+                $('#InitialChargeState').html(lng["lInitialChargeAborted"]);
+            }
+        }
+    }
+
+    function GuiDataInitialChargebtnClick()
+    {
+        if (InitialCharge == 1)
+        {
+            pageObj.handleButtonClick("ENERGY", "GUI_INIT_CHARGE_STOP");
+        }
+        /* Check if fuel gauge is below 90% */
+        else if(htmlAsNumber("#ENERGYGUI_BAT_DATA_FUEL_CHARGE") < 90)
+        {
+            pageObj.handleButtonClick("ENERGY", "GUI_INIT_CHARGE_START");
+        }
+        else
+       	{
+        	alert(lng.lInitialChargeStartCriteria);
+       	}
+    }
+
+    function InitialChargeAck()
+    {
+        pageObj.handleButtonClick("ENERGY", "INIT_CHARGE_ACK");
+        $("#modalWindow").modal('hide');
+    }
+
+    function InitChargeRerun()
+    {
+        pageObj.handleButtonClick("ENERGY", "INIT_CHARGE_RERUN");
+        $("#modalWindow").modal('hide');
+        
+    }
+
+    var modal_state=0;
+    var last_state=0;
+
+    function GuiDataInitialChargeState_decode(state)
+    {
+        var StateString;
+        // Reset window state
+        if(last_state != state)
+        	modal_state = 0;
+        last_state = state;
+        
+        switch (state)
+        {
+            case 0:
+                StateString = lng["lInitialChargeStarted"];
+                pageObj.add_property_to_object("ENERGY", "GUI_FACTORY_TEST_FAN", "u8_00");
+                break;
+
+            case 1:
+                StateString = lng["lInitialCharge10minCharge"];
+                if (htmlAsNumber('#isLithium') == 1)
+                      StateString = lng["lInitialCharge10minChargeLI"];
+                break;
+
+            case 2:
+                StateString = lng["lInitialCharge5minDischarge"];
+                if (htmlAsNumber('#isLithium') == 1)
+                     StateString = lng["lInitialCharge5minDischargeLI"];
+                break;
+
+            case 3:
+                StateString ="";
+
+                if (modal_state==0)
+                {
+                  $("#modalWindow").empty();
+                  
+                  /* Show diff voltage only on PB systems */
+                  if(htmlAsNumber('#isLithium') == 0)
+                      $("#modalWindow").append(
+                              lng["lInitialChargeHint1_0"]+$("#ENERGYINIT_CHARGE_DIFF_VOLTAGE").html());
+                  
+                  /* Only SenecBatt V1 */
+                  if (SenecBatt == 1 && SenecBatt_SW_Version >= 115)
+                    $("#modalWindow").append(
+                    lng["lInitialChargeHint1_1"]+$("#ENERGYINIT_CHARGE_MAX_CURRENT").html()+
+                    lng["lInitialChargeHint1_2"]+$("#ENERGYINIT_DISCHARGE_MAX_CURRENT").html()+
+                    lng["lInitialChargeHint1_3"]+
+                    lng["lInitialChargeHint1_4"]);
+                  else 
+                    $("#modalWindow").append(
+                    lng["lInitialChargeHint1_1"]+$("#ENERGYINIT_CHARGE_MAX_CURRENT").html()+
+                    lng["lInitialChargeHint1_2"]+$("#ENERGYINIT_DISCHARGE_MAX_CURRENT").html()+
+                    lng["lInitialChargeHint1_4"]);
+                          
+                  $('#modalWindow').modal('show');
+    
+                  modal_state=1;
+                }
+                break;
+
+            case 4:
+                StateString = lng["lInitialCharge5minTest"];
+                if (htmlAsNumber('#isLithium') == 1)
+                    StateString = lng["lInitialCharge5minDischargeLI"];
+                    pageObj.add_property_to_object("ENERGY", "GUI_FACTORY_TEST_FAN", "u8_01");
+                break;
+
+            case 5:
+                StateString ="";
+
+                if (modal_state==0)
+                {
+                  $("#modalWindow").empty();
+                  if (SenecBatt == 1 && SenecBatt_SW_Version >= 115)
+                    {$("#modalWindow").append(
+                    lng["lInitialChargeQuestionSenecBatt"]);}
+                  else
+                    {$("#modalWindow").append(
+                    lng["lInitialChargeQuestionOther"]);}
+                  
+                    $('#modalWindow').modal('show');
+
+                    modal_state=1;
+                }
+                break;
+
+            case 6:
+                StateString = lng["lInitialChargeFullCharge"];
+                if (htmlAsNumber('#isLithium') == 1)
+                      StateString = lng["lInitialChargeDone"];
+                break;
+
+            case 7:
+                if (modal_state==0)
+                {
+                  $("#modalWindow").empty();
+                  if (htmlAsNumber('#isLithium') == 1)
+                    {$("#modalWindow").append(
+                    lng["lInitialChargeFinalHintPB"]);}
+                  else
+                    {$("#modalWindow").append(
+                    lng["lInitialChargeFinalHintLI"]);}
+
+                  $('#modalWindow').modal('show');
+
+                  modal_state=1;
+                }
+                pageObj.add_property_to_object("ENERGY", "GUI_FACTORY_TEST_FAN", "u8_00");
+                StateString = lng["lInitialChargeFinished"];
+                break;
+
+            default:
+                StateString = lng["lInitialChargeUnknownState"];
+        }
+
+        return StateString;
+    }
+
+    function setStepBar(value)
+    {
+        var list = $('#StepBar_InitialCharge');
+        list.find('li').removeClass('active-step');
+
+        var listItems = list.find('li').eq(value);
+        listItems.addClass('active-step');
+    }
+
+    function initStepBar()
+    {
+        var list = $('#StepBar_InitialCharge');
+        list.find('li').removeClass('active-step');
+    }
+
+    $(document).bind("page.unload", function() {
+            pageObj.stopPageRefresh();
+    });
+
+</script>
+<div class="pagecontent hidden">
+    <div class="row">
+        <div class="span5">
+            <div class="row">
+                <div class="span2 offset1">
+                   <div class="img_clip_icon_accu_test img-button" id='iconInitialCharge' onclick='GuiDataInitialChargebtnClick()'>
+                       <img src="./img/all_images.gif">
+                   </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="span2 offset1 text-center">
+                    <p id="tGuiDataInitialChargebtn"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="span12">
+            <ol class="wizard-progress clearfix" id="StepBar_InitialCharge">
+                <li>
+                    <span class="step-name" id="lInitialChargeStep1"></span>
+                    <span class="visuallyhidden">Step </span><span class="step-num">1</span>
+                </li>
+                <li>
+                    <span class="step-name" id="lInitialChargeStep2"></span>
+                    <span class="visuallyhidden">Step </span><span class="step-num">2</span>
+                </li>
+                <li>
+                    <span class="step-name" id="lInitialChargeStep3"></span>
+                    <span class="visuallyhidden">Step </span><span class="step-num">3</span>
+                </li>
+                <li>
+                    <span class="step-name" id="lInitialChargeStep4"></span>
+                    <span class="visuallyhidden">Step </span><span class="step-num">4</span>
+                </li>
+                <li>
+                    <span class="step-name" id="lInitialChargeStep5"></span>
+                    <span class="visuallyhidden">Step </span><span class="step-num">5</span>
+                </li>
+                <li>
+                    <span class="step-name" id="lInitialChargeStep6"></span>
+                    <span class="visuallyhidden">Step </span><span class="step-num">6</span>
+                </li>
+            </ol>
+        </div>
+    </div>
+    
+    <div class="row" style="margin-top: 15px;">
+        <div class="span9 labels_title" style="margin-top: 15px;">
+                <p id="lInitialChargeProtokoll"></p>
+        </div>
+    </div>
+    
+    <div class="row" style="margin-bottom: 20px;">
+        <div class="span4">
+            <div class="labels"><p id="lInitialChargeState"></p></div>
+            <div class="pb_only"><div class="labels"><p id="lInitialChargeMinVoltage"></p></div></div>
+            <div class="pb_only"><div class="labels"><p id="lInitialChargeMaxVoltage"></p></div></div>
+            <div class="pb_only"><div class="labels"><p id="lInitialChargeVoltageDiff"></p></div></div>
+            <div class="labels"><p id="lInitialChargeMaxChargeCurrent"></p></div>
+            <div class="labels"><p id="lInitialChargeMaxDischargeCurrent"></p></div>
+            <div class="labels"><p id="lInitialChargeCurrent"></p></div>
+            <div class="labels"><p id="lInitialChargeVoltage"></p></div>
+            <div class="labels"><p id="lInitialChargeFuelGauge"></p></div>
+            <div class="pb_only"><div class="labels"><p id="lInitialChargeWaterRefill"></p></div></div>
+        </div>
+    
+        <div class="span5" style="background: var(--sub-color);">
+            <div class="labels_value"><p id="InitialChargeState">***</p></div>
+            <div class="pb_only"><div class="labels_value"><p id="ENERGYINIT_CHARGE_MIN_VOLTAGE">***</p></div></div>
+            <div class="pb_only"><div class="labels_value"><p id="ENERGYINIT_CHARGE_MAX_VOLTAGE">***</p></div></div>
+            <div class="pb_only"><div class="labels_value"><p id="ENERGYINIT_CHARGE_DIFF_VOLTAGE">***</p></div></div>
+            <div class="labels_value"><p id="ENERGYINIT_CHARGE_MAX_CURRENT">***</p></div>
+            <div class="labels_value"><p id="ENERGYINIT_DISCHARGE_MAX_CURRENT">***</p></div>
+            <div class="labels_value"><p id="ENERGYGUI_BAT_DATA_CURRENT">***</p></div>
+            <div class="labels_value"><p id="ENERGYGUI_BAT_DATA_VOLTAGE">***</p></div>
+            <div class="labels_value"><p id="ENERGYGUI_BAT_DATA_FUEL_CHARGE">***</p></div>
+            <div class="pb_only"><div class="labels_value"><p id="InitialChargeWaterReady">***</p></div></div>
+        </div>
+    </div>
+</div>
+
+<div class="pageinfo row">
+    <div class="span6 offset2 text-center"><strong id="lLoadPage" style="margin-top: 50px;"></strong></div>
+</div>
+
+<div class="hide">
+    <p id="ENERGYINIT_CHARGE_RUNNING"></p>
+    <p id="ENERGYINIT_CHARGE_TIMER"></p>
+    <p id="ENERGYINIT_CHARGE_STATE"></p>
+    <p id="ENERGYINIT_CHARGE_WATER_READY"></p>
+    <p id="BAT1OBJ1SW_VERSION"></p>
+    <p id="ENERGYGUI_FACTORY_TEST_FAN"></p>
+</div>

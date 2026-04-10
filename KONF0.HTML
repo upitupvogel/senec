@@ -1,0 +1,82 @@
+<script type="text/javascript">
+
+    function updateKonfiguration()
+    {
+	var SystemType = ($('#ENERGYSYSTEMTYPE').html() * 1);
+        
+        //4,5,6 and are Li Systems
+	if (SystemType >= 4 && SystemType <= 6)
+	{
+	    $('.pb_only').hide();
+	    $('.li_only').show();
+	}
+	else
+	{
+	    $('.pb_only').show();
+	    $('.li_only').hide();
+	}
+    }
+
+    function obj_init()
+    {
+        pageObj = new senecPage("Konfiguration", updateKonfiguration);
+
+        //add child object to parent object
+        pageObj.add_json_object("ENERGY");
+
+        // maintenance charge buttons and state
+        pageObj.add_property_to_object("ENERGY", "SYSTEMTYPE", "");
+        pageObj.singlePageRefresh();
+    }
+
+    $(document).bind("page.loaded", function() {
+        $('#hCategoryName').empty();
+        $('#hCategoryName').text("KONFIGURATION");
+        $("a").unbind();
+        $("a").click(function() {
+            navigate(this.id);
+        });
+        
+        obj_init();
+    });
+
+
+
+</script>
+
+
+<div class="row">
+    <div class= "span2 offset1 text-center" ><a href="#" id="lKonfiguration_ClockSetup"><img src="./img/icon_clock.gif"></a></div>
+    <div class= "span2 offset1 text-center" ><a href="#" id="lKonfiguration_Sockets"><img src="./img/icon_socket.png" style="height: 100px;width: 100px; margin-top: 12px;"></a></div>
+    <div class= "span2 offset1 text-center" ><a href="#" id="lKonfiguration_Information"><img src="./img/icon_info.gif"> </a></div>
+</div>
+
+<div class="row">
+    <div class= "span2 offset1 text-center" ><p>DATUM/UHRZEIT</p> </div>
+    <div class= "span2 offset1 text-center" ><p>AUTOMATISCHE STECKDOSEN</p></div>
+    <div class= "span2 offset1 text-center" ><p>INFORMATION</p></div>
+</div>
+
+<div class="row" style="margin-top: 25px">
+    <div class= "span2 offset1 text-center" ><a href="#" id="lKonfiguration_AccuService"><img src="./img/icon_batteriewartung.png" style="height: 80px;width: 110px; margin-top: 20px;"></a></div>
+    <div class= "span2 offset1 text-center" ><a href="#" id="lKonfiguration_Setup"><img src="./img/icon_tools.gif" ></a></div>
+    <div class= "span2 offset1 text-center" ><a href="#" id="lKonfiguration_AccuTest"><img src="./img/icon_installationstest.png" style="height: 80px;width: 110px; margin-top: 20px;"> </a></div>
+</div>
+
+<div class="row">
+    <div class= "span2 offset1 text-center" ><p>AKKUMULATOR WARTUNG</p></div>
+    <div class= "span2 offset1 text-center" ><p>SETUP</p></div>
+    <div class= "span2 offset1 text-center" ><p>START & TEST</p></div>
+</div>
+
+<div class="row" style="margin-top: 25px;margin-bottom: 15px">
+    <div class= "span2 offset1 text-center" ><a href="#" id="lKonfiguration_PowerUnit"><img src="./img/icon_heizstab.png" style="height: 95px;width: 110px; margin-top: 20px; margin-left: 30px;"></a></div>
+</div>
+
+<div class="row" style="margin-bottom: 15px">
+    <div class= "span2 offset1 text-center" ><p>HEIZSTAB</p></div>
+</div>
+
+<div class="hide">
+    <p id="ENERGYSYSTEMTYPE"></p>
+</div>

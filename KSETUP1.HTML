@@ -1,0 +1,1108 @@
+<script type="text/javascript">
+/** Prevent JSHint warning about supposingly unused functions. */
+/* exported ChargebtnClickEvent, DischargebtnClickEvent, CapacityTestbtnClickEvent, UserRebootClickEvent, UpdateIntegrationTest, startGridParameterWizard, fanTestProcess, startPVWizard, triggerSelftest, triggerLogRotate, triggerHvUpdate, triggerLvUpdate, triggerNspUpdate, triggerInverterUpdate */
+
+    var pageObj;
+
+    var chargeState = 0;
+    var dischargeState = 0;
+    var CapacityTestState = 0;
+
+    function singleUpdateCB()
+    {
+        // Testleistung
+        $('#itestpower').val($("#ENERGYGRID_POWER_OFFSET").html());
+
+        // Steckdose 1
+        if (htmlAsNumber("#ENERGYGUI_POW_SOCK_0_FORCE_ON") == 1)
+        {
+
+            $('#inputSocket1ForceOn').attr("checked", true);
+        }
+        else
+        {
+            $('#inputSocket1ForceOn').attr("checked", false);
+        }
+
+        // Steckdose 2
+        if (htmlAsNumber("#ENERGYGUI_POW_SOCK_1_FORCE_ON") == 1)
+        {
+
+            $('#inputSocket2ForceOn').attr("checked", true);
+        }
+        else
+        {
+            $('#inputSocket2ForceOn').attr("checked", false);
+        }
+
+        // Pumpe
+        if (htmlAsNumber("#ENERGYGUI_FACTORY_TEST_PUMP") == 1)
+        {
+
+            $('#inputPumpEnable').attr("checked", true);
+        }
+        else
+        {
+            $('#inputPumpEnable').attr("checked", false);
+        }
+
+        // XCOM
+        if (htmlAsNumber("#ENERGYGUI_FACTORY_TEST_XCOM") == 1)
+        {
+
+            $('#inputRelaisEnable').attr("checked", true);
+        }
+        else
+        {
+            $('#inputRelaisEnable').attr("checked", false);
+        }
+
+        // Auto Zyklus
+        if (htmlAsNumber("#ENERGYTEST_CYCLE") & 1)
+        {
+
+            $('#AutoCycleEnable').attr("checked", true);
+        }
+        else
+        {
+            $('#AutoCycleEnable').attr("checked", false);
+        }
+        // Auto Zyklus Inverter Update
+        if (htmlAsNumber("#ENERGYTEST_CYCLE") & 2)
+        {
+
+            $('#AutoInverterUpdate').attr("checked", true);
+        }
+        else
+        {
+            $('#AutoInverterUpdate').attr("checked", false);
+        }
+        // Auto Zyklus NSP Update
+        if (htmlAsNumber("#ENERGYTEST_CYCLE") & 4)
+        {
+
+            $('#AutoNSPUpdate').attr("checked", true);
+        }
+        else
+        {
+            $('#AutoNSPUpdate').attr("checked", false);
+        }
+
+        // Internetnutzung
+        if (htmlAsNumber("#WIZARDNET_SENEC_NO_NETWORK") == 0)
+        {
+            $('#inputToggleUseNetwork').attr("checked", true);
+        }
+        else
+        {
+            $('#inputToggleUseNetwork').attr("checked", false);
+        }
+
+        // Akku Schutzbetrieb
+        if (htmlAsNumber("#ENERGYGUI_SAFETY_CHARGE") == 1)
+        {
+            $('#inputToggleBatteryProtection').attr("checked", true);
+        }
+        else
+        {
+            $('#inputToggleBatteryProtection').attr("checked", false);
+        }
+
+        // Status Spezialladungen Pausiert
+        if (htmlAsNumber("#ENERGYGUI_PAUSE_SPECIAL") == 1)
+        {
+            $('#inputTogglePauseSpecialCharge').attr("checked", true);
+        }
+        else
+        {
+            $('#inputTogglePauseSpecialCharge').attr("checked", false);
+        }
+
+        // Check if there is a second enfluri
+        if (htmlAsNumber("#WIZARDDEVICE_PM_HOUSE_ENABLED") == 1)
+        {
+            $('.pm_house').show();
+            $('.pv_inverter').hide();
+        }
+        else
+        {
+            $('.pm_house').hide();
+            $('.pv_inverter').show();
+        }
+
+        // Check Modbus config
+        switch(htmlAsNumber("#WIZARDMASTER_SLAVE_MODE"))
+        {
+            default:
+            case 0: //Not configured
+                $('.modusmaster').hide();
+                $('.modusslave').hide();
+                $('.modbus').hide();
+                break;
+            case 1: //Master
+                $('.modusmaster').show();
+                $('.modusslave').hide();
+                $('.modbus').show();
+                break;
+            case 2: //Slave
+                $('.modusslave').show();
+                $('.modusmaster').hide();
+                $('.modbus').show();
+                $('.single_system').hide();
+                break;
+        }
+
+        // Check Powerunit
+        for (c = 0; c < 6; c++) {
+            // Check if any enabled
+            if(htmlAsNumber('#PWR_UNITTYPE' + c) &&
+               htmlAsNumber("#FEATURESHEAT") == 1) {
+              $('.pwr_unit').show();
+              }
+            else
+           	{
+            	$('.pwr_unit').hide();
+           	}
+        }
+
+        // Check EG config
+        if(htmlAsNumber("#EG_CONTROLACTIVE") == 0){
+            $('.eg_active').hide();
+        }else{
+            $('.eg_active').show();
+        }
+
+        // Check Country Setting and Feature Allowance
+        if(htmlAsNumber("#FACTORYCOUNTRY") != 0 || // Not Germany
+           htmlAsNumber("#FEATURESECOGRIDREADY") == 0){ // Feature not allowed
+            $('.eg_active').hide();
+            $('.eg_allowed').hide();
+        }
+
+        //check overwrite of features
+        if (htmlAsNumber("#SYS_UPDATEFEATURE_OVERWRITE") == 1)
+        {
+
+            $('#inputOverwriteFeatures').attr("checked", true);
+        }
+        else
+        {
+            $('#inputOverwriteFeatures').attr("checked", false);
+        }
+
+        if (htmlAsNumber("#fullWizard") == 1)
+        {
+
+            $('#inputFullWizard').attr("checked", true);
+        }
+        else
+        {
+            $('#inputFullWizard').attr("checked", false);
+        }
+
+        /* Fantest already active */
+        if (htmlAsNumber("#ENERGYGUI_FACTORY_TEST_FAN") == 1) {
+            $("#fanTest").attr("disabled", false);
+            $("#fanTest").text(lng.lConfirmFanTest);
+        }
+        else
+        {
+            $("#fanTest").text(lng.lStartFanTest);
+        }
+    }
+
+    function updateCB()
+    {
+        if (htmlAsNumber("#ENERGYGUI_TEST_CHARGE_STAT") == 1)
+        {
+            chargeState = 1;
+            $('#GuiDataTestChargeChargebtn').css({"border": "1px solid var(--main-color)"});
+        }
+        else
+        {
+            chargeState = 0;
+            $('#GuiDataTestChargeChargebtn').css({"border": "0px solid var(--main-color)"});
+        }
+
+        if (htmlAsNumber("#ENERGYGUI_TEST_DISCHARGE_STAT") == 1)
+        {
+            dischargeState = 1;
+            $('#GuiDataTestChargeDischargebtn').css({"border": "1px solid var(--main-color)"});
+        }
+        else
+        {
+            dischargeState = 0;
+            $('#GuiDataTestChargeDischargebtn').css({"border": "0px solid var(--main-color)"});
+        }
+
+        if (htmlAsNumber("#ENERGYGUI_CAP_TEST_STATE") == 1)
+        {
+            CapacityTestState = 1;
+            $('#GuiDataCapacityTestBTN').css({"border": "1px solid var(--main-color)"});
+        }
+        else
+        {
+            CapacityTestState = 0;
+            $('#GuiDataCapacityTestBTN').css({"border": "0px solid var(--main-color)"});
+        }
+
+        if (htmlAsNumber("#SYS_UPDATEUSER_REBOOT_DEVICE") == 1)
+        {
+            $('#RebootDevicebtn').css({"border": "1px solid var(--main-color)"});
+        }
+        else
+        {
+            $('#RebootDevicebtn').css({"border": "0px solid var(--main-color)"});
+        }
+
+        $('#inputClearRemanentData').attr("checked", htmlAsNumber('#STATISTICSTAT_REQ_CLEAR_REM_DATA') == 1);
+
+        if (!(htmlAsNumber("#PM1PWR_METERS_MISSING") & 0x01)) {
+            $('#inputRS485CommPM1').text("OK");
+        } else {
+            $('#inputRS485CommPM1').text("***");
+        }
+
+        if (!(htmlAsNumber("#PM1PWR_METERS_MISSING") & 0x02)) {
+            $('#inputRS485CommPM2').text("OK");
+        } else {
+            $('#inputRS485CommPM2').text("***");
+        }
+
+        if (htmlAsNumber("#BAT1BATTERIES_MISSING") == 0) {
+            $('#inputXComCommOk').text("OK");
+        } else {
+            $('#inputXComCommOk').text("***");
+        }
+
+        if (htmlAsNumber("#PV1PV_MISSING") == 0) {
+            $('#inputRS485CommInverter').text("OK");
+        } else {
+            $('#inputRS485CommInverter').text("***");
+        }
+
+        if (htmlAsNumber("#PWR_UNITPU_MISSING") == 0) {
+            $('#inputRS485PwrUnit').text("OK");
+        } else {
+            $('#inputRS485PwrUnit').text("***");
+        }
+
+        if (htmlAsNumber("#EG_CONTROLEG_SW_ERROR") == 0) {
+            $('#inputRS485EGSw').text("OK");
+        } else {
+            $('#inputRS485EGSw').text("***");
+        }
+
+        if (htmlAsNumber("#EG_CONTROLEG_MTR_ERROR") == 0) {
+            $('#inputRS485EGMtr').text("OK");
+        } else {
+            $('#inputRS485EGMtr').text("***");
+        }
+
+        if (htmlAsNumber("#PM1MB_SL2MA_CONN") == 0) {
+            $('#commSl2Ma').text("OK");
+        } else {
+            $('#commSl2Ma').text("***");
+        }
+
+        /* Fantest already active */
+        if (htmlAsNumber("#ENERGYGUI_FACTORY_TEST_FAN") == 1) {
+            $("#fanTest").attr("disabled", false);
+        }
+
+        $("#inputBootReportSuccess").text(htmlAsNumber("#SYS_UPDATEBOOT_REPORT_SUCCESS") ? "OK" : "***");
+
+        if (isSuperUser())
+        {
+            $('.superuser_only').show();
+        }
+        else
+        {
+            $('.superuser_only').hide();
+        }
+
+        if(isLoggedIn())
+        {
+            $('.autorisiert').show();
+
+            $('.last_row').css({"margin-top": "10px", "margin-bottom": "90px"});
+
+            // Check Lithium variable
+            if(htmlAsNumber('#isLithium') == 1)
+            {
+                $('.pb_only').hide();
+                $('.li_only').show();
+            }
+            else
+            {
+                $('.pb_only').show();
+                $('.li_only').hide();
+            }
+
+            // Check if Studer Xtender
+            if (htmlAsNumber("#BAT1TYPE") == 0)
+            {
+               $('.x_com').show();
+               $('.senecbatt').hide();
+            }
+            else
+            {
+                $('.x_com').hide();
+                $('.senecbatt').show();
+            }
+
+            // hide features in foreign countries
+            if (htmlAsNumber("#FACTORYCOUNTRY") != 0 || // Not Germany
+                htmlAsNumber("#FEATURESSOCKETS") == 0) // Feature not allowed
+            {
+                $('.germany_only').hide();
+            }
+
+            // Check MCU Type
+            if (htmlAsNumber('#MCU_Type') == 2)
+            {
+                $('.V2_only').show();
+            }
+            else
+            {
+                $('.V2_only').hide();
+            }
+
+            if((htmlAsNumber('#FACTORYSYS_TYPE') >= 15) && (htmlAsNumber('#FACTORYSYS_TYPE') != 19))
+            {
+                $('.cBatteryWizard').show();
+                $('.cBatteryWizardText').html(lng["lBatteryWizard"]);
+            }
+            else
+            {
+                $('.cBatteryWizard').hide();
+                $('.cBatteryWizardText').hide();
+            }
+
+            if(htmlAsNumber('#FACTORYSYS_TYPE') == 19)
+            {
+                $('.cSamsungBatteryWizard').show();
+                $('.cSamsungBatteryWizardText').html(lng["lBatteryWizard"]);
+            }
+            else
+            {
+                $('.cSamsungBatteryWizard').hide();
+                $('.cSamsungBatteryWizardText').hide();
+            }
+
+             // Check if Steca
+            if(htmlAsNumber("#BAT1TYPE") == 4)
+            {
+               $('.Steca_only').show();
+               $('.not_Steca').hide();
+            }
+            else
+            {
+                $('.Steca_only').hide();
+                $('.not_Steca').show();
+            }
+             
+            if(htmlAsNumber('#FACTORYSYS_TYPE') == 18 && htmlAsNumber("#BAT1TYPE") == 4)
+            {
+                $('.StecaDuo_only').show();
+            }
+            else
+            {
+                $('.StecaDuo_only').hide();
+            }
+        }
+        else
+        {
+            $('.autorisiert').hide();
+            $('.last_row').css({"margin-top": "10px", "margin-bottom": "245px"});
+        }
+
+        if ($("#SOCKETSFORCE_ON0").html()*1 >= 1)
+        {
+            $("#inputSocket1ForceOn").attr("checked", true);
+        }
+
+        if ($("#SOCKETSFORCE_ON1").html()*1 >= 1)
+        {
+            $("#inputSocket2ForceOn").attr("checked", true);
+        }
+
+        $("#selftestTrigger").text(lng.lStartSelftest);
+
+        var userLevel = htmlAsNumber('#LOGUSER_LEVEL');
+        showUserLevel(userLevel);
+
+        $('.pageinfo').addClass('hidden').hide();
+        $('.pagecontent').removeClass('hidden').show();
+    }
+
+    function obj_init()
+    {
+        pageObj = new senecPage(singleUpdateCB);
+
+        pageObj.add_json_object("ENERGY");
+        pageObj.add_json_object("WIZARD");
+        pageObj.add_json_object("EG_CONTROL");
+        pageObj.add_json_object("PWR_UNIT");
+        pageObj.add_json_object("SYS_UPDATE");
+        pageObj.add_json_object("SOCKETS");
+        pageObj.add_json_object("STECA");
+        pageObj.add_json_object("BAT1");
+        pageObj.add_json_object("TEST");
+
+        pageObj.add_property_to_object("ENERGY", "GRID_POWER_OFFSET", "");
+        pageObj.add_property_to_object("SOCKETS", "FORCE_ON", "");
+        pageObj.add_property_to_object("ENERGY", "GUI_FACTORY_TEST_PUMP", "");
+        pageObj.add_property_to_object("ENERGY", "GUI_FACTORY_TEST_XCOM", "");
+        pageObj.add_property_to_object("ENERGY", "TEST_CYCLE", "");
+        pageObj.add_property_to_object("ENERGY", "GUI_SAFETY_CHARGE", "");
+        pageObj.add_property_to_object("ENERGY", "GUI_PAUSE_SPECIAL", "");
+        pageObj.add_property_to_object("WIZARD", "NET_SENEC_NO_NETWORK", "");
+        pageObj.add_property_to_object("WIZARD", "DEVICE_PM_HOUSE_ENABLED", "");
+        pageObj.add_property_to_object("WIZARD", "MASTER_SLAVE_MODE", "");
+        pageObj.add_property_to_object("EG_CONTROL", "ACTIVE", "");
+        pageObj.add_property_to_object("PWR_UNIT", "TYPE", "");
+        pageObj.add_property_to_object("SYS_UPDATE", "FEATURE_OVERWRITE", "");
+        pageObj.add_property_to_object("STECA", "PVSS", "");
+
+
+        pageObj.singlePageRefresh();
+        pageObj.reInitJSONObject();
+
+        pageObj = new senecPage(updateCB);
+        pageObj.add_json_object("PM1");
+        pageObj.add_property_to_object("PM1", "PWR_METERS_MISSING", "");
+        pageObj.add_property_to_object("PM1", "MB_SLAVES_COUNT", "");
+        pageObj.add_property_to_object("PM1", "MB_SL2MA_CONN", "");
+
+        pageObj.add_json_object("PV1");
+        pageObj.add_property_to_object("PV1", "PV_MISSING", "");
+
+        pageObj.add_json_object("PWR_UNIT");
+        pageObj.add_property_to_object("PWR_UNIT", "PU_MISSING", "");
+
+        pageObj.add_json_object("BAT1");
+        pageObj.add_property_to_object("BAT1", "TYPE", "");
+        pageObj.add_property_to_object("BAT1", "BATTERIES_MISSING", "");
+        pageObj.add_property_to_object("BAT1", "REQ_LV_UPD", "");
+        pageObj.add_property_to_object("BAT1", "REQ_HV_UPD", "");
+
+        pageObj.add_json_object("EG_CONTROL");
+        pageObj.add_property_to_object("EG_CONTROL", "EG_SW_ERROR", "");
+        pageObj.add_property_to_object("EG_CONTROL", "EG_MTR_ERROR", "");
+
+        pageObj.add_json_object("ENERGY");
+        pageObj.add_json_object("SOCKETS");
+        pageObj.add_property_to_object("ENERGY", "STAT_STATE", "");
+        pageObj.add_property_to_object("ENERGY", "STAT_STATE_DECODE", "");
+        pageObj.add_property_to_object("ENERGY", "GUI_BAT_DATA_VOLTAGE", "");
+        pageObj.add_property_to_object("ENERGY", "GUI_BAT_DATA_CURRENT", "");
+        pageObj.add_property_to_object("ENERGY", "STAT_SULFAT_CHRG_COUNTER", "");
+        /*---------buttons-----------*/
+        //Test CHARGE
+        pageObj.add_property_to_object("ENERGY", "GUI_TEST_CHARGE_STAT", ""); //write button state
+        pageObj.add_property_to_object("ENERGY", "TEST_CHARGE_CHRG_START", ""); //write button state
+        pageObj.add_property_to_object("ENERGY", "TEST_CHARGE_CHRG_STOP", ""); //write button state
+        //Test DISCHARGE
+        pageObj.add_property_to_object("ENERGY", "GUI_TEST_DISCHARGE_STAT", ""); //write button state
+        pageObj.add_property_to_object("ENERGY", "TEST_CHARGE_DIS_START", ""); //write button state
+        pageObj.add_property_to_object("ENERGY", "TEST_CHARGE_DIS_STOP", ""); //write button state
+        //Capacity Test
+        pageObj.add_property_to_object("ENERGY", "GUI_CAP_TEST_START", ""); //write button state
+        pageObj.add_property_to_object("ENERGY", "GUI_CAP_TEST_STOP", ""); //write button state
+        pageObj.add_property_to_object("ENERGY", "GUI_CAP_TEST_STATE", ""); //write button state
+          /*---------inputtext---------*/
+        pageObj.add_property_to_object("ENERGY", "GRID_POWER_OFFSET", ""); //write button state
+        /*---------inputcheckbox---------*/
+        pageObj.add_property_to_object("SOCKETS", "FORCE_ON", "");
+        pageObj.add_property_to_object("ENERGY", "GUI_FACTORY_TEST_PUMP", "");
+        pageObj.add_property_to_object("ENERGY", "GUI_FACTORY_TEST_XCOM", "");
+        pageObj.add_property_to_object("ENERGY", "GUI_FACTORY_TEST_FAN", "");
+        pageObj.add_property_to_object("ENERGY", "TEST_CYCLE", "");
+
+        pageObj.add_json_object("SYS_UPDATE");
+        pageObj.add_property_to_object("SYS_UPDATE", "BOOT_REPORT_SUCCESS", "");
+        pageObj.add_property_to_object("SYS_UPDATE", "USER_REBOOT_DEVICE", "");
+        pageObj.add_property_to_object("SYS_UPDATE", "FEATURE_OVERWRITE", "");
+
+        pageObj.add_json_object("STATISTIC");
+        pageObj.add_property_to_object("STATISTIC", "STAT_REQ_CLEAR_REM_DATA", "");
+
+        pageObj.add_json_object("TEMPMEASURE");
+        pageObj.add_property_to_object("TEMPMEASURE", "BATTERY_TEMP", "");
+        pageObj.add_property_to_object("TEMPMEASURE", "CASE_TEMP", "");
+
+        pageObj.add_json_object("WIZARD");
+        pageObj.add_property_to_object("WIZARD", "NET_SENEC_NO_NETWORK", "");
+        pageObj.add_property_to_object("WIZARD", "FEATURECODE_ENTERED", "");
+
+        pageObj.add_json_object("STECA");
+        pageObj.add_property_to_object("STECA", "PVSS", "");
+
+        pageObj.add_json_object("TEST");
+        pageObj.add_property_to_object("TEST", "SELFTEST", "");
+
+        pageObj.add_json_object("DEBUG");
+        pageObj.add_property_to_object("DEBUG", "LOG_ROTATE", "");
+
+        pageObj.singlePageRefresh();
+        pageObj.startPageRefresh(1000);
+    }
+
+    function ChargebtnClickEvent()
+    {
+        if (chargeState == 1)// Testladung läuft
+        {
+            pageObj.handleButtonClick("ENERGY", "TEST_CHARGE_CHRG_STOP");
+
+        }
+        else
+        {
+            if ($('#itestpower').val())
+            {
+                pageObj.handleTextAreaUpdate("ENERGY", "GRID_POWER_OFFSET", "fl_" + (pageObj.float2hex($('#itestpower').val())));
+                pageObj.handleButtonClick("ENERGY", "TEST_CHARGE_CHRG_START");
+            }
+            else
+            {
+                alert(lng.lSetupTestPowerError);
+            }
+        }
+    }
+
+    function DischargebtnClickEvent()
+    {
+        if (dischargeState == 1)// Testentladung läuft
+        {
+            pageObj.handleButtonClick("ENERGY", "TEST_CHARGE_DIS_STOP");
+        }
+        else
+        {
+            if ($('#itestpower').val())
+            {
+                pageObj.handleTextAreaUpdate("ENERGY", "GRID_POWER_OFFSET", "fl_" + (pageObj.float2hex($('#itestpower').val())));
+                pageObj.handleButtonClick("ENERGY", "TEST_CHARGE_DIS_START");
+            }
+            else
+            {
+                alert(lng.lSetupTestPowerError);
+            }
+        }
+    }
+
+    function CapacityTestbtnClickEvent()
+    {
+        if (CapacityTestState == 1)// Kapazitätstest läuft
+        {
+            pageObj.handleButtonClick("ENERGY", "GUI_CAP_TEST_STOP");
+        }
+        else
+        {
+            pageObj.handleButtonClick("ENERGY", "GUI_CAP_TEST_START");
+        }
+    }
+
+    function UserRebootClickEvent()
+    {
+        pageObj.handleTextAreaUpdate("SYS_UPDATE", "USER_REBOOT_DEVICE", "u8_01");
+    }
+
+    $('#inputSocket1ForceOn').change(function() {
+        pageObj.handleCheckBoxUpdateArray("SOCKETS","FORCE_ON",$('#inputSocket1ForceOn').prop('checked') ? "u8_01" : "u8_00" , 0, 2);
+    });
+
+    $('#inputSocket2ForceOn').change(function() {
+        pageObj.handleCheckBoxUpdateArray("SOCKETS","FORCE_ON",$('#inputSocket2ForceOn').prop('checked') ? "u8_01" : "u8_00" , 1, 2);
+    });
+
+    $('#inputPumpEnable').change(function() {
+        if ($('#inputPumpEnable').prop('checked') == true)
+        {
+            pageObj.handleCheckBoxUpdate("ENERGY", "GUI_FACTORY_TEST_PUMP", "u8_01");
+        }
+        else
+        {
+            pageObj.handleCheckBoxUpdate("ENERGY", "GUI_FACTORY_TEST_PUMP", "u8_00");
+        }
+    });
+
+    $('#inputClearRemanentData').change(function() {
+        pageObj.handleCheckBoxUpdate("STATISTIC", "STAT_REQ_CLEAR_REM_DATA",
+            $('#inputClearRemanentData').prop('checked') ? "u8_01" : "u8_00");
+    });
+
+    $('#inputOverwriteFeatures').change(function() {
+        if ($('#inputOverwriteFeatures').prop('checked') == true)
+        {
+            pageObj.handleCheckBoxUpdate("SYS_UPDATE", "FEATURE_OVERWRITE", "u8_01");
+        }
+        else
+        {
+            pageObj.handleCheckBoxUpdate("SYS_UPDATE", "FEATURE_OVERWRITE", "u8_00");
+        }
+    });
+
+    $('#inputRelaisEnable').change(function() {
+        if ($('#inputRelaisEnable').prop('checked') == true)
+        {
+            pageObj.handleCheckBoxUpdate("ENERGY", "GUI_FACTORY_TEST_XCOM", "u8_01");
+        }
+        else
+        {
+            pageObj.handleCheckBoxUpdate("ENERGY", "GUI_FACTORY_TEST_XCOM", "u8_00");
+        }
+    });
+
+    $('#inputFansEnable').change(function() {
+        if ($('#inputFansEnable').prop('checked') == true)
+        {
+           pageObj.handleCheckBoxUpdate("ENERGY", "GUI_FACTORY_TEST_FAN", "u8_01");
+       }
+        else
+        {
+            pageObj.handleCheckBoxUpdate("ENERGY", "GUI_FACTORY_TEST_FAN", "u8_00");
+        }
+    });
+
+    function UpdateIntegrationTest() {
+        var value = 0;
+        if ($('#AutoCycleEnable').prop('checked') == true)
+        {
+            value +=1;
+        }
+        if ($('#AutoInverterUpdate').prop('checked') == true)
+        {
+            value +=2;
+        }
+        if ($('#AutoNSPUpdate').prop('checked') == true)
+        {
+            value +=4;
+        }
+
+        pageObj.handleCheckBoxUpdate("ENERGY", "TEST_CYCLE", pageObj.castVarValue("u8", value));
+    }
+
+    $('#inputToggleBatteryProtection').change(function() {
+        if ($('#inputToggleBatteryProtection').prop('checked') == true)
+        {
+            pageObj.handleCheckBoxUpdate("ENERGY", "GUI_SAFETY_CHARGE", "u8_01");
+        }
+        else
+        {
+            pageObj.handleCheckBoxUpdate("ENERGY", "GUI_SAFETY_CHARGE", "u8_00");
+        }
+    });
+
+    $('#inputTogglePauseSpecialCharge').change(function() {
+        if ($('#inputTogglePauseSpecialCharge').prop('checked') == true)
+        {
+            pageObj.handleCheckBoxUpdate("ENERGY", "GUI_PAUSE_SPECIAL", "u8_01");
+        }
+        else
+        {
+            pageObj.handleCheckBoxUpdate("ENERGY", "GUI_PAUSE_SPECIAL", "u8_00");
+        }
+    });
+
+    $('#inputToggleUseNetwork').change(function() {
+        if ($('#inputToggleUseNetwork').prop('checked') == true)
+        {
+            pageObj.handleCheckBoxUpdate("WIZARD", "NET_SENEC_NO_NETWORK", "u8_00");
+        }
+        else
+        {
+            pageObj.handleCheckBoxUpdate("WIZARD", "NET_SENEC_NO_NETWORK", "u8_01");
+        }
+    });
+
+    $('#inputFullWizard').change(function() {
+        // Turn on full wizard
+        if ($('#inputFullWizard').prop('checked') == true)
+        {
+             $('#fullWizard').html("1");
+        }
+        else
+        {
+            $('#fullWizard').html("0");
+        }
+    });
+
+    function startGridParameterWizard() {
+        if (htmlAsNumber("#FACTORYCOUNTRY") == 0)
+        {
+            if(($("#BAT1TYPE").html() * 1) < 3)
+            {
+                startWizard4105_2018();
+            }
+            else
+            {
+                startWizard4105_2019();
+            }
+        }
+        if (htmlAsNumber("#FACTORYCOUNTRY") == 1)
+        {
+           startWizardCEI();
+        }
+        if (htmlAsNumber("#FACTORYCOUNTRY") == 2)
+        {
+            startWizardAU();
+        }
+    }
+
+    function startPVWizard() {
+
+            startWizardPv();
+
+    }
+
+    function fanTestProcess() {
+
+        if(htmlAsNumber("#ENERGYGUI_FACTORY_TEST_FAN") == 0)
+        {
+            pageObj.handleCheckBoxUpdate("ENERGY", "GUI_FACTORY_TEST_FAN", "u8_01");
+            // The button looks pressed for 1s
+            $("#fanTest").attr("disabled", true);
+            $("#fanTest").text(lng.lConfirmFanTest);
+            console.log("star test");
+        }
+        else
+        {
+            pageObj.handleCheckBoxUpdate("ENERGY", "GUI_FACTORY_TEST_FAN", "u8_00");
+            $("#fanTest").text(lng.lStartFanTest);
+            console.log("stop test");
+        }
+    }
+
+    function triggerSelftest()
+    {
+        console.log("Selftest triggered");
+        pageObj.handleButtonClick("TEST","SELFTEST");
+    }
+
+    function triggerLogRotate()
+    {
+        console.log("Logfile rotate triggered");
+        pageObj.handleButtonClick("DEBUG", "LOG_ROTATE");
+    }
+
+    function triggerLvUpdate()
+    {
+        console.log("Inverter V3 LV update triggered");
+        pageObj.handleButtonClick("BAT1","REQ_LV_UPD");
+    }
+
+    function triggerHvUpdate()
+    {
+        console.log("Inverter V3 HV update triggered");
+        pageObj.handleButtonClick("BAT1","REQ_HV_UPD");
+    }
+    
+    function triggerNspUpdate()
+    {
+    	pageObj.handleButtonClick("SYS_UPDATE", "USER_REQ_NA_UPDATE");	
+    }
+    
+    function triggerInverterUpdate()
+    {
+        pageObj.handleButtonClick("SYS_UPDATE", "USER_REQ_INV_UPDATE");  
+    }
+
+
+    $(document).bind("page.loaded", function() {
+        $('#itestpower').keydown(function(event) {
+            var key = event.keyCode;
+
+            if (key == 13)
+            {
+                if ($('#itestpower').val())
+                {
+                    pageObj.handleTextAreaUpdate("ENERGY", "GRID_POWER_OFFSET", "fl_" + (pageObj.float2hex($('#itestpower').val())));
+                }
+                else
+                {
+                    alert(lng.lSetupTestPowerError);
+                }
+            }
+
+        });
+
+        $("a").unbind();
+        $("a").click(function() {
+            navigate(this.id);
+        });
+        updateLanguage();
+        obj_init();
+    });
+
+    $(document).bind("page.unload", function() {
+        pageObj.stopPageRefresh();
+    });
+</script>
+
+<div class="pagecontent hidden">
+    <div class="row">
+        <div class="span4 labels_title">
+            <p id="lState"></p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="span3">
+            <div class="labels"><p id="lSetupBatteryVoltage"></p></div>
+            <div class="labels"><p id="lSetupBatteryCurrent"></p></div>
+            <div class="pb_only"><div class="labels" ><p id="lSetupNumDesulfatCharges"></p></div></div>
+            <div style="height:2px;background-color:var(--main-color);"></div>
+            <div class="labels"><p id="lSetupBatteryTemp"></p></div>
+            <div class="labels"><p id="lSetupCaseTemp"></p></div>
+            <div style="height:2px;background-color:var(--main-color);"></div>
+            <div class="labels"><p id="lSetupServerConnectionState"></p></div>
+            <div style="height:2px;background-color:var(--main-color);"></div>
+            <div class="labels"><p id="lSetupBatteryInverterConnectionState"></p></div>
+            <div class="single_system">
+	            <div class="labels"><p id="lSetupPowerMeter1ConnectionState"></p></div>
+	            <div class="pm_house labels"><p id="lSetupPowerMeter2ConnectionState"></p></div>
+	            <div class="pv_inverter labels"><p id="lSetupPVConnectionState"></p></div>
+	            <div class="pwr_unit labels"><p id="lSetupPWRUnitConnectionState"></p></div>
+            </div>
+            <div style="height:2px;background-color:var(--main-color);"></div>
+            <div class="modusslave labels"><p id="lSetupMasterConnectionState"></p></div>
+            <div class="modusmaster labels"><p id="lSetupNumConnectedSlaves"></p></div>
+            <div class="modbus" style="height: 2px;background-color:var(--main-color);"></div>
+            <div class="eg_active labels"><p id="lSetupEGSwitchConnectionState"></p></div>
+            <div class="eg_active labels"><p id="lSetupIskraConnectionState"></p></div>
+            <div class="eg_active" style="height: 2px;background-color:var(--main-color);"></div>
+
+            <div style="margin-top:10px; margin-bottom:10px;">
+                <div class="autorisiert">
+                    <p class="germany_only labels" id="lSetupPS1"></p>
+                    <p class="germany_only labels" id="lSetupPS2"></p>
+                    <p class="pb_only labels" id="lSetupPump"></p>
+                    <p class="x_com labels" id="lSetupXCOM"></p>
+                    <p class="not_Steca labels" id="lSetupFAN"></p>
+                </div>
+                <div class="superuser_only">
+	                <p style="height: 2px;background-color:var(--main-color);"></p>
+	                <p class="labels" id="lSetupAutoCycle"></p>
+	                <p class="not_Steca labels">AutoInvUpd</p>
+	                <p class="not_Steca labels">AutoNSPUpd</p>
+	                <p style="height: 2px;background-color:var(--main-color);"></p>
+	                <p class="labels"> <font color="red" id="lSetupReset"></font> </p>
+	                <p class="labels" id="lSetupResetStatistics"></p>
+                </div>
+                <p class="autorisiert" style="height: 2px;background-color:var(--main-color);"></p>
+                <p class="superuser_only labels" id="lSetupSetBatteryProtection"></p>
+                <div class="autorisiert">
+                   <p class="pb_only labels" id="lSetupPauseSpecial"></p>
+                </div>
+                <div class="superuser_only">
+	                <p class="labels" id="lSetupUseInternet"></p>
+	                <p class="labels" id="lSetupOverwriteFeatures"></p>
+	                <p class="labels" id="lSetupFullWizard"></p>
+                </div>
+                <div class="autorisiert">
+                    <div class="not_Steca">
+                        <p class="V2_only labels"><button class="btn btn-mini" type="button" onclick='window.open("/logs-nsp/nsp_error.log")' id="lGetNspLog"></button></p>
+                    </div>
+                    <p class="Steca_only labels"><button class="btn btn-mini" title = "Lüftertest" type="button" id="fanTest" onclick='fanTestProcess()'></button></p>
+                    <p class="Steca_only labels"><button class="btn btn-mini" title="Selbsttest starten" onclick="triggerSelftest()" id="selftestTrigger"></button></p>
+                    <p class="labels"><button class="btn btn-mini" onclick="triggerLogRotate()" id="lRotateTrigger"></button></p>
+                </div>
+                <div class="superuser_only">
+                    <div class="not_Steca">
+                       <p class="V2_only labels"><button class="btn btn-mini" title="Update SENEC.NSP" onclick="triggerNspUpdate()" id="lSetupNAUpdate"></button></p>
+                       <p class="senecbatt labels"><button class="btn btn-mini" title="Update SENEC.Inverter" onclick="triggerInverterUpdate()" id="lSetupInverterUpdate"></button></p>
+                    </div>
+                    <p class="Steca_only labels"><button class="btn btn-mini" title="Update V3 LV" onclick="triggerLvUpdate()" id="updateLvTrigger">Update V3 LV</button></p>
+                    <p class="StecaDuo_only labels"><button class="btn btn-mini" title="Update V3 HV" onclick="triggerHvUpdate()" id="updateHvTrigger">Update V3 HV</button></p>
+                </div>
+                
+            </div>
+        </div>
+
+        <div class="span1">
+            <div style="background: var(--sub-color);">
+                <div class="labels_value" ><p id="ENERGYGUI_BAT_DATA_VOLTAGE">*</p></div>
+                <div class="labels_value" ><p id="ENERGYGUI_BAT_DATA_CURRENT">*</p></div>
+                <div class="pb_only"><div class="labels_value" ><p id="ENERGYSTAT_SULFAT_CHRG_COUNTER">*</p></div></div>
+                <div style= "height: 2px;background-color:var(--main-color);"></div>
+                <div class="labels_value" ><p id="TEMPMEASUREBATTERY_TEMP">*</p></div>
+                <div class="labels_value" ><p id="TEMPMEASURECASE_TEMP">*</p></div>
+                <div style= "height: 2px;background-color:var(--main-color);"></div>
+                <div class="labels_value" ><p id="inputBootReportSuccess">*</p></div>
+                <div style= "height: 2px;background-color:var(--main-color);"></div>
+                <div class="labels_value" ><p id="inputXComCommOk">*</p></div>
+                <div class="single_system">
+	                <div class="labels_value" ><p id="inputRS485CommPM1">*</p></div>
+	                <div class="pm_house labels_value" ><p id="inputRS485CommPM2">*</p></div>
+	                <div class="pv_inverter labels_value" ><p id="inputRS485CommInverter">*</p></div>
+	                <div class="pwr_unit labels_value" ><p id="inputRS485PwrUnit">*</p></div>
+                </div>
+                <div style="height: 2px;background-color:var(--main-color);"></div>
+                <div class="modusslave labels_value" ><p id="commSl2Ma">*</p></div>
+                <div class="modusmaster labels_value" ><p id="PM1MB_SLAVES_COUNT">*</p></div>
+                <div class="modbus" style="height: 2px;background-color:var(--main-color);"></div>
+                <div class="eg_active labels_value" ><p id="inputRS485EGSw">*</p></div>
+                <div class="eg_active labels_value" ><p id="inputRS485EGMtr">*</p></div>
+                <div class="eg_active" style= "height: 2px;background-color:var(--main-color);"></div>
+            </div>
+
+            <div style="margin-top:10px; margin-bottom:10px;">
+                <div class="autorisiert">
+                    <p class="germany_only labels"><input id="inputSocket1ForceOn" type="checkbox" ></p>
+                    <p class="germany_only labels"><input id="inputSocket2ForceOn" type="checkbox" ></p>
+                    <p class="pb_only labels"><input id="inputPumpEnable" type="checkbox" ></p>
+                    <p class="x_com labels"><input id="inputRelaisEnable" type="checkbox" ></p>
+                    <p class="not_Steca labels"><input id="inputFansEnable" type="checkbox" ></p>
+                </div>
+                <div class="superuser_only">
+	                <p class="labels" style="height: 2px;background-color:var(--main-color);"></p>
+	                <p class="labels"><input id="AutoCycleEnable" type="checkbox" onchange="UpdateIntegrationTest();"></p>
+	                <p class="not_Steca labels"><input id="AutoInverterUpdate" type="checkbox" onchange="UpdateIntegrationTest();" ></p>
+	                <p class="not_Steca labels"><input id="AutoNSPUpdate" type="checkbox" onchange="UpdateIntegrationTest();" ></p>
+	                <p class="labels" style="height: 2px;background-color:var(--main-color); margin-top:10px;"></p>
+	                <p class="labels"></p>
+	                <p class="labels"><input id="inputClearRemanentData" type="checkbox" ></p>
+                </div>
+                <p class="autorisiert labels" style="height: 2px;background-color:var(--main-color);"></p>
+                <p class="superuser_only labels"><input id="inputToggleBatteryProtection" type="checkbox" ></p>
+                <div class="autorisiert">
+                    <p class="pb_only labels"><input id="inputTogglePauseSpecialCharge" type="checkbox" ></p>
+                </div>
+                <p class="superuser_only labels"><input id="inputToggleUseNetwork" type="checkbox" ></p>
+                <p class="superuser_only labels"><input id="inputOverwriteFeatures" type="checkbox" ></p>
+                <p class="superuser_only labels"><input id="inputFullWizard" type="checkbox" ></p>
+            </div>
+        </div>
+
+        <div class="offset4">
+            <div class="span6 autorisiert">
+               <div class="row" style="margin-top: 15px;">
+                   <div class="span3 text-center" onclick="startWizard('edit');"><div class="img_clip_icon_wizard_50px"><img src="./img/all_images.gif" class="img-button"></div></div>
+                   <div class="span3 text-center" onclick="startGridParameterWizard();"><div class="img_clip_icon_gridparamter"><img src="./img/all_images.gif" class="img-button"></div></div>
+               </div>
+               <div class="row" style="margin-top: 5px; text-align: center">
+                    <div class="span3"><p id="lSetupConfigWizard"></p></div>
+                    <div class="span3"><p id="lSetupGridParameter"></p></div>
+                </div>
+            </div>
+
+            <div class="span6 autorisiert">
+                <div class="row" style="margin-top: 15px;">
+                    <div class="span3 text-center" onclick="UserRebootClickEvent();"><div class="img_clip_icon_tools_50px" id="RebootDevicebtn"><img src="./img/all_images.gif" class="img-button"></div></div>
+                    <div class="span3 text-center" onclick="CapacityTestbtnClickEvent();"><div class="img_clip_icon_wizard_50px" id="GuiDataCapacityTestBTN"><img src="./img/all_images.gif" class="img-button"></div></div>
+                </div>
+                <div class="row" style="margin-top: 5px; text-align: center">
+                    <div class="span3"><p id="lSetupRestartMCU"></p></div>
+                    <div class="span3"><p id="lSetupCapacityTest"></p></div>
+                </div>
+            </div>
+
+            <div class="span6 autorisiert">
+                <div class="row" style="margin-top: 15px;">
+                    <div class="eg_allowed span3 text-center" onclick="startWizardEconamicGrid('edit');"><div class="img_clip_icon_econamic_grid_50px"><img src="./img/all_images.gif" class="img-button"></div></div>
+                    <div class="span3 text-center cBatteryWizard" onclick="startWizardBMZ();"><div class="img_clip_icon_wartungsladung_50px"><img src="./img/all_images.gif" class="img-button"></div></div>
+                    <div class="span3 text-center cSamsungBatteryWizard" onclick="startWizardSamsung();"><div class="img_clip_icon_wartungsladung_50px"><img src="./img/all_images.gif" class="img-button"></div></div>
+                </div>
+                <div class="row" style="margin-top: 5px; text-align: center">
+                    <div class="eg_allowed span3"><p id="lSetupEGWizard"></p></div>
+                    <div class="span3 cBatteryWizardText"></div>
+                    <div class="span3 cSamsungBatteryWizardText"></div>
+                </div>
+            </div>
+
+            <div class="autorisiert">
+                <div class="span6 Steca_only">
+                <div class="row" style="margin-top: 15px;">
+                    <div class="span3 text-center" onclick="startPVWizard('edit');"><div class="img_clip_icon_econamic_grid_50px"><img src="./img/all_images.gif" class="img-button"></div></div>
+                </div>
+                <div class="row" style="margin-top: 5px; text-align: center">
+                    <div class="span3"><p id="lSetupPvWizard"></p></div>
+                </div>
+                </div>
+            </div>
+
+            <div class="span6 autorisiert">
+                <div style="height: 2px;background-color:var(--main-color);"></div>
+                <div class="row" style="margin-top: 15px; text-align: center">
+                    <div class="span3" ><p id="lSetupTestPower"></p></div>
+                    <div class="span3"> <input type="text" class="input-mini" id="itestpower" style="height: 11px;font-size: 11px;line-height: 11px;"></div>
+                </div>
+                <div class="row" style="margin-top: 15px;">
+                    <div class="span3 text-center autorisiert" onclick="ChargebtnClickEvent();"><div class="img_clip_icon_charge_50px" id="GuiDataTestChargeChargebtn"><img src="./img/all_images.gif" class="img-button"></div></div>
+                    <div class="span3 text-center" onclick="DischargebtnClickEvent();"><div class="img_clip_icon_discharge_50px" id="GuiDataTestChargeDischargebtn"><img src="./img/all_images.gif" class="img-button"></div></div>
+                </div>
+                <div class="row" style="margin-top: 5px; text-align: center">
+                    <div class="span3"><p id="lSetupCharge"></p></div>
+                    <div class="span3"><p id="lSetupdDischarge"></p></div>
+                </div>
+                <div style="height: 2px;background-color:var(--main-color);"></div>
+            </div>
+
+            <div class="span6">
+                <div class="row" style="margin-top: 15px; text-align: center">
+                    <strong id="lSetupLanguageSelection"></strong>
+                </div>
+                <div class="row" style="margin-top: 10px; margin-left: 100px;">
+                    <div class="span1"><div class="img_clip_icon_ger_flag"><img onclick="_lang_selector_onchange(0)" alt="German" src="./img/all_images.gif" class="img-button"></div></div>
+                    <div class="span1"><div class="img_clip_icon_eng_flag"><img onclick="_lang_selector_onchange(1)" alt="English" src="./img/all_images.gif" class="img-button"></div></div>
+                    <div class="span1"><div class="img_clip_icon_it_flag"><img onclick="_lang_selector_onchange(2)" alt="Italian" src="./img/all_images.gif" class="img-button"></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="pageinfo row">
+    <div class="span6 offset2 text-center" ><strong id="lLoadPage" style="margin-top: 50px;"></strong></div>
+</div>
+
+<div class="hide">
+    <p id="SYS_UPDATEBOOT_REPORT_SUCCESS">00</p>
+    <p id="SYS_UPDATEUSER_REBOOT_DEVICE">00</p>
+    <p id="SYS_UPDATEUPDATE_AVAILABLE"></p>
+    <p id="SYS_UPDATEFEATURE_OVERWRITE"></p>
+
+    <p id="ENERGYGUI_EQUAL_CHARGE_RUN">00</p>
+    <p id="ENERGYGUI_TEST_CHARGE_STAT">00</p>
+    <p id="ENERGYGUI_TEST_DISCHARGE_STAT">00</p>
+    <p id="ENERGYGRID_POWER_OFFSET"></p>
+    <p id="ENERGYGUI_CAP_TEST_STATE"></p>
+
+    <p id="PM1PWR_METERS_MISSING"></p>
+    <p id="PM1MB_SL2MA_CONN"></p>
+    <p id="PV1PV_MISSING"></p>
+    <p id="BAT1BATTERIES_MISSING"></p>
+
+    <p id="SOCKETSFORCE_ON0"></p>
+    <p id="SOCKETSFORCE_ON1"></p>
+    <p id="ENERGYGUI_FACTORY_TEST_PUMP"></p>
+    <p id="ENERGYGUI_FACTORY_TEST_XCOM"></p>
+    <p id="ENERGYGUI_FACTORY_TEST_FAN"></p>
+    <p id="ENERGYTEST_CYCLE"></p>
+    <p id="ENERGYGUI_SAFETY_CHARGE"></p>
+    <p id="ENERGYGUI_PAUSE_SPECIAL"></p>
+    <p id="WIZARDNET_SENEC_NO_NETWORK"></p>
+    <p id="WIZARDDEVICE_PM_HOUSE_ENABLED"></p>
+    <p id="WIZARDMASTER_SLAVE_MODE"></p>
+
+    <p id="STATISTICSTAT_REQ_CLEAR_REM_DATA"></p>
+
+    <p id="BAT1TYPE"></p>
+
+    <p id="PWR_UNITPU_MISSING"></p>
+    <p id="PWR_UNITTYPE0"></p>
+    <p id="PWR_UNITTYPE1"></p>
+    <p id="PWR_UNITTYPE2"></p>
+    <p id="PWR_UNITTYPE3"></p>
+    <p id="PWR_UNITTYPE4"></p>
+    <p id="PWR_UNITTYPE5"></p>
+
+    <p id="EG_CONTROLEG_SW_ERROR"></p>
+    <p id="EG_CONTROLEG_MTR_ERROR"></p>
+    <p id="EG_CONTROLACTIVE"></p>
+
+    <p id="STECAPVSS"></p>
+    <p id="BAT1REQ_LV_UPD"></p>
+    <p id="BAT1REQ_HV_UPD"></p>
+    <p id="TESTSELFTEST"></p>
+
+</div>

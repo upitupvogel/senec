@@ -1,0 +1,116 @@
+<style>
+.top-left {
+    position: absolute;
+    top: 110px;
+    left: 172px;
+    transform: translate(-50%, -50%);
+    text-align: left;
+    width: 185px;
+    height: 100px;
+}
+.top-right {
+    position: absolute;
+    top: 110px;
+    left: 388px;
+    transform: translate(-50%, -50%);
+    text-align: left;
+    width: 185px;
+    height: 100px;
+}
+.bottom-left {
+    position: absolute;
+    top: 230px;
+    left: 172px;
+    transform: translate(-50%, -50%);
+    text-align: left;
+    width: 185px;
+    height: 100px;
+}
+.bottom-right {
+    position: absolute;
+    top: 230px;
+    left: 388px;
+    transform: translate(-50%, -50%);
+    text-align: left;
+    width: 185px;
+    height: 100px;
+}
+.footer-center {
+    position: absolute;
+    top: 65%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    width: 400px;
+    height: 30px;
+}
+.borderClass{
+  border-color: green;
+  border-width:5px;
+  border-style: solid;
+  /** OR USE INLINE
+  border: 1px solid #C1E0FF;
+  **/
+}
+</style>
+
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" id="btnWizardBMZ_close" onclick="confwizardBMZClose();">×</button>
+    <h3 id="lBatteryHeader"></h3>
+</div>
+
+<div id="pnWizardBMZModalBody" class="modal-body" style="height:800px;">
+    <img src="img/bmz_wizard.png" style="width:100%;height:400px">
+    <div class="top-left" id="BMZInfo1">
+    </div>
+    <div class="top-right" id="BMZInfo0">
+    </div>
+    <div class="bottom-left" id="BMZInfo2">
+    </div>
+    <div class="bottom-right" id="BMZInfo3">
+    </div>
+    <div class="footer-center" id="BMZStatus">
+    </div>
+</div>
+
+<div class="modal-footer">
+    <button class="btn btn-wizard" onclick="sendBMZCommand('Start')" id="BMZStart" style="float: left;"></button>
+    <button class="btn btn-wizard" onclick="sendBMZCommand('Confirm')" id="Confirm"></button>
+    <button class="btn btn-wizard" onclick="confwizardBMZClose()" id="BMZClose"></button>
+</div>
+
+<div class="hidden">
+    <p id="BMSMODULE_COUNT"></p>
+    <p id="BMSSN0"></p>
+    <p id="BMSSN1"></p>
+    <p id="BMSSN2"></p>
+    <p id="BMSSN3"></p>
+    <p id="BMSSOC0"></p>
+    <p id="BMSSOC1"></p>
+    <p id="BMSSOC2"></p>
+    <p id="BMSSOC3"></p>
+    <p id="BMSVOLTAGE0"></p>
+    <p id="BMSVOLTAGE1"></p>
+    <p id="BMSVOLTAGE2"></p>
+    <p id="BMSVOLTAGE3"></p>
+    <p id="BMSCURRENT0"></p>
+    <p id="BMSCURRENT1"></p>
+    <p id="BMSCURRENT2"></p>
+    <p id="BMSCURRENT3"></p>
+    <p id="BMSWIZARD_DCCONNECT"></p>
+    <p id="BMSWIZARD_STATE"></p>
+    <p id="BMSWIZARD_START"></p>
+    <p id="BMSWIZARD_CONFIRM"></p>
+    <p id="BMSWIZARD_ABORT"></p>
+    <p id="BMSFW0"></p>
+    <p id="BMSFW1"></p>
+    <p id="BMSFW2"></p>
+    <p id="BMSFW3"></p>
+    <p id="BAT1TYPE"></p>
+    <p id="STECAPVSS"></p>
+    <p id="BMSSTATUS0"></p>
+    <p id="BMSSTATUS1"></p>
+    <p id="BMSSTATUS2"></p>
+    <p id="BMSSTATUS3"></p>
+    <p id="BMSERROR"></p>
+</div>

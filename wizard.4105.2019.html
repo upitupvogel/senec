@@ -1,0 +1,162 @@
+<style>
+input{
+    width: 75px;
+}
+</style>
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" onclick="confWIZARDClose();">×</button>
+    <h3 id="l4105Header"></h3>
+</div>
+
+<div class="modal-body">
+	<!-- Parameter Seite  -->           
+    <div id="lblWizard4105_2019CheckResult"  class="wizard-check-result"> </div>
+    <table>
+        <tr>
+            <td style="width: 350px;">
+                <label for="checkboxWizard4105_2019_cosphi" id="l4105cosphiSetting"></label>
+            </td>
+            <td>
+                <input class="has-tooltip" title="Default-Wert 1" type="checkbox" id="checkboxWizard4105_2019_cosphi" onchange="CosPhi4105_2019Update()" style="margin-left:3px;">
+            </td>
+        </tr>
+        <tr class="CosPhiFix">
+            <td>
+                <label for="GRIDCONFIGVDEFIXEDFAC" id="l4105cosphiSettingIndividual"></label>
+            </td>
+            <td>
+                <input class="has-tooltip" title="-0.95..-0.99 untererregt | 1..0.95 übererregt" type="text" id="GRIDCONFIGVDEFIXEDFAC" value="Test">
+            </td>
+            <td>cos &Phi;</td>
+        </tr>
+        <tr>
+            <td>
+                <label for="GRIDCONFIGVDEOVERFREQLIMIT" id="l4105activePowerControlOverFrequency"></label>
+            </td>
+            <td>
+                <input class="has-tooltip" title="min 50.2 Hz | default 50.2Hz | max 50.5 Hz" type="text" id="GRIDCONFIGVDEOVERFREQLIMIT" value="Test">
+            </td>
+            <td>Hz</td>
+        </tr>
+        <tr>
+            <td>
+                <label id="l4105activePowerControlUnderFrequency"></label>
+            </td>
+            <td>
+                <input disabled class="has-tooltip" title="default 49.8 Hz" type="text" value="49.8">
+            </td>
+            <td>Hz</td>
+        </tr>
+        <tr>
+            <td>
+                <label for="GRIDCONFIGVDEOVERFREQDROOP" id="l4105activePowerControlDroopOverFrequency"></label>
+            </td>
+            <td>
+                <input class="has-tooltip" title="min 2 % | default 5 % | max 12 %" type="text" id="GRIDCONFIGVDEOVERFREQDROOP" value="Test">
+            </td>
+            <td>%</td>    
+        </tr>
+        <tr>
+            <td>
+                <label for="GRIDCONFIGVDEUNDERFREQDROOP" id="l4105activePowerControlDroopUnderFrequency"></label>
+            </td>
+            <td>
+                <input class="has-tooltip" title="min 2 % | default 5 % | max 12 %" type="text" id="GRIDCONFIGVDEUNDERFREQDROOP" value="Test">
+            </td>
+            <td>%</td>
+        </tr>
+        <tr>
+            <td>
+                <label for="GRIDCONFIGVDECOSPHITIME" id="l4105cosphiTimeLimit"></label>
+            </td>
+            <td>
+                <input class="has-tooltip" title="min 6 s | default 10 s | max 60 s" type="text" id="GRIDCONFIGVDECOSPHITIME" value="Test">
+            </td>
+            <td>s</td>
+        </tr>
+        <tr>
+            <td>
+                <label for="checkboxWizard4105_2019_lvfrt" id="l4105LvfrtEnable"></label>
+            </td>
+            <td>
+                <input class="has-tooltip" type="checkbox" id="checkboxWizard4105_2019_lvfrt" onchange="LVFRT4105_2019Update()" style="margin-left:3px;">
+            </td>
+        </tr>
+        <tr class="LVFRT">
+            <td>
+                <label for="GRIDCONFIGVDERECOVERTIME" id="l4105FRT"></label>
+            </td>
+            <td>
+                <input class="has-tooltip" title="min 3 s | default 10 s | max 60 s" type="text" id="GRIDCONFIGVDERECOVERTIME" value="Test">
+            </td>
+            <td>s</td>
+        </tr>
+        </table>
+<hr>
+    <table>
+    <tr>
+        <td style="width: 350px;">
+            <label>Spannungssteigerungsschutz U&gt;&gt;</label>
+        </td>
+        <td>
+            <input type="text" value="125" disabled>
+        </td>
+        <td>%</td>
+    </tr>
+    <tr>
+        <td>
+            <label>Spannungssteigerungsschutz U&gt;</label>
+        </td>
+        <td>
+           <input class="has-tooltip" title="min 100% | default 110% | max 115%" type="text" id="GRIDCONFIGVDEURMSMAX10" value="Test">
+        </td>
+        <td>%</td>
+    </tr>
+    <tr>
+        <td>
+            <label>Spannungsrückgansschutz U&lt;</label>
+        </td>
+        <td>
+           <input type="text" value="80" disabled>
+        </td>
+        <td>%</td>
+    </tr>
+    <tr>
+        <td>
+            <label>Spannungsrückgansschutz U&lt;&lt;</label>
+        </td>
+        <td>
+           <input type="text" value="45" disabled>
+        </td>
+        <td>%</td>
+    </tr>
+    <tr>
+        <td>
+            <label>Frequenzrückgangsschutz f&lt;</label>
+        </td>
+        <td>
+           <input type="text" value="47.5" disabled>
+        </td>
+        <td>Hz</td>
+    </tr>
+    <tr>
+        <td>
+            <label>Frequenzsteigerungsschutz f&gt;</label>
+        </td>
+        <td>
+           <input type="text" value="51.5" disabled>
+        </td>
+        <td>Hz</td>
+    </tr>
+    </table>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-wizard" onclick="confwizard4105_2019NextPage()" id="Save"></button>
+</div>
+
+
+<div class="hidden">
+    <p id="GRIDCONFIGVDETARGETTY"></p>
+    <p id="GRIDCONFIGVDELVFRTDISABLE"></p>
+</div>
+

@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<script type="text/javascript">
+    var pageObj;
+    var IndexPageObj;
+    var wait_for_gui_language = true;
+    var lang_val = 0;
+    var userLevel;
+
+    var chargetoggle = false;
+
+    function obj_init() {
+        IndexPageObj = new senecPage(updateLanguage);
+        //add child object to parent object
+        IndexPageObj.add_json_object("FACTORY");
+        IndexPageObj.add_json_object("EG_CONTROL");
+        IndexPageObj.add_property_to_object("FACTORY", "SYS_TYPE", "");
+        IndexPageObj.add_property_to_object("FACTORY", "COUNTRY", "");
+        IndexPageObj.add_property_to_object("FACTORY", "DEVICE_ID", "");
+        IndexPageObj.singlePageRefresh();
+
+        IndexPageObj = new senecPage(updateLanguage);
+        IndexPageObj.add_json_object("WIZARD");
+        IndexPageObj.add_json_object("LOG");
+        IndexPageObj.add_json_object("RTC");
+        IndexPageObj.add_json_object("FEATURES");
+        IndexPageObj.add_json_object("BMS");
+
+        IndexPageObj.add_property_to_object("WIZARD", "GUI_LANG", "");
+        IndexPageObj.add_property_to_object("WIZARD", "FEATURECODE_ENTERED", "");
+
+        IndexPageObj.add_property_to_object("LOG", "USER_LEVEL", "");
+        IndexPageObj.add_property_to_object("LOG", "USERNAME", "");
+
+        IndexPageObj.add_property_to_object("RTC", "WEB_TIME", "");
+        IndexPageObj.add_property_to_object("BMS", "MODULE_COUNT", "");
+        IndexPageObj.add_property_to_object("BMS", "MODULES_CONFIGURED", "");
+
+        IndexPageObj.singlePageRefresh();
+        IndexPageObj.startPageRefresh(500);
+
+        pageObj = new senecPage(updateValues);
+
+        pageObj.add_json_object("ENERGY");
+        pageObj.add_json_object("WIZARD");
+        pageObj.add_json_object("SYS_UPDATE");
+
+        pageObj.add_property_to_object("ENERGY", "STAT_STATE", "");
+        pageObj.add_property_to_object("ENERGY", "STAT_STATE_DECODE", "");
+
+        pageObj.add_property_to_object("ENERGY", "GUI_BAT_DATA_POWER", "");
+        pageObj.add_property_to_object("ENERGY", "GUI_INVERTER_POWER", "");
+        pageObj.add_property_to_object("ENERGY", "GUI_HOUSE_POW", "");
+        pageObj.add_property_to_object("ENERGY", "GUI_GRID_POW", "");
+
+        pageObj.add_property_to_object("ENERGY", "STAT_MAINT_REQUIRED", "");
+        pageObj.add_property_to_object("ENERGY", "GUI_BAT_DATA_FUEL_CHARGE", "");
+        pageObj.add_property_to_object("ENERGY", "GUI_CHARGING_INFO", "");
+        pageObj.add_property_to_object("ENERGY", "GUI_BOOSTING_INFO", "");
+
+        pageObj.add_property_to_object("WIZARD", "CONFIG_LOADED", "");
+
+        pageObj.add_property_to_object("SYS_UPDATE", "UPDATE_AVAILABLE", "");
+
+        pageObj.add_property_to_object("WIZARD", "SETUP_NUMBER_WALLBOXES", "");
+
+        for(let wi = 0; wi < 4; wi++) {
+            pageObj.add_property_to_object("WIZARD", "SETUP_WALLBOX_SERIAL" + wi, "");
+        }
+
+        pageObj.startPageRefresh(1000);
+    }
+
+    var modal_input = 0;
+    var MaintenanceRequiredPopup = false;
+
+    function checkLithium()
+    {
+        var SystemType = htmlAsNumber('#FACTORYSYS_TYPE');
+        if (SystemType == 4 ||
+            SystemType == 5 ||
+            SystemType == 6 ||
+            SystemType == 9 ||
+            SystemType == 12 ||
+            SystemType == 13 ||
+            SystemType == 14 ||
+            SystemType == 15 ||
+            SystemType == 16 ||
+            SystemType == 17 ||
+            SystemType == 18 ||
+            SystemType == 19
+            )
+        {
+            $('#isLithium').html("1");
+        }
+        if (SystemType == 17 ||
+            SystemType == 18 ||
+            SystemType == 19
+            )
+       	{
+            $('#isSteca').html("1");
+       	}
+    }
+
+    function setMCUtype()
+    {
+        if (htmlAsNumber('#FACTORYSYS_TYPE') <= 8)
+        {
+            $('#MCU_Type').html("1");
+        }
+        else
+        {
+            $('#MCU_Type').html("2");
+        }
+    }
+
+    function updateValues()
+    {
+        //HAUSVERBRAUCH
+        $('#GuiDataOverViewPowerHouseConsumption').text(Math.abs(roundValue(htmlAsNumber('#ENERGYGUI_HOUSE_POW') / 1000, 2)) + " kW");
+
+        //ERZEUGTER PV-STROM
+        $('#GuiDataOverViewPowerPVGenerated').text(Math.abs(roundValue(htmlAsNumber('#ENERGYGUI_INVERTER_POWER') / 1000, 2)) + " kW");
+
+        //AKKU-BELADUNG ODER -ENTNAHME
+        if (htmlAsNumber('#ENERGYGUI_BAT_DATA_POWER') < 0)
+        {
+            $('#GuiDataOverViewPowerBatteryCharge').text("0" + " kW");
+            $('#GuiDataOverViewPowerBatteryDischarge').text(roundValue(htmlAsNumber('#ENERGYGUI_BAT_DATA_POWER') * (-1) / 1000, 2) + " kW");
+        }
+        else
+        {
+            $('#GuiDataOverViewPowerBatteryCharge').text(roundValue(htmlAsNumber('#ENERGYGUI_BAT_DATA_POWER') / 1000, 2) + " kW");
+            $('#GuiDataOverViewPowerBatteryDischarge').text("0" + " kW");
+        }
+
+        //NETZBEZUG ODER -EINSPEISUNG
+        if (htmlAsNumber('#ENERGYGUI_GRID_POW') < 0)
+        {
+            $('#GuiDataOverViewPowerGridImport').text("0" + " kW");
+            $('#GuiDataOverViewPowerGridExport').text(roundValue(htmlAsNumber('#ENERGYGUI_GRID_POW') * (-1) / 1000, 2) + " kW");
+
+        }
+        else
+        {
+            $('#GuiDataOverViewPowerGridImport').text(roundValue(htmlAsNumber('#ENERGYGUI_GRID_POW') / 1000, 2) + " kW");
+            $('#GuiDataOverViewPowerGridExport').text("0" + " kW");
+        }
+
+        $("#systemState").text(system_state_name[parseInt($("#ENERGYSTAT_STATE").html())]);
+
+        // Display maintenance-required pop-up once per page reload
+        var MaintenanceRequired = $('#ENERGYSTAT_MAINT_REQUIRED').html() == 1;
+
+        if (MaintenanceRequired && !MaintenanceRequiredPopup)
+        {
+            MaintenanceRequiredPopup = true;
+
+            alert("Wartung notwendig, bitte kontaktieren Sie Ihren Installateur.");
+        }
+
+        if (htmlAsNumber("#SYS_UPDATEUPDATE_AVAILABLE") == 1 &&
+            ($('#updateDeclined').html() == 0))
+        {
+        if (modal_input != 'modal_update')
+            {
+                if (modal_getState() == 4 | modal_getState() == 0)
+                {
+                    $.ajax({
+                        type: "GET",
+                        contentType: "application/x-www-form-urlencoded; charset=iso-8859-1",
+                        dataType: "html",
+                        url: './modal.update.html',
+                        success: function(html) {
+                            $("#modalWindow").empty();
+                            $("#modalWindow").append(html);
+                            $(document).trigger("page.loaded");
+                        }
+                    });
+                    $('#modalWindow').modal('show');
+
+                    modal_input = 'modal_update';
+                }
+            }
+        }
+        else
+        {
+	        // System is NOT configured
+	        if (htmlAsNumber("#WIZARDCONFIG_LOADED") == 0 ||
+                // Or BMS is not configured
+                ((htmlAsNumber($("#BMSMODULES_CONFIGURED")) == 0) &&
+                (htmlAsNumber("#WIZARDCONFIG_LOADED") == 1) &&
+                (htmlAsNumber("#FACTORYSYS_TYPE") >= 15)) )  // BMZ oder Samsung Konfiguration needed
+	        {
+	        	// Open Login window if needed
+	            if (isLoggedIn() == false)
+	            {
+	                if (modal_input != 'modal_login')
+	                {
+	                    if (modal_getState() == 4 | modal_getState() == 0)
+	                    {
+	                        $('#modalWindow').text("system ist nicht konfiguriert");
+	                        $.ajax({
+	                            type: "GET",
+	                            contentType: "application/x-www-form-urlencoded; charset=iso-8859-1",
+	                            dataType: "html",
+	                            url: './modal.login.html',
+	                            success: function(html) {
+	                                $("#modalWindow").empty();
+	                                $("#modalWindow").append(html);
+	                            }
+	                        });
+	                        $('#modalWindow').modal('show');
+
+	                        modal_input = 'modal_login';
+	                    }
+	                }
+	            }
+	            else
+	            {
+	            	// Do not open any window for our professionals
+	                if (isProfessionalUser()) //schaltschrankbauer oder administrator...
+	                {
+	                    if (modal_input == 'modal_login')
+	                    {
+	                        $("#modalWindow").empty();
+	                        $('#modalWindow').modal('hide');
+
+	                        modal_input = null;
+	                    }
+	                }
+
+	            	// Check if we are logged in as installer
+	                if (isInstallerUser()) { //installateur...
+	                    if (modal_input == 'modal_login') {
+	                        $('#modalWindow').modal('hide');
+
+	                        modal_input = null;
+	                    }
+
+	                    // Open wizard if system is not configured
+	                    if ((modal_input != 'modal_wizard') &&
+                            (htmlAsNumber("#WIZARDCONFIG_LOADED") == 0) ) {
+	                        if (modal_getState() == 4 | modal_getState() == 0) {
+	                            modal_input = null;
+
+	                            console.log("Wizard wird gestartet...");
+	                            startWizard('new');
+
+	                            modal_input = 'modal_wizard';
+	                        }
+
+	                        console.log("modal_getState() = " + modal_getState());
+                        }
+                        
+                        // Open battery wizard if system is already configured
+                        if(htmlAsNumber("#WIZARDCONFIG_LOADED") == 1)
+                        {
+                            // BMZ wizard
+                            if((htmlAsNumber("#FACTORYSYS_TYPE") >= 15) &&
+                               (htmlAsNumber("#FACTORYSYS_TYPE") != 19))
+                            {
+                                if((modal_input != 'modal_wizardBMZ') &&
+                                   $("#bmzclosed").html() < 1)
+                                {
+                                    if (modal_getState() == 4 | modal_getState() == 0) {
+                                        modal_input = null;
+
+                                        console.log("Wizard wird gestartet...");
+                                        startWizardBMZ();
+
+                                        modal_input = 'modal_wizardBMZ';
+                                    }
+                                    console.log("modal_getState() = " + modal_getState());
+                                }
+                            }
+                            // Samsung wizard
+                            else if(htmlAsNumber("#FACTORYSYS_TYPE") == 19)
+                            {
+                                if((modal_input != 'modal_wizardSamsung') &&
+                                   $("#samsungclosed").html() < 1)
+                                {
+                                    if (modal_getState() == 4 | modal_getState() == 0) {
+                                        modal_input = null;
+
+                                        console.log("Starting Samsung wizard...");
+                                        startWizardSamsung();
+
+                                        modal_input = 'modal_wizardSamsung';
+                                    }
+                                    console.log("modal_getState() = " + modal_getState());
+                                }
+                            }
+                        }
+	                }
+	            }
+	        }
+	        // System IS configured
+            else 
+            {
+                if (modal_input == 'modal_wizard') {
+                    console.log("Wizard wird geschlossen...");
+
+                    modal_input = 0;
+
+                    $("#modalWindow").empty();
+                    $('#modalWindow').modal('hide');
+
+                    modal_input=null;
+                }
+
+                if (modal_input == 'modal_wizardEconamicGrid') {
+                    console.log("Wizard-Econamic-Grid wird geschlossen...");
+
+                    modal_input = 0;
+
+                    $("#modalWindow").empty();
+                    $('#modalWindow').modal('hide');
+
+                    modal_input=null;
+                }
+	        }
+	    }
+
+        $('.pageinfo').addClass('hidden').hide();
+        $('.pagecontent').removeClass('hidden').show();
+
+        // Charge balks
+        var FuelGauge = Math.floor((htmlAsNumber("#ENERGYGUI_BAT_DATA_FUEL_CHARGE") + 10) / 20);
+
+        $('.chargeBalk').removeClass("chargeBalkActive");
+        $('.dischargeBalk').removeClass("chargeBalkActive");
+        for(var i=0;i<=FuelGauge;i++){
+          $('.chargeBalk:eq('+(5-i)+')').addClass("chargeBalkActive");
+          $('.dischargeBalk:eq('+(5-i)+')').addClass("chargeBalkActive");
+        }
+
+        // Toggle if needed
+        var charging = htmlAsNumber('#ENERGYGUI_CHARGING_INFO');
+        var boosting = htmlAsNumber('#ENERGYGUI_BOOSTING_INFO');
+
+        if (chargetoggle) chargetoggle = false; else chargetoggle = true;
+
+        if (charging && FuelGauge < 5) {
+            if (!chargetoggle) $('.chargeBalk:eq('+(4-FuelGauge)+')').addClass("chargeBalkActive");
+            else $('.chargeBalk:eq('+(4-FuelGauge)+')').removeClass("chargeBalkActive");
+        }
+        if (boosting && FuelGauge > 0) {
+            if (!chargetoggle) $('.dischargeBalk:eq('+(5-FuelGauge)+')').addClass("chargeBalkActive");
+            else $('.dischargeBalk:eq('+(5-FuelGauge)+')').removeClass("chargeBalkActive");
+        }
+
+    }
+    function updateLanguage()
+    {
+        // Wait for Language Settings
+        var language_byte = $("#WIZARDGUI_LANG").html().trim();
+        if (language_byte.length > 0)
+        {
+           lang_val = htmlAsNumber("#WIZARDGUI_LANG");
+          if(!wait_for_gui_language)
+             {
+
+                 _update_text_strings();
+                 _update_tooltips_strings();
+             }
+          if (wait_for_gui_language)
+              {
+                 console.log("Language Byte received");
+                 wait_for_gui_language = false;
+                 _selectLanguage(lang_val);
+            }
+        }
+
+        // Update User Label
+        userLevel = htmlAsNumber('#LOGUSER_LEVEL');
+        showUserLevel(userLevel);
+
+        // If userlevel is manufacturer -> switch to german language
+        if (userLevel == 6 && !_check_for_german_languagefile())
+            _selectLanguage(0);
+
+        // Update Time
+        // WEB_TIME contains the local timestamp, but Javascript Date expects
+        // an UTC Unix timestamp in constructor. Thus, the UTC offset is added
+        // twice to the date. To get the local time, the UTC offset is
+        // subtracted once. The function getTimezoneOffset() will return the
+        // difference between local time and UTC time in minutes. E.g. it will
+        // return -120 for CEST.
+        var date = new Date($("#RTCWEB_TIME").html()*1000);
+        date.setTime(date.getTime() + (date.getTimezoneOffset()*60*1000));
+
+        if(date.getDate() < 10)
+            $("#RTCWEB_TIME_DAY").html("0"+date.getDate());
+        else
+            $("#RTCWEB_TIME_DAY").html(date.getDate());
+
+        if( (date.getMonth()+1) < 10)
+            $("#RTCWEB_TIME_MONTH").html("0" + (date.getMonth()+1));
+        else
+            $("#RTCWEB_TIME_MONTH").html(date.getMonth()+1);
+
+        if(date.getHours() < 10)
+            $("#RTCWEB_TIME_HOUR").html("0"+date.getHours());
+        else
+            $("#RTCWEB_TIME_HOUR").html(date.getHours());
+
+        if(date.getMinutes() < 10)
+            $("#RTCWEB_TIME_MIN").html("0"+date.getMinutes());
+        else
+            $("#RTCWEB_TIME_MIN").html(date.getMinutes());
+
+        $("#RTCWEB_TIME_YEAR").html(date.getFullYear());
+
+
+        $("#footer_time_string").html($("#RTCWEB_TIME_DAY").html() + "." +
+                $("#RTCWEB_TIME_MONTH").html() + "." +
+                htmlAsNumber("#RTCWEB_TIME_YEAR") +
+                " " +
+                $("#RTCWEB_TIME_HOUR").html() + ":" +
+                $("#RTCWEB_TIME_MIN").html());
+
+        // If Superuser, switch country flag
+        if (userLevel == 7)
+       	{
+        	if (lang_val == "0")
+        		$("#FACTORYCOUNTRY").html("00");
+        	else if (lang_val == "1") //eng
+                $("#FACTORYCOUNTRY").html("02");
+            else if (lang_val == "2") //it
+                $("#FACTORYCOUNTRY").html("01");
+       	}
+    }
+
+    $(document).bind("page.loaded", function() {
+        obj_init();
+        checkLithium();
+        setMCUtype();
+
+        /* Write the Category Header after 500ms. It takes time to replace all DOM variables, so we need this short delay */
+        var refreshIntervalId = setInterval(function(){
+	        $('#hCategoryName').empty();
+	        $('#hCategoryName').text(lng.lStatus);
+	        $('#hCategoryHeader').removeClass('hidden').show();
+	        clearInterval(refreshIntervalId);
+        }, 500);
+    });
+
+    $(document).bind("page.unload", function() {
+        $('#hCategoryHeader').addClass('hidden').hide();
+        pageObj.stopPageRefresh();
+    });
+</script>
+
+<div class="pagecontent hidden">
+    <div class="row">
+        <div class="span2 offset1"><div class="img_clip_icon_home"><p id="lStatus_houseConsumption"><img src="./img/all_images.gif"></p></div></div>
+        <div class="span2 offset1">
+
+               <div class="img_clip_icon_charge">
+                   <p id="lStatus_batteryCharge">
+                       <img src="./img/all_images.gif">
+                   </p>
+               </div>
+               <div class="charge_measure" id="lStatus_batteryCharge">
+                   <div class="chargeBalks">
+                       <div class="chargeBalk"></div>
+                       <div class="chargeBalk"></div>
+                       <div class="chargeBalk"></div>
+                       <div class="chargeBalk"></div>
+                       <div class="chargeBalk"></div>
+                   </div>
+               </div>
+        </div>
+        <div class="span2 offset1"><div class="img_clip_icon_grid_import"><p id="lStatus_gridImport"><img src="./img/all_images.gif"></p></div></div>
+    </div>
+
+    <div class="row">
+        <div class="span2 offset1 text-center labels"><p style="margin-left: -10px" id="HOMECONSUMPTION"></p></div>
+        <div class="span2 offset1 text-center labels"><p style="margin-left: -20px" id="BATTERYCHARGE"></p></div>
+        <div class="span2 offset1 text-center labels"><p style="margin-left: -30px" id="GRIDIMPORT"></p></div>
+    </div>
+
+    <div class="row ">
+        <div class="span2 offset1 text-center labels_value_status"><p id="GuiDataOverViewPowerHouseConsumption">*** kW</p></div>
+        <div class="span2 offset1 text-center labels_value_status"><p id="GuiDataOverViewPowerBatteryCharge">*** kW</p></div>
+        <div class="span2 offset1 text-center labels_value_status"><p id="GuiDataOverViewPowerGridImport" > *** kW</p></div>
+    </div>
+
+    <div class="row" style="margin-top: 30px;">
+        <div class="span2 offset1"><div class="img_clip_icon_pv"><p id="lStatus_pvGenerated"><img src="./img/all_images.gif"></p></div></div>
+        <div class="span2 offset1">
+
+               <div class="img_clip_icon_discharge">
+                   <p id="lStatus_batteryDischarge">
+                       <img src="./img/all_images.gif">
+                   </p>
+               </div>
+               <div class="charge_measure" id="lStatus_batteryDischarge">
+                   <div class="chargeBalks">
+                       <div class="dischargeBalk"></div>
+                       <div class="dischargeBalk"></div>
+                       <div class="dischargeBalk"></div>
+                       <div class="dischargeBalk"></div>
+                       <div class="dischargeBalk"></div>
+                   </div>
+               </div>
+        </div>
+        <div class="span2 offset1"><div class="img_clip_icon_grid_export"><p id="lStatus_gridExport"><img src="./img/all_images.gif"></p></div></div>
+    </div>
+
+    <div class="row">
+        <div class="span2 offset1 labels text-center"><p style="margin-left: -10px" id="PVGENERATED"></p></div>
+        <div class="span2 offset1 labels text-center"><p style="margin-left: -20px" id="BATTERYDISCHARGE"></p></div>
+        <div class="span2 offset1 labels text-center"><p style="margin-left: -30px" id="GRIDEXPORT"></p></div>
+    </div>
+
+    <div class="row">
+        <div class="span2 offset1 text-center labels_value_status"><p id="GuiDataOverViewPowerPVGenerated" >*** kW</p></div>
+        <div class="span2 offset1 text-center labels_value_status"><p id="GuiDataOverViewPowerBatteryDischarge">*** kW</p></div>
+        <div class="span2 offset1 text-center labels_value_status"><p id="GuiDataOverViewPowerGridExport" >*** kW</p></div>
+    </div>
+</div>
+
+<div class="pageinfo row">
+    <div class= "span6 offset2 text-center" ><strong id="lLoadPage" style="margin-top: 50px;"></strong></div>
+</div>
+
+<div class="hide">
+    <p id="ENERGYGUI_INVERTER_POWER"></p>
+    <p id="ENERGYGUI_BAT_DATA_POWER"></p>
+    <p id="ENERGYGUI_HOUSE_POW"></p>
+    <p id="ENERGYGUI_GRID_POW"></p>
+
+    <p id="ENERGYSTAT_MAINT_REQUIRED"></p>
+
+    <p id="ENERGYGUI_BAT_DATA_FUEL_CHARGE"></p>
+    <p id="ENERGYGUI_CHARGING_INFO"></p>
+    <p id="ENERGYGUI_BOOSTING_INFO"></p>
+    <p id="SYS_UPDATEUPDATE_AVAILABLE"></p>
+</div>

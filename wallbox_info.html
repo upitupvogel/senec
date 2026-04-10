@@ -1,0 +1,368 @@
+<script type="text/javascript">
+/** Prevent JSHint warning about supposingly unused functions. */
+/* exported set_limits */
+    var pageObj;
+
+    wallbox_hardware_name = {
+        0: "141215",
+        1: "160307",
+        2: "170725",
+        3: wallbox_unknown_hw_type
+    };
+
+    function singleUpdateCB()
+    {
+        // Show only activated devices
+        for (c = 0; c < 4; c++) {
+            if (htmlAsNumber('#WIZARDSETUP_NUMBER_WALLBOXES') > c)
+            {
+                $('.wallbox' + c).removeClass("hidden").show();
+                $('.pageinfo').addClass("hidden").hide();
+            }
+
+            $("#gui_wallbox_name" + c).html(wallbox_adress_name + " " + htmlAsNumber("#WIZARDSETUP_WALLBOX_IDS" + c));
+
+        }
+    }
+
+    function WallboxUpdateCB()
+    {
+        // Get Wallbox Data
+        for (c = 0; c < 4; c++) {
+
+            // If no communication error is active and wallbox is locked, overwrite with locked state
+            if(htmlAsNumber("#WALLBOXSTATE" + c) != 0xF4 && htmlAsNumber("#WALLBOXPROHIBIT_USAGE" + c) >= 1)
+            {
+                $("#gui_wallbox_state" + c).html(lng.lWbProhibited);
+            }
+            else
+            {
+                $("#gui_wallbox_state" + c).html(wallbox_state_name[htmlAsNumber("#WALLBOXSTATE" + c)]);
+            }
+
+            $("#gui_wallbox_hw_type" + c).html(wallbox_hardware_name[htmlAsNumber("#WALLBOXHW_TYPE" + c)]);
+            $("#gui_wallbox_revision" + c).html(htmlAsNumber("#WALLBOXMAJOR_REV" + c) + "." + htmlAsNumber("#WALLBOXMINOR_REV" + c));
+            if(htmlAsNumber("#WALLBOXSTATE" + c) === 0xF4)
+            {
+                $("#gui_wallbox_hw_type" + c).html(wallbox_unknown_hw_type);
+            }
+            $("#gui_wallbox_total_power" + c).html(parseFloat($('#WALLBOXAPPARENT_CHARGING_POWER' + c).html()).toFixed(0));
+            $("#gui_wallbox_l1_current" + c).html(parseFloat($('#WALLBOXL1_CHARGING_CURRENT' + c).html()).toFixed(1));
+            $("#gui_wallbox_l2_current" + c).html(parseFloat($('#WALLBOXL2_CHARGING_CURRENT' + c).html()).toFixed(1));
+            $("#gui_wallbox_l3_current" + c).html(parseFloat($('#WALLBOXL3_CHARGING_CURRENT' + c).html()).toFixed(1));
+            $("#gui_wallbox_max_current" + c).html(parseFloat($('#WALLBOXMAX_CHARGING_CURRENT_IC' + c).html()).toFixed(1));
+        }
+    }
+
+    function obj_init() {
+        pageObj = new senecPage(singleUpdateCB);
+        pageObj.add_json_object("WALLBOX");
+        pageObj.add_json_object("WIZARD");
+        pageObj.add_property_to_object("WIZARD", "SETUP_WALLBOX_IDS", "");
+        pageObj.add_property_to_object("WIZARD", "SETUP_NUMBER_WALLBOXES", "");
+        pageObj.add_property_to_object("WALLBOX", "HW_TYPE", "");
+        pageObj.add_property_to_object("WALLBOX", "MAJOR_REV", "");
+        pageObj.add_property_to_object("WALLBOX", "MINOR_REV", "");
+        pageObj.add_property_to_object("WALLBOX", "STATE", "");
+        pageObj.singlePageRefresh();
+
+        pageObj.reInitJSONObject();
+        pageObj = new senecPage(WallboxUpdateCB);
+        pageObj.add_json_object("WALLBOX");
+        pageObj.add_json_object("WIZARD");
+        pageObj.add_property_to_object("WIZARD", "SETUP_WALLBOX_IDS", "");
+        pageObj.add_property_to_object("WIZARD", "SETUP_NUMBER_WALLBOXES", "");
+        pageObj.add_property_to_object("WALLBOX", "HW_TYPE", "");
+        pageObj.add_property_to_object("WALLBOX", "APPARENT_CHARGING_POWER", "");
+        
+        pageObj.add_property_to_object("WALLBOX", "UTMP", "");
+        pageObj.add_property_to_object("WALLBOX", "L1_CHARGING_CURRENT", "");
+        pageObj.add_property_to_object("WALLBOX", "L2_CHARGING_CURRENT", "");
+        pageObj.add_property_to_object("WALLBOX", "L3_CHARGING_CURRENT", "");
+        pageObj.add_property_to_object("WALLBOX", "MAX_CHARGING_CURRENT_IC", "");
+        pageObj.add_property_to_object("WALLBOX", "PROHIBIT_USAGE", "");
+        pageObj.singlePageRefresh();
+        pageObj.startPageRefresh(1000);
+    }
+
+    $(document).bind("page.loaded", function() {
+        updateLanguage();
+        obj_init();
+    });
+
+    $(document).bind("page.unload", function() {
+        pageObj.stopPageRefresh();
+    });
+</script>
+
+<div class="wallbox0 hidden">
+    <div class="row">
+
+        <div class="row">
+            <div class="span10">
+                <div class="span3 labels_title"><p id="lWallboxTitle0"></p></div>
+                <div class="span7 labels_title"><p id="gui_wallbox_name0">********</p></div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="span3 labels" style="margin-bottom:3px"><p id="lWallboxState0"></p></div>
+            <div class="span7 labels_value_state" style="width: 695px;"><p id="gui_wallbox_state0">********</p></div>
+        </div>
+
+        <div class="row">
+            <div class="span3">
+                <div class="span3 labels"><p id="lWallboxCurrent0"></p></div>
+                <div class="span3 labels"><p id="lWallboxTotalPower0"></p></div>
+            </div>
+
+            <div class="span3" style="background: var(--sub-color);">
+                <div class="span1 labels_value_state" style="width: 65px;"><p id="gui_wallbox_l1_current0">****</p></div>
+                <div class="span1 labels_value_state" style="width: 65px;"><p id="gui_wallbox_l2_current0">****</p></div>
+                <div class="span1 labels_value_state" style="width: 65px;"><p id="gui_wallbox_l3_current0">****</p></div>
+                <div class="span1 labels_value_state"></div>
+                <div class="span2 labels_value_state" style="width: 65px; margin-left: -5px;"><p id="gui_wallbox_total_power0">****</p></div>
+            </div>
+
+            <div class="span3">
+                <div class="labels"><p id="lWallboxHardware0"></p></div>
+                <div class="labels"><p id="lWallboxRevision0"></p></div>
+            </div>
+
+            <div class="span1" style="background: var(--sub-color);">
+                <div class="labels_value_state"><p id="gui_wallbox_hw_type0"></p></div>
+                <div class="labels_value_state"><p id="gui_wallbox_revision0"></p></div>
+            </div>
+
+        </div>
+        <div class="row"><div class="span1" style="min-height: 0;"></div></div>
+        <div class="row">
+            <div class="span3">
+                <div class="span3 labels"><p id="lWallboxMaxCurrent0"></p></div>
+            </div>
+
+            <div class="span3" style="background: var(--sub-color);">
+                <div class="span1 labels_value_state"></div>
+                <div class="span2 labels_value_state" style="width: 65px; margin-left: -5px;"><p id="gui_wallbox_max_current0">****</p></div>
+            </div>
+
+        </div>
+      </div>
+</div>
+
+<div class="wallbox1 hidden">
+    <div class="row">
+
+        <div class="row">
+            <div class="span10">
+                <div class="span3 labels_title"><p id="lWallboxTitle1"></p></div>
+                <div class="span7 labels_title"><p id="gui_wallbox_name1">********</p></div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="span3 labels" style="margin-bottom:3px"><p id="lWallboxState1"></p></div>
+            <div class="span7 labels_value_state" style="width: 695px;"><p id="gui_wallbox_state1">********</p></div>
+        </div>
+
+        <div class="row">
+            <div class="span3">
+                <div class="span3 labels"><p id="lWallboxCurrent1"></p></div>
+                <div class="span3 labels"><p id="lWallboxTotalPower1"></p></div>
+            </div>
+
+            <div class="span3" style="background: var(--sub-color);">
+                <div class="span1 labels_value_state" style="width: 65px;"><p id="gui_wallbox_l1_current1">****</p></div>
+                <div class="span1 labels_value_state" style="width: 65px;"><p id="gui_wallbox_l2_current1">****</p></div>
+                <div class="span1 labels_value_state" style="width: 65px;"><p id="gui_wallbox_l3_current1">****</p></div>
+                <div class="span1 labels_value_state"></div>
+                <div class="span2 labels_value_state" style="width: 65px; margin-left: -5px;"><p id="gui_wallbox_total_power1">****</p></div>
+            </div>
+
+            <div class="span3">
+                <div class="labels"><p id="lWallboxHardware1"></p></div>
+                <div class="labels"><p id="lWallboxRevision1"></p></div>
+            </div>
+
+            <div class="span1" style="background: var(--sub-color);">
+                <div class="labels_value_state"><p id="gui_wallbox_hw_type1"></p></div>
+                <div class="labels_value_state"><p id="gui_wallbox_revision1"></p></div>
+            </div>
+
+        </div>
+        <div class="row"><div class="span1" style="min-height: 0;"></div></div>
+        <div class="row">
+            <div class="span3">
+                <div class="span3 labels"><p id="lWallboxMaxCurrent1"></p></div>
+            </div>
+
+            <div class="span3" style="background: var(--sub-color);">
+                <div class="span1 labels_value_state"></div>
+                <div class="span2 labels_value_state" style="width: 65px; margin-left: -5px;"><p id="gui_wallbox_max_current1">****</p></div>
+            </div>
+
+        </div>
+      </div>
+</div>
+
+<div class="wallbox2 hidden">
+    <div class="row">
+
+        <div class="row">
+            <div class="span10">
+                <div class="span3 labels_title"><p id="lWallboxTitle2"></p></div>
+                <div class="span7 labels_title"><p id="gui_wallbox_name2">********</p></div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="span3 labels" style="margin-bottom:3px"><p id="lWallboxState2"></p></div>
+            <div class="span7 labels_value_state" style="width: 695px;"><p id="gui_wallbox_state2">********</p></div>
+        </div>
+
+        <div class="row">
+            <div class="span3">
+                <div class="span3 labels"><p id="lWallboxCurrent2"></p></div>
+                <div class="span3 labels"><p id="lWallboxTotalPower2"></p></div>
+            </div>
+
+            <div class="span3" style="background: var(--sub-color);">
+                <div class="span1 labels_value_state" style="width: 65px;"><p id="gui_wallbox_l1_current2">****</p></div>
+                <div class="span1 labels_value_state" style="width: 65px;"><p id="gui_wallbox_l2_current2">****</p></div>
+                <div class="span1 labels_value_state" style="width: 65px;"><p id="gui_wallbox_l3_current2">****</p></div>
+                <div class="span1 labels_value_state"></div>
+                <div class="span2 labels_value_state" style="width: 65px; margin-left: -5px;"><p id="gui_wallbox_total_power2">****</p></div>
+            </div>
+
+            <div class="span3">
+                <div class="labels"><p id="lWallboxHardware2"></p></div>
+                <div class="labels"><p id="lWallboxRevision2"></p></div>
+            </div>
+
+            <div class="span1" style="background: var(--sub-color);">
+                <div class="labels_value_state"><p id="gui_wallbox_hw_type2"></p></div>
+                <div class="labels_value_state"><p id="gui_wallbox_revision2"></p></div>
+            </div>
+
+        </div>
+        <div class="row"><div class="span1" style="min-height: 0;"></div></div>
+        <div class="row">
+            <div class="span3">
+                <div class="span3 labels"><p id="lWallboxMaxCurrent2"></p></div>
+            </div>
+
+            <div class="span3" style="background: var(--sub-color);">
+                <div class="span1 labels_value_state"></div>
+                <div class="span2 labels_value_state" style="width: 65px; margin-left: -5px;"><p id="gui_wallbox_max_current2">****</p></div>
+            </div>
+
+        </div>
+      </div>
+</div>
+
+<div class="wallbox3 hidden">
+    <div class="row">
+
+        <div class="row">
+            <div class="span10">
+                <div class="span3 labels_title"><p id="lWallboxTitle3"></p></div>
+                <div class="span7 labels_title"><p id="gui_wallbox_name3">********</p></div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="span3 labels" style="margin-bottom:3px"><p id="lWallboxState3"></p></div>
+            <div class="span7 labels_value_state" style="width: 695px;"><p id="gui_wallbox_state3">********</p></div>
+        </div>
+
+        <div class="row">
+            <div class="span3">
+                <div class="span3 labels"><p id="lWallboxCurrent3"></p></div>
+                <div class="span3 labels"><p id="lWallboxTotalPower3"></p></div>
+            </div>
+
+            <div class="span3" style="background: var(--sub-color);">
+                <div class="span1 labels_value_state" style="width: 65px;"><p id="gui_wallbox_l1_current3">****</p></div>
+                <div class="span1 labels_value_state" style="width: 65px;"><p id="gui_wallbox_l2_current3">****</p></div>
+                <div class="span1 labels_value_state" style="width: 65px;"><p id="gui_wallbox_l3_current3">****</p></div>
+                <div class="span1 labels_value_state"></div>
+                <div class="span2 labels_value_state" style="width: 65px; margin-left: -5px;"><p id="gui_wallbox_total_power3">****</p></div>
+            </div>
+
+            <div class="span3">
+                <div class="labels"><p id="lWallboxHardware3"></p></div>
+                <div class="labels"><p id="lWallboxRevision3"></p></div>
+            </div>
+
+            <div class="span1" style="background: var(--sub-color);">
+                <div class="labels_value_state"><p id="gui_wallbox_hw_type3"></p></div>
+                <div class="labels_value_state"><p id="gui_wallbox_revision3"></p></div>
+            </div>
+
+        </div>
+        <div class="row"><div class="span1" style="min-height: 0;"></div></div>
+        <div class="row">
+            <div class="span3">
+                <div class="span3 labels"><p id="lWallboxMaxCurrent3"></p></div>
+            </div>
+
+            <div class="span3" style="background: var(--sub-color);">
+                <div class="span1 labels_value_state"></div>
+                <div class="span2 labels_value_state" style="width: 65px; margin-left: -5px;"><p id="gui_wallbox_max_current3">****</p></div>
+            </div>
+
+        </div>
+      </div>
+</div>
+
+<div class="pageinfo row">
+    <div class="span6 offset2 text-center"><strong id="lWallboxNoConfig" style="margin-top: 50px;"></strong></div>
+</div>
+
+<div class="hidden">
+    <p id="WIZARDSETUP_NUMBER_WALLBOXES"></p>
+    <p id="WIZARDSETUP_WALLBOX_IDS0"></p>
+    <p id="WIZARDSETUP_WALLBOX_IDS1"></p>
+    <p id="WIZARDSETUP_WALLBOX_IDS2"></p>
+    <p id="WIZARDSETUP_WALLBOX_IDS3"></p>
+    <p id="WALLBOXAPPARENT_CHARGING_POWER0"></p>
+    <p id="WALLBOXAPPARENT_CHARGING_POWER1"></p>
+    <p id="WALLBOXAPPARENT_CHARGING_POWER2"></p>
+    <p id="WALLBOXAPPARENT_CHARGING_POWER3"></p>
+    <p id="WALLBOXL1_CHARGING_CURRENT0"></p>
+    <p id="WALLBOXL2_CHARGING_CURRENT0"></p>
+    <p id="WALLBOXL3_CHARGING_CURRENT0"></p>
+    <p id="WALLBOXL1_CHARGING_CURRENT1"></p>
+    <p id="WALLBOXL2_CHARGING_CURRENT1"></p>
+    <p id="WALLBOXL3_CHARGING_CURRENT1"></p>
+    <p id="WALLBOXL1_CHARGING_CURRENT2"></p>
+    <p id="WALLBOXL2_CHARGING_CURRENT2"></p>
+    <p id="WALLBOXL3_CHARGING_CURRENT2"></p>
+    <p id="WALLBOXL1_CHARGING_CURRENT3"></p>
+    <p id="WALLBOXL2_CHARGING_CURRENT3"></p>
+    <p id="WALLBOXL3_CHARGING_CURRENT3"></p>
+    <p id="WALLBOXSTATE0"></p>
+    <p id="WALLBOXSTATE1"></p>
+    <p id="WALLBOXSTATE2"></p>
+    <p id="WALLBOXSTATE3"></p>
+    <p id="WALLBOXHW_TYPE0"></p>
+    <p id="WALLBOXHW_TYPE1"></p>
+    <p id="WALLBOXHW_TYPE2"></p>
+    <p id="WALLBOXHW_TYPE3"></p>
+    <p id="WALLBOXMAJOR_REV0"></p>
+    <p id="WALLBOXMAJOR_REV1"></p>
+    <p id="WALLBOXMAJOR_REV2"></p>
+    <p id="WALLBOXMAJOR_REV3"></p>
+    <p id="WALLBOXMINOR_REV0"></p>
+    <p id="WALLBOXMINOR_REV1"></p>
+    <p id="WALLBOXMINOR_REV2"></p>
+    <p id="WALLBOXMINOR_REV3"></p>
+    <p id="WALLBOXMAX_CHARGING_CURRENT_IC0"></p>
+    <p id="WALLBOXMAX_CHARGING_CURRENT_IC1"></p>
+    <p id="WALLBOXMAX_CHARGING_CURRENT_IC2"></p>
+    <p id="WALLBOXMAX_CHARGING_CURRENT_IC3"></p>
+    <p id="WALLBOXPROHIBIT_USAGE0"></p>
+    <p id="WALLBOXPROHIBIT_USAGE1"></p>
+    <p id="WALLBOXPROHIBIT_USAGE2"></p>
+    <p id="WALLBOXPROHIBIT_USAGE3"></p>
+</div>
