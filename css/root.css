@@ -1,0 +1,9 @@
+:root{
+/* 	SENEC */
+     --main-color: #00a1e0;
+     --error-color: #9f1c23;
+     --sub-color: #666666;
+
+/* USAGE */
+/*     var(--main-color) */
+}

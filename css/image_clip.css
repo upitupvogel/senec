@@ -1,0 +1,333 @@
+.img_clip_pu1 {
+  position: absolute;
+  clip: rect(0,73px,73px,0);
+}
+
+img {
+  max-width: none;
+  background-color: var(--main-color);
+}
+
+/* stat0.html */
+
+.img_clip_icon_home {
+  width: 100px;
+  height: 100px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.img_clip_icon_home img {
+  margin: 0 0 0 0;
+}
+
+.img_clip_icon_charge {
+  width: 100px;
+  height: 100px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.img_clip_icon_charge img {
+  margin: 0 0 0 -102px;
+}
+
+.img_clip_icon_grid_import {
+  width: 100px;
+  height: 100px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.img_clip_icon_grid_import img {
+  margin: 0 0 0 -204px;
+}
+
+.img_clip_icon_pv {
+  width: 100px;
+  height: 100px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.img_clip_icon_pv img {
+  margin: -102px 0 0 0;
+}
+
+.img_clip_icon_discharge {
+  width: 100px;
+  height: 100px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.img_clip_icon_discharge img {
+  margin: -102px 0 0 -102px;
+}
+
+.img_clip_icon_grid_export {
+  width: 100px;
+  height: 100px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.img_clip_icon_grid_export img {
+  margin: -102px 0 0 -204px;
+}
+
+/* ksetup.html */
+
+.img_clip_icon_tools_50px {
+  width: 50px;
+  height: 50px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.img_clip_icon_tools_50px img {
+  width: 305px;
+  /* 50% of all_images.gif*/
+  height: 254px;
+  margin: -153px 0 0 0;
+}
+
+.img_clip_icon_econamic_grid_50px {
+  width: 50px;
+  height: 50px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.img_clip_icon_econamic_grid_50px img {
+  width: 305px;
+  /* 50% of all_images.gif*/
+  height: 254px;
+  margin: -102px 0 0 -51px;
+}
+
+.img_clip_icon_wizard_50px {
+  width: 50px;
+  height: 50px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.img_clip_icon_wizard_50px img {
+  width: 305px;
+  /* 50% of all_images.gif*/
+  height: 254px;
+  margin: -102px 0 0 0;
+}
+
+.img_clip_icon_gridparamter {
+  width: 50px;
+  height: 50px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.img_clip_icon_gridparamter img {
+  width: 305px;
+  /* 50% of all_images.gif*/
+  height: 254px;
+  margin: -204px 0 0 -193px;
+}
+
+.img_clip_icon_charge_50px {
+  width: 50px;
+  height: 50px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.img_clip_icon_charge_50px img {
+  margin: -104px 0 0 -358px;
+}
+
+.img_clip_icon_discharge_50px {
+  width: 50px;
+  height: 50px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.img_clip_icon_discharge_50px img {
+  margin: -104px 0 0 -306px;
+}
+
+.img_clip_icon_wartungsladung_50px {
+  width: 50px;
+  height: 50px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.img_clip_icon_wartungsladung_50px img {
+  width: 305px;
+  /* 50% of all_images.gif*/
+  height: 254px;
+  margin: -153px 0 0 -204px;
+}
+
+/* Language Flags */
+
+.img_clip_icon_ger_flag {
+  width: 25px;
+  height: 20px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.img_clip_icon_ger_flag img {
+  margin: -22px 0 0 -461px;
+}
+
+.img_clip_icon_it_flag {
+  width: 25px;
+  height: 20px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.img_clip_icon_it_flag img {
+  margin: 0 0 0 -461px;
+}
+
+.img_clip_icon_eng_flag {
+  width: 25px;
+  height: 20px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.img_clip_icon_eng_flag img {
+  margin: -44px 0 0 -461px;
+}
+
+/* AccuTest.html */
+
+.img_clip_icon_accu_test {
+  width: 100px;
+  height: 100px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.img_clip_icon_accu_test img {
+  margin: -204px 0 0 -510px;
+}
+
+/* Konfiguration_AccuService.html */
+
+.img_clip_icon_fullcharge {
+  width: 100px;
+  height: 100px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.img_clip_icon_fullcharge img {
+  margin: -204px 0 0 -204px;
+}
+
+.img_clip_icon_dischargeallow {
+  width: 100px;
+  height: 100px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.img_clip_icon_dischargeallow img {
+  margin: -306px 0 0 -102px;
+}
+
+.img_clip_icon_sulfatcharge {
+  width: 100px;
+  height: 100px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.img_clip_icon_sulfatcharge img {
+  margin: -306px 0 0 -306px;
+}
+
+.img_clip_icon_cellballancing {
+  width: 100px;
+  height: 100px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.img_clip_icon_cellballancing img {
+  margin: -204px 0 0 -306px;
+}
+
+.img_clip_icon_wartungsladung {
+  width: 100px;
+  height: 100px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.img_clip_icon_wartungsladung img {
+  margin: -306px 0 0 -408px;
+}
+
+.img_clip_icon_wasser_nachfuellen {
+  width: 100px;
+  height: 100px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.img_clip_icon_wasser_nachfuellen img {
+  margin: -204px 0 0 -408px;
+}
+
+.img_clip_icon_filterwechsel {
+  width: 100px;
+  height: 100px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.img_clip_icon_filterwechsel img {
+  margin: -306px 0 0 -204px;
+}
+
+.img_clip_icon_modultausch {
+  width: 100px;
+  height: 100px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.img_clip_icon_modultausch img {
+  margin: -408px 0 0 -284px;
+}
+
+/* wizard */
+
+.img_clip_icon_singlephase {
+  width: 140px;
+  height: 100px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.img_clip_icon_singlephase img {
+  margin: -408px 0 0 -142px;
+}
+
+.img_clip_icon_multiphase {
+  width: 140px;
+  height: 100px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.img_clip_icon_multiphase img {
+  margin: -408px 0 0 0;
+}

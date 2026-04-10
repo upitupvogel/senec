@@ -1,0 +1,498 @@
+.navbar_active {
+  background-color: var(--sub-color);
+  color: #ffffff;
+  font-family: arial;
+  font-weight: 700;
+}
+
+.navbar_normal {
+  background-color: #ffffff;
+  color: var(--sub-color);
+  font-family: arial;
+  font-weight: 700;
+}
+
+.navbar_main {
+  height: 25px;
+}
+
+.navbar-button {
+  cursor: pointer;
+}
+
+.img-button {
+  cursor: pointer;
+}
+
+.subnavbar_main {
+  height: 25px;
+}
+
+.category-header {
+  background-color: var(--main-color);
+  color: #ffffff;
+  height: 40px;
+  margin-top: -6px;
+}
+
+.labels_value_status {
+  font-weight: 700;
+  font-family: arial;
+  font-size: 12px;
+  margin-bottom: 1px;
+  height: 20px;
+  background-color: var(--sub-color);
+  color: #ffffff;
+}
+
+.labels {
+  font-weight: 700;
+  font-family: arial;
+  font-size: 11px;
+  height: 20px;
+  padding-left: 5px;
+}
+
+.labels_value {
+  background-color: var(--sub-color);
+  color: #ffffff;
+  height: 20px;
+  position: relative;
+  padding-left: 5px;
+}
+
+.labels_value_state {
+  background-color: var(--sub-color);
+  color: #ffffff;
+  height: 20px;
+  font-weight: 700;
+  font-family: arial;
+  font-size: 11px;
+  position: relative;
+  padding-left: 5px;
+}
+
+.labels_title {
+  background-color: var(--main-color);
+  color: #ffffff;
+  height: 20px;
+  margin-top: 10px;
+}
+
+.labels_value_info {
+  background-color: var(--sub-color);
+  color: #ffffff;
+  height: 20px;
+  width: 140px;
+  position: relative;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/*  27.08.2014 UI CHANGES-------------------*/
+
+.modal-body#pnWizardModalBody {
+  height: 440px !important;
+}
+
+.modal-body#pnWizardEconamicGridModalBody {
+  height: 440px !important;
+}
+
+.controls > input[type=text] {
+  height: auto;
+}
+
+.errorField {
+  border: solid 1px var(--error-color) !important;
+  border-radius: 5px;
+}
+
+.errorLabel {
+  color: var(--error-color) !important;
+}
+
+.okLabel {
+  color:green;
+}
+
+/* 27.08.2014 UI CHANGES ============================================================ */
+
+.txt-align-r {
+  text-align: right;
+}
+
+.battery_content {
+  margin-top: 100px;
+  margin-bottom: 160px;
+}
+
+.offsetmin {
+  margin-left: 30px;
+}
+
+.btn-wizard {
+  /* background:var(--main-color);*/
+}
+
+.input-mini-wizard {
+  width: 50px;
+}
+
+.select-mini-wizard {
+  width: 64px;
+}
+
+/*Progress bar*/
+
+.visuallyhidden {
+  display: none;
+}
+
+.wizard-progress {
+  list-style: none;
+  list-style-image: none;
+  margin: 0;
+  padding: 0;
+  margin-top: 20px;
+  float: left;
+  white-space: nowrap;
+}
+
+.wizard-progress li {
+  float: left;
+  margin-right: 43px;
+  /*50px*/
+  text-align: center;
+  position: relative;
+  width: 80px;
+  /*100px*/
+}
+
+.wizard-progress .step-name {
+  display: table-cell;
+  height: 32px;
+  vertical-align: bottom;
+  text-align: center;
+  width: 80px;
+  /*100px*/
+  font-size: 12px;
+}
+
+.wizard-progress .step-name-wrapper {
+  display: table-cell;
+  height: 100%;
+  vertical-align: bottom;
+}
+
+.wizard-progress .step-num {
+  font-size: 14px;
+  font-weight: bold;
+  border: 3px solid #000;
+  border-radius: 50%;
+  /*50%*/
+  width: 18px;
+  /*18px*/
+  display: inline-block;
+  margin-top: 10px;
+}
+
+.wizard-progress .step-num:after {
+  content: "";
+  display: block;
+  background: #000;
+  height: 5px;
+  width: 80px;
+  /*130px*/
+  position: absolute;
+  bottom: 10px;
+  left: 60px;
+}
+
+.wizard-progress li:last-of-type .step-num:after {
+  display: none;
+}
+
+.wizard-progress .active-step .step-num {
+  background-color: var(--main-color);
+}
+
+/* -------------------------------------------------- */
+
+.modal-header {
+  border-bottom: solid 1px var(--main-color);
+}
+
+/* Extended-Settings-Styles ------------------------- */
+
+.wizard-extended-settings-container {
+  position: relative;
+  float: left;
+  clear: both;
+  margin-top: 25px;
+  width: 100%;
+  height: auto;
+}
+
+/* Extended-Settings Title */
+
+.wizard-extended-settings-container-title {
+  font-weight: bold;
+  text-align: center;
+  margin-top: 4px;
+  margin-right: 6px;
+  position: relative;
+  float: left;
+  font-size: 1.2em;
+}
+
+.wizard-extended-settings-head-checkbox {
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+  position: relative;
+  float: left;
+}
+
+.wizard-config-mode-description {
+  margin-left: 25px;
+}
+
+/* --------------------- */
+
+.wizard-check-internet-connection {
+  margin-top: 40px;
+  font-size: 1em;
+}
+
+.wizard-internet-confirm {
+  margin-left: 40px;
+}
+
+.wizard-check-internet-connection-status {
+  padding-left: 9px;
+}
+
+.wizard-check-internet-connection-positive {
+  color: green;
+}
+
+.wizard-check-internet-connection-negative {
+  color: var(--main-color);
+}
+
+.wizard-check-internet-connection-pn {
+  display: none;
+}
+
+.wizard-no-internet-hint {
+  color: var(--main-color);
+  display: none;
+  padding: 5px 9px 0px 15px;
+}
+
+.wizard-internet-ok-hint {
+  color: green;
+  display: none;
+  padding: 5px 9px 0px 15px;
+}
+
+/*  -------------------------------------------------------*/
+
+.wizard-network-senec-ip {
+  margin-top: 10px;
+}
+
+.wizard-network-options {
+  margin-top: 10px;
+}
+
+/*  -------------------------------------------------------*/
+
+.has-tooltip {
+  cursor: help;
+}
+
+/* ------------------------------------------------------- */
+
+.wizard-installation-registration-controls {
+  position: relative;
+  float: left;
+  margin-left: 4%;
+  width: 92%;
+}
+
+.wizard-installation-registration-controls > .checkbox {
+  position: relative;
+  float: left;
+  margin-left: 4%;
+  width: 92%;
+}
+
+.wizard-installation-registration-controls > iframe {
+  border: none;
+  margin-top: 3px;
+  height: 85px;
+  width: 94%;
+  left: 3%;
+  overflow-y: hidden;
+}
+
+.wizard-installation-registration-controls-data {
+  margin-left: 40px;
+  margin-bottom: 10px;
+}
+
+.wizard-installation-registration-controls-data > table td {
+  padding: 5px 9px;
+}
+
+.wizard-installation-registration-controls-data > table td:nth-child(2) {
+  font-weight: bold;
+}
+
+#pnWizardAccuPhotoFileUploadContainer {
+  margin: 5px 0px 5px 20px;
+}
+
+/* filter: for ui-components which shouldnt be displayed for the user  ------------------ */
+
+.d-hide {
+  display: none;
+}
+
+.wizard-check-result {
+  clear: both;
+  display: none;
+  margin: 5px 5px 9px 25px;
+}
+
+/* ============================================================ */
+
+.control-group {
+  clear: both;
+}
+
+/*akku charge*/
+
+.charge_measure {
+  position: absolute;
+}
+
+.charge_measure .chargeBalk {
+  /*background: var(--sub-color);*/
+  background: #fff;
+  margin-bottom: 2px;
+  margin-top: 2px;
+  margin-left: 80px;
+  width: 26px;
+  height: 11px;
+  text-align: center;
+}
+
+.charge_measure .dischargeBalk {
+  /*background: var(--sub-color);*/
+  background: #fff;
+  margin-bottom: 2px;
+  margin-top: 2px;
+  margin-left: 80px;
+  width: 26px;
+  height: 11px;
+  text-align: center;
+}
+
+.charge_measure .chargeBalkActive {
+  background: var(--main-color);
+}
+
+.charge_measure .chargeBalks {
+  margin-top: -80px;
+}
+
+.header-category-name {
+  margin-left: 10px;
+  /* margin-top: 10px;*/
+  /* font-weight:600;*/
+  /* font-size:16px;*/
+}
+
+.header-system-state {
+  margin-top: 10px;
+  margin-right: 5px;
+  font-weight: 800;
+  font-size: 12px;
+}
+
+/* 25.11.2014: ECONAMIC-GRID ============================== */
+
+.successLabel {
+  color: #008c00 !important;
+}
+
+.wizardEconamicGrid-check-result {
+  clear: both;
+  display: none;
+  margin: 10px 5px 14px 25px;
+}
+
+/* ------------------------------- */
+
+#pnWizardEconamicGridCarousel .controls {
+  margin: 7px 0px 7px 0px !important;
+}
+
+#pnWizardEconamicGridCarousel .control-label {
+  margin-right: 9px !important;
+}
+
+#pnWizardEconamicGridCarousel .form-horizontal-container {
+  margin-left: 25px;
+  margin-right: 25px;
+}
+
+#btnWizardEconamicGridStartTest {
+  position: relative;
+  float: left;
+  left: 45%;
+}
+
+.wizardEconamicGrid-radio input[type=radio] {
+  height: 100%;
+  margin-left: -20px;
+}
+
+.wizardEconamicGrid-radio {
+  display: block;
+  padding-left: 20px;
+}
+
+.wizardEconamicGrid-check-internet-connection-negative {
+  color: var(--main-color);
+}
+
+.wizardEconamicGrid-check-internet-connection-positive {
+  color: green;
+}
+
+p.userLevel {
+    font-size: 12;
+    font-weight: 700;
+}
+
+table.grid_parameter_assistant > tbody > tr:first-child td {
+    min-width: 200px;
+}
+
+table.grid_parameter_assistant > tbody > tr > td > h6#lAUPowerRateLimits {
+    margin-top: 15px;
+}
+
+
+/* ====== Samsung battery wizard ============================== */
+#pnWizardSamsungModalBody {
+    padding: 25px;
+}
+
+#SamsungWizardScanning {
+    text-align: center;
+}
